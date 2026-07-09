@@ -1,0 +1,68 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CheckoutIsland from '../../components/CheckoutIsland.tsx';
+
+const { id } = Astro.params;
+
+let skill = null;
+try {
+	const res = await fetch(`http://localhost:8000/api/skills/${id}`);
+	if (res.ok) {
+		skill = await res.json();
+	}
+} catch (e) {
+	console.error(e);
+}
+
+// In Astro, to enable SSR for dynamic routes without getStaticPaths, we must have `output: 'server'` configured, but for now we'll just mock it or assume it's fetched dynamically if running in dev.
+---
+
+<Layout title={skill ? `${skill.title} | Agensi Competitor` : "Skill Not Found"}>
+	{!skill ? (
+		<div style="text-align: center; padding: 4rem;">
+			<h2>Skill not found</h2>
+			<a href="/browse" class="btn btn-primary" style="margin-top: 1rem;">Back to Browse</a>
+		</div>
+	) : (
+		<div style="max-width: 800px; margin: 0 auto;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+				<div>
+					<h1 style="margin-bottom: 0.5rem; font-size: 2.5rem;">{skill.title}</h1>
+					<div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+						<span class="badge">{skill.category}</span>
+						{skill.scan_summary_json.passed ? (
+							<span class="badge success">🛡️ Safe to run</span>
+						) : (
+							<span class="badge warning">⚠️ Pending Security Scan</span>
+						)}
+					</div>
+				</div>
+			</div>
+			
+			<div class="glass-card" style="margin-bottom: 2rem;">
+				<h2>Description</h2>
+				<p style="color: var(--text-secondary); white-space: pre-wrap;">{skill.description}</p>
+			</div>
+			
+			<div class="glass-card" style="margin-bottom: 2rem;">
+				<h2>Security Scan Summary (Tier 1)</h2>
+				<ul style="color: var(--text-secondary); margin-left: 1.5rem; margin-top: 1rem;">
+					<li><strong>Status:</strong> {skill.scan_summary_json.passed ? 'Passed' : 'Flagged'}</li>
+					<li><strong>Checks Performed:</strong> OWASP LLM01, LLM06, LLM04</li>
+					{skill.scan_summary_json.issues && skill.scan_summary_json.issues.length > 0 && (
+						<li style="color: #ef4444; margin-top: 0.5rem;">
+							<strong>Issues Found:</strong>
+							<ul>
+								{skill.scan_summary_json.issues.map((i: any) => (
+									<li>{i.rule}: {i.description}</li>
+								))}
+							</ul>
+						</li>
+					)}
+				</ul>
+			</div>
+
+			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_usd} />
+		</div>
+	)}
+</Layout>

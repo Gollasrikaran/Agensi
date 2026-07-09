@@ -1,0 +1,32 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+<Layout title="Payouts | Seller Dashboard">
+	<div style="max-width: 1000px; margin: 0 auto;">
+		<div style="display: flex; gap: 1rem; margin-bottom: 2rem; align-items: center;">
+			<a href="/dashboard/seller" class="btn btn-secondary">&larr; Back</a>
+			<h1 style="margin: 0;">Payout History & Status</h1>
+		</div>
+		
+		<div class="glass-card">
+			<table style="width: 100%; border-collapse: collapse; text-align: left;">
+				<thead>
+					<tr style="border-bottom: 1px solid var(--border-color);">
+						<th style="padding: 1rem;">Date</th>
+						<th style="padding: 1rem;">Amount</th>
+						<th style="padding: 1rem;">Provider</th>
+						<th style="padding: 1rem;">Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="padding: 1rem; color: var(--text-secondary);">No payouts yet.</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</Layout>

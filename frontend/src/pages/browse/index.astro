@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Fetch skills from the backend
+const res = await fetch('http://localhost:8000/api/skills');
+const skills = await res.json();
+---
+
+<Layout title="Browse Skills | Agensi Competitor">
+	<h2>Browse Available AI Agent Skills</h2>
+	<div class="grid">
+		{skills.map((skill: any) => (
+			<a href={`/skill/${skill.id}`} class="glass-card">
+				<div style="display: flex; justify-content: space-between; align-items: start;">
+					<h3>{skill.title}</h3>
+					<span class="badge" style="margin-bottom: 1rem;">${skill.base_price_usd.toFixed(2)}</span>
+				</div>
+				<p style="color: var(--text-secondary); margin-bottom: 1rem;">{skill.description}</p>
+				<div style="display: flex; gap: 0.5rem;">
+					{skill.scan_summary_json.passed ? (
+						<span class="badge success">Verified Safe</span>
+					) : (
+						<span class="badge warning">Pending Scan</span>
+					)}
+					<span class="badge">{skill.category}</span>
+				</div>
+			</a>
+		))}
+	</div>
+</Layout>

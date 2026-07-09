@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AuthForm from '../components/AuthForm.tsx';
+---
+<Layout title="Login | Agensi Competitor">
+	<div style="max-width: 400px; margin: 4rem auto;">
+		<div class="glass-card">
+			<h1 style="text-align: center; margin-bottom: 2rem;">Welcome Back</h1>
+			
+			<AuthForm client:load type="login" />
+			
+			<p style="text-align: center; margin-top: 2rem; color: var(--text-secondary);">
+				Don't have an account? <a href="/signup" style="color: var(--accent-color);">Sign Up</a>
+			</p>
+		</div>
+	</div>
+</Layout>

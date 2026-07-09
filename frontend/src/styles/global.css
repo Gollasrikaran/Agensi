@@ -1,0 +1,233 @@
+:root {
+	--bg-primary: #0a0f18;
+	--bg-secondary: #131c2b;
+	--text-primary: #e2e8f0;
+	--text-secondary: #94a3b8;
+	--accent-color: #6366f1;
+	--accent-hover: #4f46e5;
+	--accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+	--border-color: rgba(255, 255, 255, 0.1);
+	--glass-bg: rgba(19, 28, 43, 0.7);
+	--font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+	font-family: var(--font-primary);
+	line-height: 1.6;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+	font-weight: 700;
+	line-height: 1.2;
+	margin-bottom: 1rem;
+}
+
+h1 {
+	font-size: 3rem;
+	background: var(--accent-gradient);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+a {
+	color: var(--text-primary);
+	text-decoration: none;
+	transition: color 0.2s;
+}
+
+a:hover {
+	color: var(--accent-color);
+}
+
+/* Navbar */
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid var(--border-color);
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+.navbar .logo a {
+	font-size: 1.5rem;
+	font-weight: 800;
+	letter-spacing: -0.5px;
+}
+
+.navbar .highlight {
+	color: var(--accent-color);
+}
+
+.navbar nav {
+	display: flex;
+	gap: 2rem;
+}
+
+.navbar nav a {
+	font-weight: 500;
+}
+
+.auth-buttons {
+	display: flex;
+	gap: 1rem;
+}
+
+/* Buttons */
+.btn {
+	padding: 0.5rem 1.5rem;
+	border-radius: 9999px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: none;
+	display: inline-block;
+	text-align: center;
+}
+
+.btn-primary {
+	background: var(--accent-gradient);
+	color: white !important;
+	box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.btn-secondary {
+	background: transparent;
+	border: 1px solid var(--border-color);
+	color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+	background: rgba(255, 255, 255, 0.05);
+}
+
+/* Main Content Layout */
+main {
+	flex: 1;
+	padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	width: 100%;
+}
+
+/* Hero Section */
+.hero {
+	text-align: center;
+	padding: 6rem 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.hero p {
+	font-size: 1.25rem;
+	color: var(--text-secondary);
+	max-width: 600px;
+}
+
+/* Glass Cards */
+.glass-card {
+	background: var(--glass-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 16px;
+	padding: 2rem;
+	backdrop-filter: blur(10px);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Grid Layouts */
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 2rem;
+	margin-top: 2rem;
+}
+
+/* Tags & Badges */
+.badge {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	background: rgba(99, 102, 241, 0.1);
+	color: #818cf8;
+	border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badge.success {
+	background: rgba(16, 185, 129, 0.1);
+	color: #34d399;
+	border-color: rgba(16, 185, 129, 0.2);
+}
+
+.badge.warning {
+	background: rgba(245, 158, 11, 0.1);
+	color: #fbbf24;
+	border-color: rgba(245, 158, 11, 0.2);
+}
+
+/* Forms */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.form-group label {
+	font-weight: 500;
+	color: var(--text-secondary);
+}
+
+.form-group input, .form-group textarea, .form-group select {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	color: var(--text-primary);
+	font-family: inherit;
+	transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+	outline: none;
+	border-color: var(--accent-color);
+}
+
+/* Footer */
+footer {
+	text-align: center;
+	padding: 2rem;
+	border-top: 1px solid var(--border-color);
+	color: var(--text-secondary);
+	margin-top: auto;
+}

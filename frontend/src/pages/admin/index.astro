@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdminDashboardIsland from '../../components/AdminDashboardIsland.tsx';
+---
+<Layout title="Admin Dashboard | Agensi Competitor">
+	<div style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+		<h1 style="margin-bottom: 2rem;">Admin Control Panel</h1>
+		<AdminDashboardIsland client:load />
+	</div>
+</Layout>

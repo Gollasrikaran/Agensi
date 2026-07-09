@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Disputes | Agensi Competitor">
+	<div style="max-width: 600px; margin: 2rem auto;">
+		<div class="glass-card">
+			<h1 style="margin-bottom: 2rem;">File a Dispute</h1>
+			<p style="color: var(--text-secondary); margin-bottom: 2rem;">If a skill you purchased doesn't work as advertised, you can file a dispute here. We review all disputes and offer refunds where appropriate.</p>
+			
+			<div class="form-group">
+				<label>Purchase ID</label>
+				<input type="text" placeholder="pur-12345" />
+			</div>
+			
+			<div class="form-group">
+				<label>Reason for Dispute</label>
+				<textarea rows="4" placeholder="Please describe the issue in detail..."></textarea>
+			</div>
+			
+			<button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Submit Dispute</button>
+		</div>
+	</div>
+</Layout>
