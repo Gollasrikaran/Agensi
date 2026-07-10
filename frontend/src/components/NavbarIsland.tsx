@@ -34,7 +34,7 @@ export default function NavbarIsland() {
         .from('admins')
         .select('id')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (data) setIsAdmin(true);
     } catch (err) {

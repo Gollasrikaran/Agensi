@@ -1,19 +1,10 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import BuyerDashboardIsland from '../../../components/BuyerDashboardIsland.tsx';
 ---
 <Layout title="Buyer Dashboard | Agensi Competitor">
 	<div style="max-width: 1000px; margin: 0 auto;">
 		<h1 style="margin-bottom: 2rem;">Buyer Dashboard</h1>
-		
-		<div class="glass-card" style="margin-bottom: 2rem;">
-			<h2>Your Purchased Skills</h2>
-			<p style="color: var(--text-secondary); margin-top: 0.5rem;">You have not purchased any skills yet.</p>
-		</div>
-		
-		<div class="glass-card">
-			<h2>Disputes & Refunds</h2>
-			<p style="color: var(--text-secondary); margin-top: 0.5rem;">No active disputes.</p>
-			<a href="/disputes" class="btn btn-secondary" style="margin-top: 1rem;">Open a Dispute</a>
-		</div>
+		<BuyerDashboardIsland client:load />
 	</div>
 </Layout>

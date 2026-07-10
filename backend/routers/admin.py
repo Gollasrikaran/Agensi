@@ -38,3 +38,21 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+
+class StatusUpdateRequest(BaseModel):
+    status: str
+
+@router.post("/skills/{skill_id}/status")
+def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = Depends(verify_admin)):
+    if req.status not in ["approved", "rejected", "pending"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+        
+    try:
+        res = supabase.table("skills").update({"moderation_status": req.status}).eq("id", skill_id).execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+        return {"message": f"Skill status updated to {req.status}", "skill": res.data[0]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,30 +1,13 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import SellerDashboardIsland from '../../../components/SellerDashboardIsland.tsx';
 ---
 <Layout title="Seller Dashboard | Agensi Competitor">
 	<div style="max-width: 1000px; margin: 0 auto;">
 		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-			<h1>Seller Dashboard</h1>
+			<h1 style="margin: 0;">Seller Dashboard</h1>
 			<a href="/sell" class="btn btn-primary">Upload New Skill</a>
 		</div>
-		
-		<div class="grid">
-			<div class="glass-card">
-				<h3>Total Earnings</h3>
-				<p style="font-size: 2.5rem; color: var(--accent-color); font-weight: bold;">$1,250.00</p>
-			</div>
-			<div class="glass-card">
-				<h3>Active Listings</h3>
-				<p style="font-size: 2.5rem; font-weight: bold;">4</p>
-			</div>
-			<div class="glass-card">
-				<h3>Pending Scans</h3>
-				<p style="font-size: 2.5rem; font-weight: bold;">1</p>
-			</div>
-		</div>
-
-		<div style="margin-top: 2rem;">
-			<a href="/dashboard/seller/payouts" style="color: var(--accent-color); text-decoration: underline;">View Payout History & Status &rarr;</a>
-		</div>
+		<SellerDashboardIsland client:load />
 	</div>
 </Layout>

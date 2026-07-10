@@ -27,12 +27,25 @@ export default function AuthForm({ type }: AuthFormProps) {
         if (error) throw error;
         setSuccess('Account created successfully! You can now log in.');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        window.location.href = '/dashboard/seller'; // Redirect to dashboard on success
+        
+        // Check if user is an admin
+        const userId = data.user.id;
+        const { data: adminData } = await supabase
+          .from('admins')
+          .select('id')
+          .eq('id', userId)
+          .maybeSingle();
+          
+        if (adminData) {
+          window.location.href = '/admin'; // Redirect admin to admin panel
+        } else {
+          window.location.href = '/dashboard/buyer'; // Redirect user to buyer dashboard
+        }
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during authentication.');

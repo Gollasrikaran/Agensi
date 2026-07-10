@@ -6,11 +6,12 @@ from typing import List, Optional
 from security_scanner import scan_skill
 from payments import create_payment_intent
 from auth import get_current_user, supabase
-from routers import admin
+from routers import admin, users
 
 app = FastAPI(title="Agensi Competitor AI Agent Skill Marketplace")
 
 app.include_router(admin.router)
+app.include_router(users.router)
 
 app.add_middleware(
     CORSMiddleware,
