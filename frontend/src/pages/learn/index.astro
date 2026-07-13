@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const posts = [
+  {
+    title: "How to prevent Prompt Injections in your Agents",
+    slug: "preventing-prompt-injections",
+    description: "Learn the fundamentals of securing your AI agent skills against malicious user inputs and jailbreaks before uploading to Bodhic AI.",
+    date: "July 12, 2026"
+  },
+  {
+    title: "Maximizing Your Earnings with Monthly Subscriptions",
+    slug: "maximizing-earnings-subscriptions",
+    description: "Why switching your skills from a one-time purchase to a monthly subscription can 10x your creator revenue.",
+    date: "July 10, 2026"
+  },
+  {
+    title: "Winning the Monthly Creator Contest",
+    slug: "winning-creator-contest",
+    description: "Strategies to optimize your skill listing, gain upvotes, and take home the $250 monthly Bodhic AI prize.",
+    date: "July 8, 2026"
+  }
+];
+---
+
+<Layout 
+	title="Learning Center — Bodhic AI"
+	description="Read tutorials and guides on prompt engineering, AI agent security, and maximizing your earnings on Bodhic AI."
+>
+	<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">learning center</span>
+			<h1 style="font-size: 48px; margin-bottom: var(--space-xs); letter-spacing: -1px;">
+				Master <span class="gradient-text">Prompt Engineering</span>
+			</h1>
+			<p style="color: var(--body); font-size: 18px; max-width: 600px;">
+				Tutorials, security guides, and strategies to build better AI agent skills.
+			</p>
+		</div>
+
+		<div style="display: flex; flexDirection: 'column'; gap: var(--space-lg);">
+			{posts.map(post => (
+				<a href={`/learn/${post.slug}`} class="card" style="display: block; text-decoration: none; padding: var(--space-xl); margin-bottom: var(--space-lg);">
+					<div style="color: var(--mute); font-family: var(--font-mono); font-size: 13px; margin-bottom: var(--space-xs);">{post.date}</div>
+					<h2 style="font-size: 24px; color: var(--ink); margin-bottom: var(--space-sm);">{post.title}</h2>
+					<p style="color: var(--body); font-size: 16px; line-height: 1.6;">{post.description}</p>
+				</a>
+			))}
+		</div>
+	</div>
+</Layout>

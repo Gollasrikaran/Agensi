@@ -2,74 +2,112 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Bodhic AI — The AI Agent Skill Marketplace.">
-	<section class="hero">
-		<span class="eyebrow">✦ Bodhic AI Marketplace</span>
-		<h1>Build smarter agents.<br/><span class="gradient-text">Ship faster.</span></h1>
-		<p>
-			Discover, buy, and sell prompt artifacts built for AI agents.
-			Every skill is scanned for prompt injections and security threats before it goes live.
-		</p>
-		<div class="cta-row">
-			<a href="/browse" class="btn btn-primary btn-lg">Explore Skills →</a>
-			<a href="/sell" class="btn btn-secondary btn-lg">Start Selling</a>
-		</div>
+<Layout 
+	title="AI Agent Skill Marketplace | Bodhic AI" 
+	description="Discover, verify, and monetize premium AI agent skills. Bodhic AI provides a secure marketplace with automated prompt injection scanning and zero markup for buyers."
+>
+	<!-- Dynamic Hero Section -->
+	<section style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
+		<!-- Background mesh effect -->
+		<div style="position: absolute; top: -20%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--primary) 0%, transparent 60%); filter: blur(120px); opacity: 0.15; z-index: -1;"></div>
+		<div style="position: absolute; bottom: -20%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent) 0%, transparent 60%); filter: blur(120px); opacity: 0.15; z-index: -1;"></div>
 
-		<div class="stat-row">
-			<div class="stat">
-				<div class="stat-value gradient-text">2-Tier</div>
-				<div class="stat-label">Security Scan</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">80%</div>
-				<div class="stat-label">Creator Revenue</div>
-			</div>
-			<div class="stat">
-				<div class="stat-value">₹ INR</div>
-				<div class="stat-label">Direct Payouts</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Features -->
-	<section class="band">
-		<div style="text-align: center; margin-bottom: var(--space-3xl);">
-			<span class="eyebrow" style="display: inline-block; margin-bottom: var(--space-md);">Why Bodhic</span>
-			<h2>Everything you need to<br/><span class="gradient-text-warm">monetize AI skills.</span></h2>
-		</div>
-		<div class="grid-3">
-			<div class="card">
-				<div style="font-size: 28px; margin-bottom: var(--space-md);">🛡️</div>
-				<h4><span class="feature-num">01</span>Advanced Security</h4>
-				<p style="font-size: 14px;">
-					Tier-1 synchronous scanner detects prompt injections, leaked secrets, and excessive agency claims before a skill goes live.
-				</p>
-			</div>
-			<div class="card">
-				<div style="font-size: 28px; margin-bottom: var(--space-md);">💰</div>
-				<h4><span class="feature-num">02</span>Flat 20% Fee</h4>
-				<p style="font-size: 14px;">
-					Industry-leading split — creators keep 80% of every sale. No hidden charges, no tiered pricing games.
-				</p>
-			</div>
-			<div class="card">
-				<div style="font-size: 28px; margin-bottom: var(--space-md);">⚡</div>
-				<h4><span class="feature-num">03</span>Direct Payouts</h4>
-				<p style="font-size: 14px;">
-					Sellers get paid via UPI bank transfers in INR. No middlemen, no delays — straight from our ledger to your account.
-				</p>
-			</div>
-		</div>
-	</section>
-
-	<!-- CTA Band -->
-	<section class="band-brand">
-		<div style="text-align: center; max-width: 600px; margin: 0 auto; position: relative; z-index: 1;">
-			<h2 style="margin-bottom: var(--space-md);">Monetize your expertise.</h2>
-			<p style="color: rgba(255,255,255,0.7); font-size: 17px; margin-bottom: var(--space-xl);">
-				Package your best prompts as reusable AI skills. Set your price in INR, get paid when someone buys, and let our security scanner build trust for you.
+		<div style="max-width: 900px; margin: 0 auto; text-align: center;">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">the premier ecosystem</span>
+			
+			<h1 style="font-size: clamp(48px, 8vw, 80px); line-height: 1.1; margin-bottom: var(--space-md); letter-spacing: -3px;">
+				The verified <span class="gradient-text">AI Agent Skill</span> Marketplace
+			</h1>
+			
+			<p style="color: var(--body); font-size: clamp(18px, 2vw, 24px); max-width: 700px; margin: 0 auto var(--space-xl) auto; line-height: 1.5;">
+				Discover, buy, and sell prompt artifacts built for AI agents. Every skill is scanned for prompt injections and security threats before it goes live.
 			</p>
-			<a href="/sell" class="btn btn-lg" style="background: white; color: var(--primary) !important; border-color: transparent; font-weight: 700;">Start Selling →</a>
+			
+			<div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
+				<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 32px; font-size: 18px;">Explore Skills →</a>
+				<a href="/sell" class="btn btn-secondary btn-lg" style="padding: 16px 32px; font-size: 18px; border-color: var(--hairline); background: var(--canvas-soft);">Start Selling</a>
+			</div>
 		</div>
+	</section>
+
+	<!-- How It Works Flow -->
+	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
+		<div style="text-align: center; margin-bottom: var(--space-4xl);">
+			<h2 style="font-size: 40px; letter-spacing: -1.5px; margin-bottom: var(--space-xs);">Built for trust and speed.</h2>
+			<p style="color: var(--mute); font-size: 18px;">How Bodhic AI protects buyers and rewards creators.</p>
+		</div>
+
+		<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-xl);">
+			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
+				<div style="font-size: 32px; margin-bottom: var(--space-md);">🛡️</div>
+				<h3 style="font-size: 20px; margin-bottom: var(--space-sm);">Tier 1 Security Scanning</h3>
+				<p style="color: var(--body); font-size: 15px; line-height: 1.6;">Every uploaded skill undergoes automated OWASP LLM vulnerability scanning. We block prompt injections and leaked secrets before they ever reach the marketplace.</p>
+			</div>
+			
+			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
+				<div style="font-size: 32px; margin-bottom: var(--space-md);">💸</div>
+				<h3 style="font-size: 20px; margin-bottom: var(--space-sm);">Zero Buyer Markup</h3>
+				<p style="color: var(--body); font-size: 15px; line-height: 1.6;">Buyers pay the exact base price set by the creator in INR. No hidden conversion fees, no subscription traps. Pure transactional value.</p>
+			</div>
+			
+			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
+				<div style="font-size: 32px; margin-bottom: var(--space-md);">⚡</div>
+				<h3 style="font-size: 20px; margin-bottom: var(--space-sm);">Instant Creator Payouts</h3>
+				<p style="color: var(--body); font-size: 15px; line-height: 1.6;">Creators take home an industry-leading 80% split. Request a payout anytime to your UPI or bank account directly from your seller wallet.</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Live Marketplace Preview -->
+	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
+		<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-2xl);">
+			<div>
+				<h2 style="font-size: 36px; letter-spacing: -1px; margin-bottom: var(--space-xs);">Trending Agent Skills</h2>
+				<p style="color: var(--mute);">The most popular verified skills this week.</p>
+			</div>
+			<a href="/browse" class="btn btn-secondary" style="font-weight: 600;">View All →</a>
+		</div>
+
+		<!-- A static mock representation for SEO, simulating dynamic fetch visually -->
+		<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg);">
+			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
+				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
+					<span class="badge success">🛡️ Verified</span>
+					<span class="badge" style="text-transform: uppercase;">Development</span>
+				</div>
+				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">Next.js Boilerplate Expert</a></h3>
+				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">An agent skill that autonomously scaffolds complete Next.js applications with Tailwind and Supabase pre-configured.</p>
+				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹1,500</div>
+			</div>
+			
+			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
+				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
+					<span class="badge success">🛡️ Verified</span>
+					<span class="badge" style="text-transform: uppercase;">Copywriting</span>
+				</div>
+				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">SEO Content Architect</a></h3>
+				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">Analyzes SERPs and generates long-form, human-sounding content designed to bypass AI detectors and rank highly.</p>
+				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹900</div>
+			</div>
+			
+			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
+				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
+					<span class="badge success">🛡️ Verified</span>
+					<span class="badge" style="text-transform: uppercase;">Data Science</span>
+				</div>
+				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">Pandas Data Cleaner</a></h3>
+				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">Automated data sanitization, handling missing values, and generating comprehensive exploratory data analysis reports.</p>
+				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹500</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Final CTA Band -->
+	<section style="margin: var(--space-5xl) 0 var(--space-2xl) 0; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); border-radius: var(--radius-xl); padding: var(--space-5xl) var(--space-xl); text-align: center; color: white;">
+		<h2 style="font-size: 48px; letter-spacing: -2px; margin-bottom: var(--space-md); color: white;">Stop giving away your prompts.</h2>
+		<p style="font-size: 20px; max-width: 600px; margin: 0 auto var(--space-xl) auto; opacity: 0.9;">
+			Package your expertise into reusable agent skills. Set your price in INR and keep 80% of every sale.
+		</p>
+		<a href="/sell" class="btn btn-lg" style="background: white; color: var(--primary) !important; font-weight: 700; padding: 16px 40px; font-size: 18px; border: none;">Start Selling Now</a>
 	</section>
 </Layout>

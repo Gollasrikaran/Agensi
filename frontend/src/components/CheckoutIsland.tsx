@@ -88,16 +88,23 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
             <h2 style={{ margin: '8px 0 0 0', color: 'var(--ink)', fontSize: '48px', letterSpacing: '-2px' }}>
               ₹{intent.amount_inr?.toFixed(2)}
             </h2>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
-               <span className="badge" style={{ fontFamily: 'var(--font-mono)' }}>Platform Fee: ₹{intent.platform_fee_inr?.toFixed(2)}</span>
-               <span className="badge success" style={{ fontFamily: 'var(--font-mono)' }}>Creator Earns: ₹{intent.seller_amount_inr?.toFixed(2)}</span>
-            </div>
-          </div>
-          
-          <div style={{ padding: 'var(--space-md)', border: `1px solid var(--hairline)`, borderRadius: 'var(--radius-md)' }}>
-            <p style={{ margin: 0, color: 'var(--ink)', fontSize: '15px' }}>
-              <strong>Payment Provider:</strong> {intent.provider}
-            </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+                <span style={{ color: 'var(--mute)' }}>Base Price</span>
+                <span style={{ fontWeight: '600' }}>
+                  ₹{(intent.base_price_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+                <span style={{ color: 'var(--mute)' }}>Buyer Fee</span>
+                <span style={{ fontWeight: '600', color: 'var(--success)' }}>₹0.00</span>
+              </div>
+              <hr style={{ border: 'none', borderTop: '1px solid var(--hairline-strong)', margin: 'var(--space-lg) 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '20px', fontWeight: '700' }}>
+                <span>Total</span>
+                <span>
+                  ₹{(intent.amount_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
+                </span>
+              </div>
             <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
               Mock Client Secret: {intent.client_secret}
             </p>

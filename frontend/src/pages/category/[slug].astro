@@ -1,0 +1,92 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+    // In SSG mode, we need to know all categories ahead of time to generate paths.
+    // Since skills are dynamic in the DB, we fetch them here at build time.
+    let skills: any[] = [];
+    try {
+        const res = await fetch('http://localhost:8000/api/skills');
+        if (res.ok) {
+            skills = await res.json();
+        }
+    } catch (e) {
+        console.error("Failed to fetch skills for pSEO:", e);
+    }
+
+    // Extract unique categories (mock categories if none exist)
+    const rawCategories = skills.map((s: any) => s.category).filter(Boolean);
+    const uniqueCategories = [...new Set(rawCategories)];
+    
+    // Add some default SEO categories if DB is empty
+    const allCategories = uniqueCategories.length > 0 
+        ? uniqueCategories 
+        : ['development', 'copywriting', 'productivity', 'data-science', 'marketing'];
+
+    return allCategories.map((cat: string) => ({
+        params: { slug: cat.toLowerCase().replace(/\s+/g, '-') },
+        props: { 
+            originalName: cat,
+            matchedSkills: skills.filter((s: any) => s.category?.toLowerCase() === cat.toLowerCase()) 
+        }
+    }));
+}
+
+const { slug } = Astro.params;
+const { originalName, matchedSkills } = Astro.props;
+
+// Humanize the category name for the H1 and Title
+const displayCategory = originalName.charAt(0).toUpperCase() + originalName.slice(1);
+---
+
+<Layout 
+	title={`Buy ${displayCategory} AI Agent Skills & Prompts — Bodhic AI`}
+	description={`Browse the best verified ${displayCategory} AI agent skills and prompts on Bodhic AI. No buyer markup, instant downloads, and 100% security scanned.`}
+>
+	<div style="max-width: 1200px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl); text-align: center;">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">category</span>
+			
+			<h1 style="font-size: 48px; margin-bottom: var(--space-sm); letter-spacing: -1px;">
+				<span class="gradient-text">{displayCategory}</span> AI Agent Skills
+			</h1>
+			
+			<p style="color: var(--body); font-size: 18px; max-width: 600px; margin: 0 auto;">
+				Accelerate your workflow with verified {displayCategory.toLowerCase()} prompt artifacts.
+			</p>
+		</div>
+
+		{matchedSkills.length === 0 ? (
+			<div class="card" style="text-align: center; padding: var(--space-4xl);">
+				<p style="color: var(--mute); font-size: 16px;">No {displayCategory.toLowerCase()} skills available yet. Be the first to <a href="/sell" style="color: var(--link); text-decoration: underline;">publish one</a>.</p>
+			</div>
+		) : (
+			<div class="grid">
+				{matchedSkills.map((skill: any) => (
+					<a href={`/skill/${skill.id}`} class="card" style="display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; padding: var(--space-lg);">
+						<div>
+							<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
+								<h4 style="font-size: 18px; margin-bottom: 0; color: var(--ink);">{skill.title}</h4>
+							</div>
+							<p style="color: var(--body); font-size: 14px; line-height: 20px; margin-bottom: var(--space-lg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+								{skill.description}
+							</p>
+						</div>
+						<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
+							<div style="display: flex; gap: var(--space-xs);">
+								{skill.scan_summary_json?.passed ? (
+									<span class="badge success">Verified</span>
+								) : (
+									<span class="badge warning">Pending</span>
+								)}
+							</div>
+							<div style="font-weight: 600; font-size: 16px; font-family: var(--font-mono); color: var(--ink);">
+								{skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
+							</div>
+						</div>
+					</a>
+				))}
+			</div>
+		)}
+	</div>
+</Layout>

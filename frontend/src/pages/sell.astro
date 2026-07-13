@@ -2,7 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Sell a Skill — Bodhic AI">
+<Layout 
+	title="Sell AI Agent Skills — Bodhic AI"
+	description="Monetize your expertise. Upload your AI agent skills and prompts to Bodhic AI. Get automated security verification and keep 80% of your sales."
+>
 	<div style="max-width: 580px; margin: 0 auto; padding-top: var(--space-3xl);">
 		<div style="margin-bottom: var(--space-xl);">
 			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">upload</span>
@@ -23,8 +26,37 @@ import Layout from '../layouts/Layout.astro';
 				</div>
 
 				<div class="form-group">
+					<label for="categories">Domains / Categories (Select multiple)</label>
+					<select id="categories" multiple required style="width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--hairline-strong); background: var(--canvas); color: var(--ink); height: 120px;">
+						<option value="development">Development</option>
+						<option value="copywriting">Copywriting</option>
+						<option value="productivity">Productivity</option>
+						<option value="data-science">Data Science</option>
+						<option value="marketing">Marketing</option>
+						<option value="finance">Finance</option>
+						<option value="design">Design</option>
+						<option value="automation">Automation</option>
+						<option value="customer-support">Customer Support</option>
+						<option value="healthcare">Healthcare</option>
+						<option value="education">Education</option>
+						<option value="security">Security</option>
+						<option value="legal">Legal</option>
+						<option value="general">General</option>
+					</select>
+					<small style="color: var(--mute); font-size: 12px; margin-top: 4px; display: block;">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+				</div>
+
+				<div class="form-group">
 					<label for="price">Base Price (INR)</label>
 					<input type="number" id="price" required min="0" step="1" placeholder="500" />
+				</div>
+
+				<div class="form-group">
+					<label for="billing_type">Billing Type</label>
+					<select id="billing_type" required style="width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--hairline-strong); background: var(--canvas); color: var(--ink);">
+						<option value="one-time">One-Time Purchase</option>
+						<option value="monthly">Monthly Subscription</option>
+					</select>
 				</div>
 
 				<div class="form-group">
@@ -59,6 +91,9 @@ import Layout from '../layouts/Layout.astro';
 		const title = (document.getElementById('title') as HTMLInputElement).value;
 		const description = (document.getElementById('description') as HTMLTextAreaElement).value;
 		const price = parseFloat((document.getElementById('price') as HTMLInputElement).value);
+		const billingType = (document.getElementById('billing_type') as HTMLSelectElement).value;
+		const categorySelect = document.getElementById('categories') as HTMLSelectElement;
+		const categories = Array.from(categorySelect.selectedOptions).map(opt => opt.value);
 		const fileInput = document.getElementById('file') as HTMLInputElement;
 		const file = fileInput.files?.[0];
 
@@ -94,7 +129,9 @@ import Layout from '../layouts/Layout.astro';
 					title,
 					description,
 					content,
-					base_price_usd: price
+					base_price_inr: price,
+					billing_type: billingType,
+					categories: categories
 				})
 			});
 

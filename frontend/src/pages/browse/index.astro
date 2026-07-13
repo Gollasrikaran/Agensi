@@ -1,53 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-
-// Fetch skills from the backend
-let skills: any[] = [];
-try {
-	const res = await fetch('http://localhost:8000/api/skills');
-	if (res.ok) skills = await res.json();
-} catch (e) {
-	console.error(e);
-}
+import BrowseIsland from '../../components/BrowseIsland.tsx';
 ---
 
-<Layout title="Browse Skills — Bodhic AI">
-	<div style="margin-bottom: var(--space-xl);">
-		<span class="eyebrow" style="font-family: var(--font-mono); font-size: 12px; color: var(--mute); text-transform: uppercase;">marketplace</span>
-		<h1 style="font-size: 48px; margin-top: var(--space-xs); margin-bottom: var(--space-xs);">Browse Skills.</h1>
-		<p style="font-size: 18px; max-width: 480px;">Verified prompt artifacts for downstream AI agents.</p>
-	</div>
+<Layout 
+	title="Browse AI Agent Skills & Prompts — Bodhic AI" 
+	description="Search our marketplace of verified AI agent skills, prompts, and workflows. Filter by category and price to find the perfect artifact for your next project."
+>
+	<div style="max-width: 1200px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">marketplace</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Browse AI Agent Skills</h1>
+			<p style="color: var(--body); font-size: 16px;">Discover secure, verified prompts and agent workflows by domain.</p>
+		</div>
 
-	{skills.length === 0 ? (
-		<div class="card" style="text-align: center; padding: var(--space-4xl);">
-			<p style="color: var(--mute); font-size: 16px;">No skills available yet. Be the first to <a href="/sell" style="color: var(--link); text-decoration: underline;">publish one</a>.</p>
-		</div>
-	) : (
-		<div class="grid">
-			{skills.map((skill: any) => (
-				<a href={`/skill/${skill.id}`} class="template-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-					<div>
-						<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
-							<h4 style="font-size: 18px; margin-bottom: 0;">{skill.title}</h4>
-						</div>
-						<p style="color: var(--body); font-size: 14px; line-height: 20px; margin-bottom: var(--space-lg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-							{skill.description}
-						</p>
-					</div>
-					<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
-						<div style="display: flex; gap: var(--space-xs);">
-							{skill.scan_summary_json?.passed ? (
-								<span class="badge success">Verified</span>
-							) : (
-								<span class="badge">Pending</span>
-							)}
-						</div>
-						<div style="font-weight: 600; font-size: 16px; font-family: var(--font-mono);">
-							{skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
-						</div>
-					</div>
-				</a>
-			))}
-		</div>
-	)}
+		<BrowseIsland client:load />
+	</div>
 </Layout>

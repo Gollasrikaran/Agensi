@@ -3,20 +3,69 @@ import NavbarIsland from '../components/NavbarIsland.tsx';
 
 export interface Props {
 	title: string;
+	description?: string;
+	image?: string;
+	canonicalURL?: string;
+	type?: string;
 }
 
-const { title } = Astro.props;
+const { 
+	title, 
+	description = "Bodhic AI — Buy and Sell AI Agent Skills. The premier marketplace for prompt artifacts and verified AI agent components.", 
+	image = "https://bodhic.app/og-image.png",
+	canonicalURL = new URL(Astro.url.pathname, Astro.site).toString(),
+	type = "website"
+} = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Bodhic AI — Buy and Sell AI Agent Skills" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
+		
+		<!-- Primary Meta Tags -->
 		<title>{title}</title>
+		<meta name="title" content={title} />
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content={type} />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={canonicalURL} />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={image} />
+
+		<!-- Bot-Filtered Analytics -->
+		<script is:inline>
+			(function() {
+				// Only run in production on actual domain
+				if (window.location.hostname !== 'bodhic.app') return;
+
+				const ua = navigator.userAgent.toLowerCase();
+				const isBot = /cloudflare-worker|headless|bot|spider|crawler|googlebot|bingbot|yandexbot|duckduckbot|slurp/.test(ua);
+
+				if (!isBot) {
+					// Inject Google Analytics or tracking here
+					window.dataLayer = window.dataLayer || [];
+					function gtag(){dataLayer.push(arguments);}
+					gtag('js', new Date());
+					gtag('config', 'G-XXXXXXXXXX'); // Placeholder GA ID
+					
+					// console.log("Analytics triggered (human user)");
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<NavbarIsland client:load />

@@ -26,6 +26,8 @@ class SkillUploadRequest(BaseModel):
     description: str
     content: str
     base_price_inr: float
+    billing_type: str = "one-time"
+    categories: list[str] = ["development"]
 
 class CheckoutRequest(BaseModel):
     skill_id: str
@@ -140,9 +142,10 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "title": req.title,
         "slug": skill_slug,
         "description": req.description,
-        "category": "code",
+        "category": ",".join(req.categories),
         "base_price_inr": req.base_price_inr,
         "is_free": req.base_price_inr == 0,
+        "billing_type": req.billing_type,
         "skill_md_file_url": "pending_upload_url",
         "moderation_status": moderation_status,
         "scan_summary_json": final_scan_result,
@@ -231,3 +234,57 @@ def checkout_success(req: CheckoutSuccessRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- NEW FEATURES ---
+
+@app.get("/api/skills/leaderboard")
+def get_leaderboard():
+    try:
+        res = supabase.table("skills").select("*").order("upvotes", desc=True).limit(20).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/skills/{skill_id}/upvote")
+def upvote_skill(skill_id: str):
+    try:
+        # Fetch current upvotes
+        res = supabase.table("skills").select("upvotes").eq("id", skill_id).single().execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+        
+        current_upvotes = res.data.get("upvotes") or 0
+        new_upvotes = current_upvotes + 1
+        
+        # Update
+        supabase.table("skills").update({"upvotes": new_upvotes}).eq("id", skill_id).execute()
+        return {"message": "Upvoted", "upvotes": new_upvotes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class SkillRequestModel(BaseModel):
+    title: str
+    description: str
+    bounty_inr: float
+
+@app.post("/api/requests")
+def create_skill_request(req: SkillRequestModel, user = Depends(get_current_user)):
+    try:
+        new_req = {
+            "buyer_id": user.id,
+            "title": req.title,
+            "description": req.description,
+            "bounty_inr": req.bounty_inr,
+            "status": "open"
+        }
+        res = supabase.table("skill_requests").insert(new_req).execute()
+        return res.data[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/requests")
+def get_skill_requests():
+    try:
+        res = supabase.table("skill_requests").select("*").order("created_at", desc=True).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

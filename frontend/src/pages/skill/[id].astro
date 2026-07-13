@@ -19,18 +19,19 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 
-let skill = null;
+let skill: any = null;
 try {
 	const res = await fetch(`http://localhost:8000/api/skills/${id}`);
-	if (res.ok) {
-		skill = await res.json();
-	}
+	if (res.ok) skill = await res.json();
 } catch (e) {
 	console.error(e);
 }
 ---
 
-<Layout title={skill ? `${skill.title} — Bodhic AI` : "Skill Not Found"}>
+<Layout 
+	title={skill ? `${skill.title} — Bodhic AI` : "Skill Not Found"}
+	description={skill ? skill.description : "This AI agent skill could not be found."}
+>
 	{!skill ? (
 		<div style="text-align: center; padding: var(--space-5xl);">
 			<h2 style="font-size: 24px; margin-bottom: var(--space-md);">Skill not found.</h2>
