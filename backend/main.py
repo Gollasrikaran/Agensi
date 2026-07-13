@@ -101,22 +101,29 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     # Tier 1 synchronous scan
     passed_tier1, scan_result_tier1 = scan_skill(req.content)
     
-    if not passed_tier1:
-        handle_security_failure(seller_id, scan_result_tier1, 1)
-        
-    # Tier 2 synchronous scan (Cloudflare Workers AI)
-    passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
-    
     tier2_error = False
-    if not passed_tier2:
-        issues = scan_result_tier2.get("issues", [])
-        is_system_error = any(issue.get("rule") in ["tier2_error", "llm_parse_error"] for issue in issues)
-        if is_system_error:
-            tier2_error = True
-            print("Tier 2 AI system error. Falling back to pending/manual review.")
-        else:
-            handle_security_failure(seller_id, scan_result_tier2, 2)
+    passed_tier2 = True
+    scan_result_tier2 = {}
+    
+    if passed_tier1:
+        # Tier 2 synchronous scan (Cloudflare Workers AI)
+        passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
         
+        if not passed_tier2:
+            issues = scan_result_tier2.get("issues", [])
+            is_system_error = any(issue.get("rule") in ["tier2_error", "llm_parse_error"] for issue in issues)
+            if is_system_error:
+                tier2_error = True
+                print("Tier 2 AI system error. Falling back to pending/manual review.")
+    
+    # Determine status
+    if not passed_tier1 or (not passed_tier2 and not tier2_error):
+        moderation_status = "rejected"
+    elif tier2_error:
+        moderation_status = "pending"
+    else:
+        moderation_status = "approved"
+
     # Combine scan results for database
     final_scan_result = {
         "tier1": scan_result_tier1,
@@ -137,7 +144,7 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "base_price_usd": req.base_price_usd,
         "is_free": req.base_price_usd == 0,
         "skill_md_file_url": "pending_upload_url",
-        "moderation_status": "pending" if tier2_error else "approved",
+        "moderation_status": moderation_status,
         "scan_summary_json": final_scan_result,
         "declared_capabilities_json": []
     }
@@ -146,6 +153,14 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         # Insert into skills
         skill_res = supabase.table("skills").insert(new_skill).execute()
         inserted_skill = skill_res.data[0]
+        
+        # Insert into skill_versions to store the MD content
+        supabase.table("skill_versions").insert({
+            "skill_id": inserted_skill["id"],
+            "version_number": 1,
+            "md_content": req.content,
+            "changelog": "Initial upload"
+        }).execute()
         
         # Insert into security_scans (Tier 1)
         supabase.table("security_scans").insert({
@@ -156,18 +171,26 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
             "passed": passed_tier1
         }).execute()
         
-        # Insert into security_scans (Tier 2)
-        supabase.table("security_scans").insert({
-            "skill_id": inserted_skill["id"],
-            "tier": 2,
-            "scan_result_json": scan_result_tier2,
-            "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
-            "passed": passed_tier2
-        }).execute()
-        
-        return {"message": "Skill uploaded successfully", "skill": inserted_skill}
+        # Insert into security_scans (Tier 2) if run
+        if scan_result_tier2:
+            supabase.table("security_scans").insert({
+                "skill_id": inserted_skill["id"],
+                "tier": 2,
+                "scan_result_json": scan_result_tier2,
+                "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
+                "passed": passed_tier2
+            }).execute()
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        
+    # Trigger blocks if rejected
+    if not passed_tier1:
+        handle_security_failure(seller_id, scan_result_tier1, 1)
+    elif not passed_tier2 and not tier2_error:
+        handle_security_failure(seller_id, scan_result_tier2, 2)
+        
+    return {"message": "Skill uploaded successfully", "skill": inserted_skill}
 
 @app.post("/api/checkout/intent")
 def checkout(req: CheckoutRequest):

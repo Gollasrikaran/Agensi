@@ -80,3 +80,22 @@ def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = De
         return {"message": f"Skill status updated to {req.status}", "skill": res.data[0]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/users/{user_id}/skills")
+def get_user_skills(user_id: str, admin_user = Depends(verify_admin)):
+    try:
+        # Fetch all skills by the user (including rejected ones)
+        skills_res = supabase.table("skills").select("*").eq("seller_id", user_id).order("created_at", desc=True).execute()
+        skills = skills_res.data
+        
+        # Attach MD content for previewing securely
+        for skill in skills:
+            version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill["id"]).order("version_number", desc=True).limit(1).execute()
+            if version_res.data:
+                skill["md_content"] = version_res.data[0]["md_content"]
+            else:
+                skill["md_content"] = "No content available."
+                
+        return skills
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

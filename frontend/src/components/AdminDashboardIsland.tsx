@@ -6,6 +6,9 @@ export default function AdminDashboardIsland() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
   const [appeals, setAppeals] = useState<any[]>([]);
+  const [viewingUser, setViewingUser] = useState<string | null>(null);
+  const [userSkills, setUserSkills] = useState<any[]>([]);
+  const [previewSkill, setPreviewSkill] = useState<any | null>(null);
 
   useEffect(() => {
     fetchAdminData();
@@ -88,6 +91,21 @@ export default function AdminDashboardIsland() {
       if (!res.ok) throw new Error('Failed to update status');
       
       fetchAdminData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const fetchUserSkills = async (userId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`http://localhost:8000/api/admin/users/${userId}/skills`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch user skills');
+      setUserSkills(await res.json());
+      setViewingUser(userId);
     } catch (err: any) {
       alert(err.message);
     }
@@ -189,12 +207,20 @@ export default function AdminDashboardIsland() {
                   <td style={{ padding: '0.5rem', color: '#ef4444' }}>{appeal.warnings_count}</td>
                   <td style={{ padding: '0.5rem' }}>{appeal.appeal_message}</td>
                   <td style={{ padding: '0.5rem' }}>
-                    <button 
-                      onClick={() => unblockUser(appeal.id)}
-                      style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Unblock
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        onClick={() => unblockUser(appeal.id)}
+                        style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        Unblock
+                      </button>
+                      <button 
+                        onClick={() => fetchUserSkills(appeal.id)}
+                        style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: '#60a5fa', border: '1px solid #3b82f6', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        View History
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -238,6 +264,72 @@ export default function AdminDashboardIsland() {
           </table>
         </div>
       </div>
+
+      {/* User Upload History Modal */}
+      {viewingUser && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-card" style={{ width: '90%', maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0 }}>Upload History for {viewingUser}</h2>
+              <button onClick={() => setViewingUser(null)} style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            </div>
+            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <th style={{ padding: '0.5rem' }}>Title</th>
+                  <th style={{ padding: '0.5rem' }}>Status</th>
+                  <th style={{ padding: '0.5rem' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userSkills.map(skill => (
+                  <tr key={skill.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '0.5rem' }}>{skill.title}</td>
+                    <td style={{ padding: '0.5rem' }}>
+                      <span style={{
+                        padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem',
+                        background: skill.moderation_status === 'approved' ? '#064e3b' : skill.moderation_status === 'rejected' ? '#7f1d1d' : '#78350f',
+                        color: skill.moderation_status === 'approved' ? '#34d399' : skill.moderation_status === 'rejected' ? '#fca5a5' : '#fbbf24'
+                      }}>
+                        {skill.moderation_status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.5rem' }}>
+                       <button 
+                         onClick={() => setPreviewSkill(skill)}
+                         style={{ padding: '0.2rem 0.5rem', background: '#1e293b', color: '#e2e8f0', border: '1px solid #475569', borderRadius: '4px', cursor: 'pointer' }}
+                       >
+                         Secure Preview .md
+                       </button>
+                    </td>
+                  </tr>
+                ))}
+                {userSkills.length === 0 && (
+                  <tr><td colSpan={3} style={{ padding: '1rem', textAlign: 'center' }}>No skills found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Secure MD Preview Modal */}
+      {previewSkill && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass-card" style={{ width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0 }}>Secure Preview: {previewSkill.title}.md</h2>
+              <button onClick={() => setPreviewSkill(null)} style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            </div>
+            <div style={{ background: '#0f172a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', border: '1px solid #334155' }}>
+              <pre style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
+                {previewSkill.md_content || "No content available."}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import ThemeToggleIsland from './ThemeToggleIsland';
 
 export default function NavbarIsland() {
   const [session, setSession] = useState<any>(null);
@@ -62,6 +63,7 @@ export default function NavbarIsland() {
         {session && <a href="/dashboard/seller">Seller Dashboard</a>}
       </nav>
       <div className="auth-buttons">
+        <ThemeToggleIsland />
         {session ? (
           <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
         ) : (
