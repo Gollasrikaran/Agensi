@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PayoutsIsland from '../../components/PayoutsIsland.tsx';
+---
+
+<Layout title="Bodhic AI - Admin Ledger">
+    <div style="margin-bottom: var(--space-lg); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 style="font-size: 32px; letter-spacing: -1.28px;">Admin Ledger</h1>
+            <p style="color: var(--body);">Review and process creator payout requests.</p>
+        </div>
+        <a href="/admin" className="btn btn-secondary">Back to Admin</a>
+    </div>
+
+    <PayoutsIsland client:load />
+</Layout>

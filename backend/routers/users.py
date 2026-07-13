@@ -42,3 +42,49 @@ def submit_appeal(req: AppealRequest, user = Depends(get_current_user)):
         return {"message": "Appeal submitted successfully. The admin will review your case."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class PayoutRequest(BaseModel):
+    amount_inr: float
+    upi_id: str
+
+@router.get("/me/wallet")
+def get_my_wallet(user = Depends(get_current_user)):
+    try:
+        wallet = supabase.table("seller_wallets").select("balance_inr").eq("user_id", user.id).execute()
+        balance = wallet.data[0]["balance_inr"] if wallet.data else 0.0
+        
+        history = supabase.table("payout_requests").select("*").eq("seller_id", user.id).order("created_at", desc=True).execute()
+        return {"balance_inr": balance, "history": history.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/me/payout")
+def request_payout(req: PayoutRequest, user = Depends(get_current_user)):
+    try:
+        # Check balance
+        wallet = supabase.table("seller_wallets").select("balance_inr").eq("user_id", user.id).execute()
+        balance = float(wallet.data[0]["balance_inr"]) if wallet.data else 0.0
+        
+        if req.amount_inr > balance:
+            raise HTTPException(status_code=400, detail="Insufficient balance")
+            
+        if req.amount_inr < 100:
+            raise HTTPException(status_code=400, detail="Minimum payout is ₹100")
+            
+        # Deduct balance
+        new_balance = balance - req.amount_inr
+        supabase.table("seller_wallets").update({"balance_inr": new_balance}).eq("user_id", user.id).execute()
+        
+        # Create request
+        supabase.table("payout_requests").insert({
+            "seller_id": user.id,
+            "amount_inr": req.amount_inr,
+            "upi_id": req.upi_id,
+            "status": "pending"
+        }).execute()
+        
+        return {"message": "Payout requested successfully", "new_balance": new_balance}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

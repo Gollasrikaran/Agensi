@@ -2,6 +2,21 @@
 import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 
+export async function getStaticPaths() {
+	try {
+		const res = await fetch('http://localhost:8000/api/skills');
+		if (res.ok) {
+			const skills = await res.json();
+			return skills.map((s: any) => ({
+				params: { id: s.id }
+			}));
+		}
+	} catch (e) {
+		console.error(e);
+	}
+	return [];
+}
+
 const { id } = Astro.params;
 
 let skill = null;
@@ -13,46 +28,44 @@ try {
 } catch (e) {
 	console.error(e);
 }
-
-// In Astro, to enable SSR for dynamic routes without getStaticPaths, we must have `output: 'server'` configured, but for now we'll just mock it or assume it's fetched dynamically if running in dev.
 ---
 
 <Layout title={skill ? `${skill.title} | Bodhic AI` : "Skill Not Found"}>
 	{!skill ? (
-		<div style="text-align: center; padding: 4rem;">
-			<h2>Skill not found</h2>
-			<a href="/browse" class="btn btn-primary" style="margin-top: 1rem;">Back to Browse</a>
+		<div style="text-align: center; padding: var(--space-4xl);">
+			<h2 style="font-size: 24px;">Skill not found</h2>
+			<a href="/browse" class="btn btn-primary" style="margin-top: var(--space-md);">Back to Browse</a>
 		</div>
 	) : (
-		<div style="max-width: 800px; margin: 0 auto;">
-			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+		<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-xl);">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xl);">
 				<div>
-					<h1 style="margin-bottom: 0.5rem; font-size: 2.5rem;">{skill.title}</h1>
-					<div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-						<span class="badge">{skill.category}</span>
+					<h1 style="margin-bottom: var(--space-xs); font-size: 48px; letter-spacing: -2.4px;">{skill.title}</h1>
+					<div style="display: flex; gap: var(--space-xs); margin-top: var(--space-sm);">
+						<span class="badge" style="text-transform: uppercase;">{skill.category}</span>
 						{skill.scan_summary_json.passed ? (
 							<span class="badge success">🛡️ Safe to run</span>
 						) : (
-							<span class="badge warning">⚠️ Pending Security Scan</span>
+							<span class="badge">⚠️ Pending Security Scan</span>
 						)}
 					</div>
 				</div>
 			</div>
 			
-			<div class="glass-card" style="margin-bottom: 2rem;">
-				<h2>Description</h2>
-				<p style="color: var(--text-secondary); white-space: pre-wrap;">{skill.description}</p>
+			<div class="glass-card" style="margin-bottom: var(--space-xl);">
+				<h2 style="font-size: 20px; font-weight: 600; margin-bottom: var(--space-sm);">Description</h2>
+				<p style="color: var(--body); font-size: 16px; white-space: pre-wrap; line-height: 1.6;">{skill.description}</p>
 			</div>
 			
-			<div class="glass-card" style="margin-bottom: 2rem;">
-				<h2>Security Scan Summary (Tier 1)</h2>
-				<ul style="color: var(--text-secondary); margin-left: 1.5rem; margin-top: 1rem;">
-					<li><strong>Status:</strong> {skill.scan_summary_json.passed ? 'Passed' : 'Flagged'}</li>
-					<li><strong>Checks Performed:</strong> OWASP LLM01, LLM06, LLM04</li>
+			<div class="glass-card" style="margin-bottom: var(--space-xl);">
+				<h2 style="font-size: 20px; font-weight: 600; margin-bottom: var(--space-sm);">Security Scan Summary (Tier 1)</h2>
+				<ul style="color: var(--body); margin-left: 1.5rem; margin-top: var(--space-sm); font-size: 14px;">
+					<li style="margin-bottom: 4px;"><strong>Status:</strong> {skill.scan_summary_json.passed ? 'Passed' : 'Flagged'}</li>
+					<li style="margin-bottom: 4px;"><strong>Checks Performed:</strong> OWASP LLM01, LLM06, LLM04</li>
 					{skill.scan_summary_json.issues && skill.scan_summary_json.issues.length > 0 && (
-						<li style="color: #ef4444; margin-top: 0.5rem;">
+						<li style="color: var(--error); margin-top: var(--space-sm);">
 							<strong>Issues Found:</strong>
-							<ul>
+							<ul style="margin-left: 1rem; margin-top: 4px;">
 								{skill.scan_summary_json.issues.map((i: any) => (
 									<li>{i.rule}: {i.description}</li>
 								))}
@@ -62,7 +75,7 @@ try {
 				</ul>
 			</div>
 
-			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_usd} />
+			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
 		</div>
 	)}
 </Layout>

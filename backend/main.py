@@ -25,7 +25,7 @@ class SkillUploadRequest(BaseModel):
     title: str
     description: str
     content: str
-    base_price_usd: float
+    base_price_inr: float
 
 class CheckoutRequest(BaseModel):
     skill_id: str
@@ -141,8 +141,8 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "slug": skill_slug,
         "description": req.description,
         "category": "code",
-        "base_price_usd": req.base_price_usd,
-        "is_free": req.base_price_usd == 0,
+        "base_price_inr": req.base_price_inr,
+        "is_free": req.base_price_inr == 0,
         "skill_md_file_url": "pending_upload_url",
         "moderation_status": moderation_status,
         "scan_summary_json": final_scan_result,
@@ -195,13 +195,39 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
 @app.post("/api/checkout/intent")
 def checkout(req: CheckoutRequest):
     try:
-        res = supabase.table("skills").select("base_price_usd").eq("id", req.skill_id).single().execute()
+        res = supabase.table("skills").select("base_price_inr").eq("id", req.skill_id).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
             
-        base_price = res.data["base_price_usd"]
+        base_price = res.data["base_price_inr"]
         intent = create_payment_intent(req.country_code, base_price)
         return intent
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CheckoutSuccessRequest(BaseModel):
+    skill_id: str
+
+@app.post("/api/checkout/success")
+def checkout_success(req: CheckoutSuccessRequest):
+    try:
+        skill_res = supabase.table("skills").select("base_price_inr, seller_id").eq("id", req.skill_id).single().execute()
+        if not skill_res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+            
+        base_price = skill_res.data["base_price_inr"]
+        seller_id = skill_res.data["seller_id"]
+        
+        seller_share = base_price * 0.80
+        
+        update_res = supabase.table("seller_wallets").select("balance_inr").eq("user_id", seller_id).execute()
+        if update_res.data:
+            new_balance = float(update_res.data[0]["balance_inr"]) + seller_share
+            supabase.table("seller_wallets").update({"balance_inr": new_balance}).eq("user_id", seller_id).execute()
+        else:
+            supabase.table("seller_wallets").insert({"user_id": seller_id, "balance_inr": seller_share}).execute()
+            
+        return {"message": "Wallet credited successfully", "credited": seller_share}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

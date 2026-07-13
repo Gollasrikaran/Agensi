@@ -52,15 +52,16 @@ export default function NavbarIsland() {
   return (
     <header className="navbar">
       <div className="logo">
-        <a href="/">Bodhic<span className="highlight">AI</span></a>
+        <a href="/">Bodhic<strong>AI</strong></a>
       </div>
       <nav>
         <a href="/browse">Browse Skills</a>
         <a href="/sell">Sell a Skill</a>
         <a href="/pricing">Pricing</a>
-        {isAdmin && <a href="/admin" style={{ color: '#fbbf24' }}>Admin Panel</a>}
-        {session && <a href="/dashboard/buyer">Buyer Dashboard</a>}
-        {session && <a href="/dashboard/seller">Seller Dashboard</a>}
+        {isAdmin && <a href="/admin" className="badge success">Admin</a>}
+        {session && <a href="/dashboard/buyer">Buyer</a>}
+        {session && <a href="/dashboard/seller">Seller</a>}
+        {session && <a href="/dashboard/wallet">Wallet</a>}
       </nav>
       <div className="auth-buttons">
         <ThemeToggleIsland />

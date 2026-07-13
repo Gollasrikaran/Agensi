@@ -99,3 +99,26 @@ def get_user_skills(user_id: str, admin_user = Depends(verify_admin)):
         return skills
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/payouts")
+def get_payouts(admin_user = Depends(verify_admin)):
+    try:
+        res = supabase.table("payout_requests").select("*, users(email)").order("created_at", desc=False).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/payouts/{payout_id}/complete")
+def complete_payout(payout_id: str, admin_user = Depends(verify_admin)):
+    try:
+        req = supabase.table("payout_requests").select("status").eq("id", payout_id).single().execute()
+        if not req.data:
+            raise HTTPException(status_code=404, detail="Payout request not found")
+        if req.data["status"] != "pending":
+            raise HTTPException(status_code=400, detail="Payout is not pending")
+            
+        res = supabase.table("payout_requests").update({"status": "completed"}).eq("id", payout_id).execute()
+        return {"message": "Payout marked as completed", "payout": res.data[0]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

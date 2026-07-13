@@ -6,10 +6,11 @@ interface CheckoutIslandProps {
 }
 
 export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandProps) {
-  const [country, setCountry] = useState('US');
+  const [country, setCountry] = useState('IN');
   const [loading, setLoading] = useState(false);
   const [intent, setIntent] = useState<any>(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -30,57 +31,87 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
     }
   };
 
+  const handleMockPay = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/checkout/success', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill_id: skillId })
+      });
+      if (!res.ok) throw new Error('Payment confirmation failed');
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="glass-card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)' }}>
+        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>Payment Successful!</h3>
+        <p style={{ color: 'var(--body)' }}>You now have access to this artifact. The creator has been credited.</p>
+        <button className="btn btn-primary" style={{ marginTop: 'var(--space-md)' }} onClick={() => window.location.reload()}>View Artifact</button>
+      </div>
+    );
+  }
+
   return (
-    <div className="glass-card" style={{ marginTop: '2rem' }}>
-      <h3>Purchase License</h3>
+    <div className="glass-card" style={{ marginTop: 'var(--space-xl)' }}>
+      <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Purchase License</h3>
       
       {!intent ? (
         <div className="form-group">
-          <label>Select Your Country (For Localized Pricing)</label>
+          <label>Payment Region (Defaulting to India for INR processing)</label>
           <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            <option value="US">United States (USD)</option>
-            <option value="IN">India (INR)</option>
-            <option value="UK">United Kingdom (GBP)</option>
-            <option value="NG">Nigeria (NGN)</option>
-            <option value="BR">Brazil (BRL)</option>
+            <option value="IN">India (Razorpay / UPI)</option>
+            <option value="US">International (PayPal)</option>
           </select>
           
           <button 
             className="btn btn-primary" 
-            style={{ marginTop: '1rem' }}
+            style={{ marginTop: 'var(--space-md)', width: '100%' }}
             onClick={handleCheckout}
             disabled={loading}
           >
-            {loading ? 'Processing...' : 'Proceed to Checkout'}
+            {loading ? 'Processing...' : `Proceed to Checkout (₹${(basePrice || 0).toFixed(2)})`}
           </button>
           
-          {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
+          {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
         </div>
       ) : (
         <div>
-          <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-            <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Total Amount:</p>
-            <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>
-              {intent.amount.toLocaleString()} {intent.currency}
+          <div style={{ background: 'var(--canvas-soft)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-md)' }}>
+            <p style={{ margin: 0, color: 'var(--mute)', fontSize: '14px' }}>Total Amount:</p>
+            <h2 style={{ margin: '4px 0 0 0', color: 'var(--ink)', fontSize: '32px', letterSpacing: '-1px' }}>
+              ₹{intent.amount_inr?.toFixed(2)}
             </h2>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)' }}>
+               <span className="badge">Platform Fee: ₹{intent.platform_fee_inr?.toFixed(2)}</span>
+               <span className="badge success">Creator Earns: ₹{intent.seller_amount_inr?.toFixed(2)}</span>
+            </div>
           </div>
           
-          <div style={{ padding: '1rem', border: '1px solid var(--accent-color)', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)' }}>
-            <p style={{ margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', border: `1px solid var(--hairline-strong)`, borderRadius: 'var(--radius-md)', background: 'var(--canvas-soft-2)' }}>
+            <p style={{ margin: 0, color: 'var(--ink)' }}>
               <strong>Payment Provider:</strong> {intent.provider}
             </p>
-            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
               (Mock Client Secret: {intent.client_secret})
             </p>
           </div>
           
           <button 
             className="btn btn-primary" 
-            style={{ marginTop: '1.5rem', width: '100%' }}
-            onClick={() => alert('Mock Payment Successful!')}
+            style={{ marginTop: 'var(--space-lg)', width: '100%' }}
+            onClick={handleMockPay}
+            disabled={loading}
           >
-            Pay Now with {intent.provider}
+            {loading ? 'Processing...' : `Pay Now with ${intent.provider}`}
           </button>
+          {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)', fontSize: '14px' }}>{error}</p>}
         </div>
       )}
     </div>

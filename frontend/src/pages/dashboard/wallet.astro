@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import WalletIsland from '../../components/WalletIsland.tsx';
+---
+
+<Layout title="Bodhic AI - Seller Wallet">
+    <div style="margin-bottom: var(--space-lg);">
+        <h1 style="font-size: 32px; letter-spacing: -1.28px;">Seller Wallet</h1>
+        <p style="color: var(--body);">Manage your earnings and request payouts to your bank account.</p>
+    </div>
+
+    <!-- Client Island for fetching and displaying wallet state -->
+    <WalletIsland client:load />
+</Layout>

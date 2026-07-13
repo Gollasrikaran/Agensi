@@ -7,22 +7,33 @@ const skills = await res.json();
 ---
 
 <Layout title="Browse Skills | Bodhic AI">
-	<h2>Browse Available AI Agent Skills</h2>
+	<div style="margin-bottom: var(--space-xl);">
+		<h2 style="font-size: 32px; letter-spacing: -1.28px;">Browse Available AI Agent Skills</h2>
+		<p style="color: var(--body);">Discover verified prompt artifacts for downstream agents.</p>
+	</div>
+	
 	<div class="grid">
 		{skills.map((skill: any) => (
-			<a href={`/skill/${skill.id}`} class="glass-card">
-				<div style="display: flex; justify-content: space-between; align-items: start;">
-					<h3>{skill.title}</h3>
-					<span class="badge" style="margin-bottom: 1rem;">${skill.base_price_usd.toFixed(2)}</span>
+			<a href={`/skill/${skill.id}`} class="template-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+				<div>
+					<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
+						<h3 style="font-size: 18px; margin-bottom: 0;">{skill.title}</h3>
+					</div>
+					<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-lg); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+						{skill.description}
+					</p>
 				</div>
-				<p style="color: var(--text-secondary); margin-bottom: 1rem;">{skill.description}</p>
-				<div style="display: flex; gap: 0.5rem;">
-					{skill.scan_summary_json.passed ? (
-						<span class="badge success">Verified Safe</span>
-					) : (
-						<span class="badge warning">Pending Scan</span>
-					)}
-					<span class="badge">{skill.category}</span>
+				<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
+					<div style="display: flex; gap: var(--space-xs);">
+						{skill.scan_summary_json.passed ? (
+							<span class="badge success">Verified Safe</span>
+						) : (
+							<span class="badge">Pending Scan</span>
+						)}
+					</div>
+					<div style="font-weight: 600; font-size: 16px;">
+						{skill.base_price_inr === 0 ? 'Free' : `₹${skill.base_price_inr?.toFixed(2) || '0.00'}`}
+					</div>
 				</div>
 			</a>
 		))}
