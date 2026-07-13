@@ -71,6 +71,28 @@ export default function AdminDashboardIsland() {
     }
   };
 
+  const updateSkillStatus = async (skillId: string, status: 'approved' | 'rejected') => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      const res = await fetch(`http://localhost:8000/api/admin/skills/${skillId}/status`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!res.ok) throw new Error('Failed to update status');
+      
+      fetchAdminData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   if (loading) return <div>Loading admin dashboard...</div>;
   if (error) return <div className="glass-card" style={{ color: '#f87171' }}>Error: {error}</div>;
 
@@ -106,6 +128,7 @@ export default function AdminDashboardIsland() {
                 <th style={{ padding: '0.5rem' }}>Title</th>
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
+                <th style={{ padding: '0.5rem' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -123,6 +146,24 @@ export default function AdminDashboardIsland() {
                     }}>
                       {skill.moderation_status}
                     </span>
+                  </td>
+                  <td style={{ padding: '0.5rem' }}>
+                    {skill.moderation_status === 'pending' && (
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          onClick={() => updateSkillStatus(skill.id, 'approved')}
+                          style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => updateSkillStatus(skill.id, 'rejected')}
+                          style={{ padding: '0.2rem 0.5rem', background: '#7f1d1d', color: '#f87171', border: '1px solid #dc2626', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

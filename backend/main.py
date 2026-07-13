@@ -107,8 +107,15 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     # Tier 2 synchronous scan (Cloudflare Workers AI)
     passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
     
+    tier2_error = False
     if not passed_tier2:
-        handle_security_failure(seller_id, scan_result_tier2, 2)
+        issues = scan_result_tier2.get("issues", [])
+        is_system_error = any(issue.get("rule") in ["tier2_error", "llm_parse_error"] for issue in issues)
+        if is_system_error:
+            tier2_error = True
+            print("Tier 2 AI system error. Falling back to pending/manual review.")
+        else:
+            handle_security_failure(seller_id, scan_result_tier2, 2)
         
     # Combine scan results for database
     final_scan_result = {
@@ -130,7 +137,7 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "base_price_usd": req.base_price_usd,
         "is_free": req.base_price_usd == 0,
         "skill_md_file_url": "pending_upload_url",
-        "moderation_status": "approved",
+        "moderation_status": "pending" if tier2_error else "approved",
         "scan_summary_json": final_scan_result,
         "declared_capabilities_json": []
     }
