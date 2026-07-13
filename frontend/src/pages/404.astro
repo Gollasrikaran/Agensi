@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404: Not Found | Bodhic AI">
+  <div style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-2xl);">
+    
+    <div style="font-size: 120px; font-weight: 800; letter-spacing: -5px; line-height: 1; margin-bottom: var(--space-md); background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+      404
+    </div>
+    
+    <h1 style="font-size: 32px; letter-spacing: -1px; margin-bottom: var(--space-sm);">Skill Not Found</h1>
+    
+    <p style="color: var(--mute); font-size: 18px; max-width: 500px; margin-bottom: var(--space-2xl);">
+      The agent skill, creator profile, or endpoint you're looking for has been moved, deleted, or never existed in the Bodhic AI ecosystem.
+    </p>
+    
+    <div style="display: flex; gap: var(--space-md);">
+      <a href="/" class="btn btn-primary" style="padding: 12px 24px;">Return Home</a>
+      <a href="/browse" class="btn btn-secondary" style="padding: 12px 24px;">Browse Skills</a>
+    </div>
+    
+  </div>
+</Layout>

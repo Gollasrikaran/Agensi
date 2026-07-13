@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+interface Props {
+  error: unknown;
+}
+const { error } = Astro.props;
+---
+
+<Layout title="500: System Error | Bodhic AI">
+  <div style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-2xl);">
+    
+    <div style="font-size: 120px; font-weight: 800; letter-spacing: -5px; line-height: 1; margin-bottom: var(--space-md); color: #ef4444; opacity: 0.8;">
+      500
+    </div>
+    
+    <h1 style="font-size: 32px; letter-spacing: -1px; margin-bottom: var(--space-sm);">System Overload</h1>
+    
+    <p style="color: var(--mute); font-size: 18px; max-width: 500px; margin-bottom: var(--space-xl);">
+      Our servers encountered an unexpected fault while processing your request. The engineering team has been notified.
+    </p>
+
+    {import.meta.env.DEV && error && (
+      <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: var(--space-md); text-align: left; max-width: 800px; overflow-x: auto; margin-bottom: var(--space-2xl);">
+        <p style="color: #ef4444; font-family: var(--font-mono); font-size: 14px; margin-bottom: 8px; font-weight: bold;">Developer Details (Not visible in Prod):</p>
+        <pre style="color: var(--body); font-family: var(--font-mono); font-size: 13px;"><code>{error instanceof Error ? error.message : String(error)}</code></pre>
+      </div>
+    )}
+    
+    <div style="display: flex; gap: var(--space-md);">
+      <button onclick="window.location.reload()" class="btn btn-primary" style="padding: 12px 24px; background: #ef4444; border-color: #ef4444;">Retry Request</button>
+      <a href="/" class="btn btn-secondary" style="padding: 12px 24px;">Return Home</a>
+    </div>
+    
+  </div>
+</Layout>
