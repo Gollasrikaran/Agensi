@@ -52,7 +52,10 @@ export default function NavbarIsland() {
   return (
     <header className="navbar">
       <div className="logo">
-        <a href="/">Bodhic<strong>AI</strong></a>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <img src="/logo.png" alt="Bodhic AI Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', boxShadow: '0 0 10px rgba(16, 185, 129, 0.4)' }} />
+          <span>Bodhic<strong>AI</strong></span>
+        </a>
       </div>
       <nav>
         <a href="/browse">Browse Skills</a>
