@@ -2,40 +2,52 @@
 import Layout from '../../layouts/Layout.astro';
 
 // Fetch skills from the backend
-const res = await fetch('http://localhost:8000/api/skills');
-const skills = await res.json();
+let skills: any[] = [];
+try {
+	const res = await fetch('http://localhost:8000/api/skills');
+	if (res.ok) skills = await res.json();
+} catch (e) {
+	console.error(e);
+}
 ---
 
-<Layout title="Browse Skills | Bodhic AI">
+<Layout title="Browse Skills — Bodhic AI">
 	<div style="margin-bottom: var(--space-xl);">
-		<h2 style="font-size: 32px; letter-spacing: -1.28px;">Browse Available AI Agent Skills</h2>
-		<p style="color: var(--body);">Discover verified prompt artifacts for downstream agents.</p>
+		<span class="eyebrow" style="font-family: var(--font-mono); font-size: 12px; color: var(--mute); text-transform: uppercase;">marketplace</span>
+		<h1 style="font-size: 48px; margin-top: var(--space-xs); margin-bottom: var(--space-xs);">Browse Skills.</h1>
+		<p style="font-size: 18px; max-width: 480px;">Verified prompt artifacts for downstream AI agents.</p>
 	</div>
-	
-	<div class="grid">
-		{skills.map((skill: any) => (
-			<a href={`/skill/${skill.id}`} class="template-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-				<div>
-					<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
-						<h3 style="font-size: 18px; margin-bottom: 0;">{skill.title}</h3>
+
+	{skills.length === 0 ? (
+		<div class="card" style="text-align: center; padding: var(--space-4xl);">
+			<p style="color: var(--mute); font-size: 16px;">No skills available yet. Be the first to <a href="/sell" style="color: var(--link); text-decoration: underline;">publish one</a>.</p>
+		</div>
+	) : (
+		<div class="grid">
+			{skills.map((skill: any) => (
+				<a href={`/skill/${skill.id}`} class="template-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+					<div>
+						<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
+							<h4 style="font-size: 18px; margin-bottom: 0;">{skill.title}</h4>
+						</div>
+						<p style="color: var(--body); font-size: 14px; line-height: 20px; margin-bottom: var(--space-lg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+							{skill.description}
+						</p>
 					</div>
-					<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-lg); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-						{skill.description}
-					</p>
-				</div>
-				<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
-					<div style="display: flex; gap: var(--space-xs);">
-						{skill.scan_summary_json.passed ? (
-							<span class="badge success">Verified Safe</span>
-						) : (
-							<span class="badge">Pending Scan</span>
-						)}
+					<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
+						<div style="display: flex; gap: var(--space-xs);">
+							{skill.scan_summary_json?.passed ? (
+								<span class="badge success">Verified</span>
+							) : (
+								<span class="badge">Pending</span>
+							)}
+						</div>
+						<div style="font-weight: 600; font-size: 16px; font-family: var(--font-mono);">
+							{skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
+						</div>
 					</div>
-					<div style="font-weight: 600; font-size: 16px;">
-						{skill.base_price_inr === 0 ? 'Free' : `₹${skill.base_price_inr?.toFixed(2) || '0.00'}`}
-					</div>
-				</div>
-			</a>
-		))}
-	</div>
+				</a>
+			))}
+		</div>
+	)}
 </Layout>

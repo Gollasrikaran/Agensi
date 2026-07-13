@@ -2,33 +2,70 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Bodhic AI - Buy and Sell AI Agent Skills">
+<Layout title="Bodhic AI — The AI Agent Skill Marketplace.">
 	<section class="hero">
-		<h1>The Most Secure AI Agent Skill Marketplace</h1>
+		<span class="eyebrow">bodhic ai marketplace</span>
+		<h1>Build smarter agents.<br/><span class="gradient-text">Ship faster.</span></h1>
 		<p>
-			Discover, buy, and sell prompt artifacts designed for downstream AI agents. 
+			Discover, buy, and sell prompt artifacts designed for downstream AI agents.
 			Every skill is rigorously scanned for prompt injections and security threats.
 		</p>
-		<div style="display: flex; gap: var(--space-md); margin-top: var(--space-sm);">
-			<a href="/browse" class="btn btn-primary" style="font-size: 16px; padding: 12px 24px;">Explore Skills</a>
-			<a href="/sell" class="btn btn-secondary" style="font-size: 16px; padding: 12px 24px;">Start Selling</a>
+		<div class="cta-row">
+			<a href="/browse" class="btn btn-primary btn-lg">Explore Skills</a>
+			<a href="/sell" class="btn btn-secondary btn-lg">Start Selling</a>
+		</div>
+
+		<div class="stat-row">
+			<div class="stat">
+				<div class="stat-value">2-Tier</div>
+				<div class="stat-label">Security Scan</div>
+			</div>
+			<div class="stat">
+				<div class="stat-value">80%</div>
+				<div class="stat-label">Creator Revenue</div>
+			</div>
+			<div class="stat">
+				<div class="stat-value">₹ INR</div>
+				<div class="stat-label">Direct Payouts</div>
+			</div>
 		</div>
 	</section>
 
-	<section style="margin-top: var(--space-4xl);">
-		<h2 style="font-size: 32px; letter-spacing: -1.28px; text-align: center;">Why Choose Bodhic AI?</h2>
-		<div class="grid">
-			<div class="glass-card">
-				<h3 style="font-size: 20px; font-weight: 600;"><span style="color: var(--mute); margin-right: 8px;">01.</span> Advanced Security</h3>
-				<p style="color: var(--body); font-size: 14px; margin-top: 12px;">Our Tier-1 synchronous scanner detects prompt injections, secrets, and excessive agency claims before a skill even goes live.</p>
+	<!-- Features Band -->
+	<section class="band">
+		<h2 style="text-align: center; margin-bottom: var(--space-xl);">Why Bodhic AI.</h2>
+		<div class="grid-3">
+			<div class="card">
+				<h4><span class="feature-num">01</span>Advanced Security</h4>
+				<p style="font-size: 14px; line-height: 20px;">
+					Tier-1 synchronous scanner detects prompt injections, secrets, and excessive agency claims before a skill goes live.
+				</p>
 			</div>
-			<div class="glass-card">
-				<h3 style="font-size: 20px; font-weight: 600;"><span style="color: var(--mute); margin-right: 8px;">02.</span> Flat Platform Fee</h3>
-				<p style="color: var(--body); font-size: 14px; margin-top: 12px;">We take an industry-leading 20% platform fee, meaning creators keep 80% of all their earnings on the platform.</p>
+			<div class="card">
+				<h4><span class="feature-num">02</span>Flat Platform Fee</h4>
+				<p style="font-size: 14px; line-height: 20px;">
+					An industry-leading 20% platform fee — creators keep 80% of every sale, paid out directly.
+				</p>
 			</div>
-			<div class="glass-card">
-				<h3 style="font-size: 20px; font-weight: 600;"><span style="color: var(--mute); margin-right: 8px;">03.</span> Direct Payouts</h3>
-				<p style="color: var(--body); font-size: 14px; margin-top: 12px;">Sellers get paid quickly and reliably via direct UPI bank transfers in INR directly from our secure ledger.</p>
+			<div class="card">
+				<h4><span class="feature-num">03</span>Direct Payouts</h4>
+				<p style="font-size: 14px; line-height: 20px;">
+					Sellers get paid via UPI bank transfers in INR. No middlemen, no delays — straight from our ledger.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Dark Band -->
+	<section class="band-dark" style="max-width: 1200px; margin-left: auto; margin-right: auto;">
+		<div style="text-align: center; max-width: 640px; margin: 0 auto;">
+			<span class="eyebrow" style="color: rgba(255,255,255,0.4);">for creators</span>
+			<h2 style="margin-top: var(--space-md); margin-bottom: var(--space-md);">Monetize your expertise.</h2>
+			<p style="color: rgba(255,255,255,0.6); font-size: 16px;">
+				Package your best prompts as reusable AI skills. Set your price in INR, get paid when someone buys, and let our security scanner do the trust-building for you.
+			</p>
+			<div style="margin-top: var(--space-xl);">
+				<a href="/sell" class="btn btn-lg" style="background: var(--on-primary); color: var(--primary) !important; border-color: transparent;">Start Selling →</a>
 			</div>
 		</div>
 	</section>

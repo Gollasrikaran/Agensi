@@ -1,48 +1,62 @@
 import React, { useEffect, useState } from 'react';
 
 export default function ThemeToggleIsland() {
-  const [isLightMode, setIsLightMode] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    // Check local storage or system preference on mount
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      setIsLightMode(true);
+    const saved = localStorage.getItem('bodhic-theme');
+    if (saved === 'light') {
+      setIsDark(false);
+      document.documentElement.classList.remove('dark-mode');
       document.documentElement.classList.add('light-mode');
+    } else if (saved === 'dark') {
+      setIsDark(true);
+      document.documentElement.classList.add('dark-mode');
+      document.documentElement.classList.remove('light-mode');
+    } else {
+      // Follow system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDark(prefersDark);
+      if (prefersDark) {
+        document.documentElement.classList.add('dark-mode');
+      }
     }
   }, []);
 
-  const toggleTheme = () => {
-    setIsLightMode(!isLightMode);
-    if (!isLightMode) {
-      document.documentElement.classList.add('light-mode');
-      localStorage.setItem('theme', 'light');
-    } else {
+  const toggle = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add('dark-mode');
       document.documentElement.classList.remove('light-mode');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('bodhic-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      document.documentElement.classList.add('light-mode');
+      localStorage.setItem('bodhic-theme', 'light');
     }
   };
 
   return (
-    <button 
-      onClick={toggleTheme}
+    <button
+      onClick={toggle}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       style={{
-        background: 'transparent',
-        border: '1px solid var(--border-color)',
-        color: 'var(--text-primary)',
-        cursor: 'pointer',
-        padding: '0.4rem 0.8rem',
-        borderRadius: '9999px',
-        fontSize: '0.9rem',
-        fontWeight: 'bold',
-        display: 'flex',
+        display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.5rem',
-        transition: 'all 0.2s ease'
+        justifyContent: 'center',
+        width: 32,
+        height: 32,
+        background: 'transparent',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-full)',
+        color: 'var(--ink)',
+        cursor: 'pointer',
+        fontSize: 16,
+        transition: 'all 0.15s ease',
       }}
-      title={`Switch to ${isLightMode ? 'Dark' : 'Light'} Mode`}
     >
-      {isLightMode ? '🌙 Dark' : '☀️ Light'}
+      {isDark ? '☀️' : '🌙'}
     </button>
   );
 }
