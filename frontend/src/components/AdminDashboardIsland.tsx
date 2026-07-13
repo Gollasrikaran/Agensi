@@ -5,6 +5,7 @@ export default function AdminDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
+  const [appeals, setAppeals] = useState<any[]>([]);
 
   useEffect(() => {
     fetchAdminData();
@@ -32,6 +33,16 @@ export default function AdminDashboardIsland() {
       
       const dashboardData = await res.json();
       setData(dashboardData);
+
+      // Fetch appeals
+      const appealsRes = await fetch('http://localhost:8000/api/admin/appeals', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      if (appealsRes.ok) {
+        setAppeals(await appealsRes.json());
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -39,23 +50,21 @@ export default function AdminDashboardIsland() {
     }
   };
 
-  const updateSkillStatus = async (skillId: string, status: 'approved' | 'rejected') => {
+  const unblockUser = async (userId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const res = await fetch(`http://localhost:8000/api/admin/skills/${skillId}/status`, {
+      const res = await fetch(`http://localhost:8000/api/admin/users/${userId}/unblock`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
+          'Authorization': `Bearer ${session.access_token}`
+        }
       });
       
-      if (!res.ok) throw new Error('Failed to update status');
+      if (!res.ok) throw new Error('Failed to unblock user');
       
-      // Refresh data
+      alert('User unblocked successfully!');
       fetchAdminData();
     } catch (err: any) {
       alert(err.message);
@@ -97,7 +106,6 @@ export default function AdminDashboardIsland() {
                 <th style={{ padding: '0.5rem' }}>Title</th>
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
-                <th style={{ padding: '0.5rem' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -116,26 +124,46 @@ export default function AdminDashboardIsland() {
                       {skill.moderation_status}
                     </span>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="glass-card">
+          <h2>Pending Appeals</h2>
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #334155' }}>
+                <th style={{ padding: '0.5rem' }}>User ID</th>
+                <th style={{ padding: '0.5rem' }}>Warnings</th>
+                <th style={{ padding: '0.5rem' }}>Message</th>
+                <th style={{ padding: '0.5rem' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {appeals?.map((appeal: any) => (
+                <tr key={appeal.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                  <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{appeal.id}</td>
+                  <td style={{ padding: '0.5rem', color: '#ef4444' }}>{appeal.warnings_count}</td>
+                  <td style={{ padding: '0.5rem' }}>{appeal.appeal_message}</td>
                   <td style={{ padding: '0.5rem' }}>
-                    {skill.moderation_status === 'pending' && (
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                          onClick={() => updateSkillStatus(skill.id, 'approved')}
-                          style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => updateSkillStatus(skill.id, 'rejected')}
-                          style={{ padding: '0.2rem 0.5rem', background: '#7f1d1d', color: '#f87171', border: '1px solid #dc2626', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
+                    <button 
+                      onClick={() => unblockUser(appeal.id)}
+                      style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Unblock
+                    </button>
                   </td>
                 </tr>
               ))}
+              {(!appeals || appeals.length === 0) && (
+                <tr>
+                  <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                    No pending appeals.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
