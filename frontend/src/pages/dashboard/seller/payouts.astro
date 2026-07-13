@@ -1,26 +1,29 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 ---
-<Layout title="Payouts | Seller Dashboard">
-	<div style="max-width: 1000px; margin: 0 auto;">
-		<div style="display: flex; gap: 1rem; margin-bottom: 2rem; align-items: center;">
-			<a href="/dashboard/seller" class="btn btn-secondary">&larr; Back</a>
-			<h1 style="margin: 0;">Payout History & Status</h1>
+<Layout title="Payouts — Bodhic AI">
+	<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl); display: flex; align-items: start; gap: var(--space-md);">
+			<a href="/dashboard/seller" class="btn btn-secondary" style="padding: 10px;">←</a>
+			<div>
+				<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Payout History</h1>
+				<p style="color: var(--body); font-size: 16px;">Track your past payout requests and their status.</p>
+			</div>
 		</div>
 		
-		<div class="glass-card">
-			<table style="width: 100%; border-collapse: collapse; text-align: left;">
+		<div class="card" style="padding: var(--space-xl);">
+			<table class="data-table" style="width: 100%; text-align: left;">
 				<thead>
-					<tr style="border-bottom: 1px solid var(--border-color);">
-						<th style="padding: 1rem;">Date</th>
-						<th style="padding: 1rem;">Amount</th>
-						<th style="padding: 1rem;">Provider</th>
-						<th style="padding: 1rem;">Status</th>
+					<tr>
+						<th>Date</th>
+						<th>Amount</th>
+						<th>Provider</th>
+						<th>Status</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td style="padding: 1rem; color: var(--text-secondary);">No payouts yet.</td>
+						<td style="color: var(--mute);">No payouts yet.</td>
 						<td></td>
 						<td></td>
 						<td></td>

@@ -30,49 +30,47 @@ try {
 }
 ---
 
-<Layout title={skill ? `${skill.title} | Bodhic AI` : "Skill Not Found"}>
+<Layout title={skill ? `${skill.title} — Bodhic AI` : "Skill Not Found"}>
 	{!skill ? (
-		<div style="text-align: center; padding: var(--space-4xl);">
-			<h2 style="font-size: 24px;">Skill not found</h2>
-			<a href="/browse" class="btn btn-primary" style="margin-top: var(--space-md);">Back to Browse</a>
+		<div style="text-align: center; padding: var(--space-5xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-md);">Skill not found.</h2>
+			<a href="/browse" class="btn btn-primary">← Back to Browse</a>
 		</div>
 	) : (
 		<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-xl);">
-			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xl);">
-				<div>
-					<h1 style="margin-bottom: var(--space-xs); font-size: 48px; letter-spacing: -2.4px;">{skill.title}</h1>
-					<div style="display: flex; gap: var(--space-xs); margin-top: var(--space-sm);">
-						<span class="badge" style="text-transform: uppercase;">{skill.category}</span>
-						{skill.scan_summary_json.passed ? (
-							<span class="badge success">🛡️ Safe to run</span>
-						) : (
-							<span class="badge">⚠️ Pending Security Scan</span>
-						)}
-					</div>
+			<div style="margin-bottom: var(--space-xl);">
+				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm);">
+					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
+					{skill.scan_summary_json?.passed ? (
+						<span class="badge success">🛡️ Verified Safe</span>
+					) : (
+						<span class="badge warning">⚠️ Pending Scan</span>
+					)}
 				</div>
+				<h1 style="font-size: 48px; margin-bottom: var(--space-xs);">{skill.title}</h1>
 			</div>
-			
-			<div class="glass-card" style="margin-bottom: var(--space-xl);">
-				<h2 style="font-size: 20px; font-weight: 600; margin-bottom: var(--space-sm);">Description</h2>
-				<p style="color: var(--body); font-size: 16px; white-space: pre-wrap; line-height: 1.6;">{skill.description}</p>
+
+			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
+				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Description</h3>
+				<p style="color: var(--body); font-size: 16px; white-space: pre-wrap; line-height: 1.7;">{skill.description}</p>
 			</div>
-			
-			<div class="glass-card" style="margin-bottom: var(--space-xl);">
-				<h2 style="font-size: 20px; font-weight: 600; margin-bottom: var(--space-sm);">Security Scan Summary (Tier 1)</h2>
-				<ul style="color: var(--body); margin-left: 1.5rem; margin-top: var(--space-sm); font-size: 14px;">
-					<li style="margin-bottom: 4px;"><strong>Status:</strong> {skill.scan_summary_json.passed ? 'Passed' : 'Flagged'}</li>
-					<li style="margin-bottom: 4px;"><strong>Checks Performed:</strong> OWASP LLM01, LLM06, LLM04</li>
-					{skill.scan_summary_json.issues && skill.scan_summary_json.issues.length > 0 && (
-						<li style="color: var(--error); margin-top: var(--space-sm);">
-							<strong>Issues Found:</strong>
-							<ul style="margin-left: 1rem; margin-top: 4px;">
+
+			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
+				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Security Scan</h3>
+				<div style="display: flex; flex-direction: column; gap: var(--space-xs); font-size: 14px; color: var(--body);">
+					<div><strong style="color: var(--ink);">Status:</strong> {skill.scan_summary_json?.passed ? '✓ Passed' : '⚠ Flagged'}</div>
+					<div><strong style="color: var(--ink);">Checks:</strong> <span style="font-family: var(--font-mono); font-size: 12px;">OWASP LLM01, LLM06, LLM04</span></div>
+					{skill.scan_summary_json?.issues && skill.scan_summary_json.issues.length > 0 && (
+						<div style="color: var(--error); margin-top: var(--space-sm);">
+							<strong>Issues:</strong>
+							<ul style="margin-left: var(--space-lg); margin-top: var(--space-xxs);">
 								{skill.scan_summary_json.issues.map((i: any) => (
-									<li>{i.rule}: {i.description}</li>
+									<li style="margin-bottom: 2px;">{i.rule}: {i.description}</li>
 								))}
 							</ul>
-						</li>
+						</div>
 					)}
-				</ul>
+				</div>
 			</div>
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />

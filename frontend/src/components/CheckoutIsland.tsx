@@ -50,16 +50,16 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
   if (success) {
     return (
-      <div className="glass-card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)' }}>
-        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>Payment Successful!</h3>
-        <p style={{ color: 'var(--body)' }}>You now have access to this artifact. The creator has been credited.</p>
-        <button className="btn btn-primary" style={{ marginTop: 'var(--space-md)' }} onClick={() => window.location.reload()}>View Artifact</button>
+      <div className="card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)', background: 'var(--success-soft)', padding: 'var(--space-2xl)' }}>
+        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>✓ Payment Successful</h3>
+        <p style={{ color: 'var(--body)', fontSize: '16px' }}>You now have access to this artifact. The creator has been credited.</p>
+        <button className="btn btn-primary btn-lg" style={{ marginTop: 'var(--space-lg)' }} onClick={() => window.location.reload()}>View Artifact →</button>
       </div>
     );
   }
 
   return (
-    <div className="glass-card" style={{ marginTop: 'var(--space-xl)' }}>
+    <div className="card" style={{ marginTop: 'var(--space-xl)', padding: 'var(--space-xl)' }}>
       <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Purchase License</h3>
       
       {!intent ? (
@@ -71,7 +71,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
           </select>
           
           <button 
-            className="btn btn-primary" 
+            className="btn btn-primary btn-lg" 
             style={{ marginTop: 'var(--space-md)', width: '100%' }}
             onClick={handleCheckout}
             disabled={loading}
@@ -83,33 +83,33 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         </div>
       ) : (
         <div>
-          <div style={{ background: 'var(--canvas-soft)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-md)' }}>
-            <p style={{ margin: 0, color: 'var(--mute)', fontSize: '14px' }}>Total Amount:</p>
-            <h2 style={{ margin: '4px 0 0 0', color: 'var(--ink)', fontSize: '32px', letterSpacing: '-1px' }}>
+          <div style={{ background: 'var(--canvas-soft-2)', padding: 'var(--space-lg)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-lg)' }}>
+            <p style={{ margin: 0, color: 'var(--mute)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Amount</p>
+            <h2 style={{ margin: '8px 0 0 0', color: 'var(--ink)', fontSize: '48px', letterSpacing: '-2px' }}>
               ₹{intent.amount_inr?.toFixed(2)}
             </h2>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)' }}>
-               <span className="badge">Platform Fee: ₹{intent.platform_fee_inr?.toFixed(2)}</span>
-               <span className="badge success">Creator Earns: ₹{intent.seller_amount_inr?.toFixed(2)}</span>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
+               <span className="badge" style={{ fontFamily: 'var(--font-mono)' }}>Platform Fee: ₹{intent.platform_fee_inr?.toFixed(2)}</span>
+               <span className="badge success" style={{ fontFamily: 'var(--font-mono)' }}>Creator Earns: ₹{intent.seller_amount_inr?.toFixed(2)}</span>
             </div>
           </div>
           
-          <div style={{ padding: 'var(--space-md)', border: `1px solid var(--hairline-strong)`, borderRadius: 'var(--radius-md)', background: 'var(--canvas-soft-2)' }}>
-            <p style={{ margin: 0, color: 'var(--ink)' }}>
+          <div style={{ padding: 'var(--space-md)', border: `1px solid var(--hairline)`, borderRadius: 'var(--radius-md)' }}>
+            <p style={{ margin: 0, color: 'var(--ink)', fontSize: '15px' }}>
               <strong>Payment Provider:</strong> {intent.provider}
             </p>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
-              (Mock Client Secret: {intent.client_secret})
+            <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
+              Mock Client Secret: {intent.client_secret}
             </p>
           </div>
           
           <button 
-            className="btn btn-primary" 
-            style={{ marginTop: 'var(--space-lg)', width: '100%' }}
+            className="btn btn-primary btn-lg" 
+            style={{ marginTop: 'var(--space-xl)', width: '100%' }}
             onClick={handleMockPay}
             disabled={loading}
           >
-            {loading ? 'Processing...' : `Pay Now with ${intent.provider}`}
+            {loading ? 'Processing...' : `Pay Now with ${intent.provider} →`}
           </button>
           {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)', fontSize: '14px' }}>{error}</p>}
         </div>

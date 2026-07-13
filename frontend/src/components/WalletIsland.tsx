@@ -67,14 +67,14 @@ export default function WalletIsland() {
         }
     };
 
-    if (loading) return <div>Loading wallet...</div>;
+    if (loading) return <div style={{ color: 'var(--mute)' }}>Loading wallet...</div>;
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-xl)' }}>
             <div>
-                <div className="glass-card">
-                    <h2 style={{ fontSize: '14px', color: 'var(--mute)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>Current Balance</h2>
-                    <div style={{ fontSize: '48px', fontWeight: 600, letterSpacing: '-2px', marginTop: 'var(--space-xs)' }}>
+                <div className="card" style={{ padding: 'var(--space-xl)' }}>
+                    <h2 style={{ fontSize: '13px', color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>Current Balance</h2>
+                    <div style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-2px', marginTop: 'var(--space-xs)' }}>
                         ₹{balance.toFixed(2)}
                     </div>
                     
@@ -88,7 +88,7 @@ export default function WalletIsland() {
                                 type="number" 
                                 min="100" 
                                 max={balance} 
-                                step="0.01"
+                                step="1"
                                 value={amount} 
                                 onChange={e => setAmount(e.target.value)} 
                                 required 
@@ -96,7 +96,7 @@ export default function WalletIsland() {
                             />
                         </div>
                         <div>
-                            <label>UPI ID or Bank Account Details</label>
+                            <label>UPI ID</label>
                             <input 
                                 type="text" 
                                 value={upi} 
@@ -106,7 +106,7 @@ export default function WalletIsland() {
                             />
                         </div>
                         <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 'var(--space-sm)' }}>
-                            Submit Request
+                            Submit Request →
                         </button>
                         {message && <div style={{ marginTop: 'var(--space-sm)', fontSize: '14px', color: message.startsWith('Error') ? 'var(--error)' : 'var(--success)' }}>{message}</div>}
                     </form>
@@ -114,7 +114,7 @@ export default function WalletIsland() {
             </div>
             
             <div>
-                <div className="glass-card">
+                <div className="card" style={{ padding: 'var(--space-xl)' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Payout History</h3>
                     {history.length === 0 ? (
                         <p style={{ color: 'var(--mute)', fontSize: '14px' }}>No payout requests yet.</p>
@@ -131,11 +131,11 @@ export default function WalletIsland() {
                             <tbody>
                                 {history.map(item => (
                                     <tr key={item.id}>
-                                        <td>{new Date(item.created_at).toLocaleDateString()}</td>
+                                        <td style={{ color: 'var(--mute)' }}>{new Date(item.created_at).toLocaleDateString()}</td>
                                         <td style={{ fontFamily: 'var(--font-mono)' }}>{item.upi_id}</td>
-                                        <td>{item.amount_inr.toFixed(2)}</td>
+                                        <td style={{ fontWeight: 600 }}>₹{item.amount_inr.toFixed(2)}</td>
                                         <td>
-                                            <span className={`badge ${item.status === 'completed' ? 'success' : ''}`}>
+                                            <span className={`badge ${item.status === 'completed' ? 'success' : ''}`} style={{ textTransform: 'capitalize' }}>
                                                 {item.status}
                                             </span>
                                         </td>

@@ -2,15 +2,17 @@
 import Layout from '../layouts/Layout.astro';
 import AuthForm from '../components/AuthForm.tsx';
 ---
-<Layout title="Login | Bodhic AI">
-	<div style="max-width: 400px; margin: 4rem auto;">
-		<div class="glass-card">
-			<h1 style="text-align: center; margin-bottom: 2rem;">Welcome Back</h1>
-			
+<Layout title="Login — Bodhic AI">
+	<div style="max-width: 420px; margin: var(--space-5xl) auto;">
+		<div style="text-align: center; margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block;">account</span>
+			<h1 style="font-size: 36px; margin-top: var(--space-md); margin-bottom: var(--space-xs);">Welcome back.</h1>
+			<p style="color: var(--mute);">Sign in to your Bodhic AI account.</p>
+		</div>
+		<div class="card" style="padding: var(--space-xl);">
 			<AuthForm client:load type="login" />
-			
-			<p style="text-align: center; margin-top: 2rem; color: var(--text-secondary);">
-				Don't have an account? <a href="/signup" style="color: var(--accent-color);">Sign Up</a>
+			<p style="text-align: center; margin-top: var(--space-xl); color: var(--mute); font-size: 14px;">
+				Don't have an account? <a href="/signup" style="color: var(--primary); font-weight: 600;">Sign Up →</a>
 			</p>
 		</div>
 	</div>

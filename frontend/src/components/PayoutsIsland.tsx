@@ -53,19 +53,19 @@ export default function PayoutsIsland() {
         }
     };
 
-    if (loading) return <div>Loading payouts...</div>;
+    if (loading) return <div style={{ color: 'var(--mute)' }}>Loading payouts...</div>;
 
     return (
-        <div className="glass-card">
+        <div className="card" style={{ padding: 'var(--space-xl)' }}>
             {payouts.length === 0 ? (
-                <p style={{ color: 'var(--mute)' }}>No payout requests found.</p>
+                <p style={{ color: 'var(--mute)', textAlign: 'center', padding: 'var(--space-xl) 0' }}>No payout requests found.</p>
             ) : (
                 <table className="data-table">
                     <thead>
                         <tr>
                             <th>Date</th>
                             <th>Seller Email</th>
-                            <th>UPI ID / Bank Details</th>
+                            <th>UPI ID</th>
                             <th>Amount (₹)</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -74,26 +74,25 @@ export default function PayoutsIsland() {
                     <tbody>
                         {payouts.map(p => (
                             <tr key={p.id}>
-                                <td>{new Date(p.created_at).toLocaleString()}</td>
+                                <td style={{ color: 'var(--mute)', fontSize: '14px' }}>{new Date(p.created_at).toLocaleString()}</td>
                                 <td>{p.users?.email || p.seller_id}</td>
-                                <td style={{ fontFamily: 'var(--font-mono)' }}>{p.upi_id}</td>
+                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '13px' }}>{p.upi_id}</td>
                                 <td style={{ fontWeight: 600 }}>₹{p.amount_inr.toFixed(2)}</td>
                                 <td>
-                                    <span className={`badge ${p.status === 'completed' ? 'success' : ''}`}>
+                                    <span className={`badge ${p.status === 'completed' ? 'success' : 'warning'}`} style={{ textTransform: 'capitalize' }}>
                                         {p.status}
                                     </span>
                                 </td>
                                 <td>
                                     {p.status === 'pending' ? (
                                         <button 
-                                            className="btn btn-primary" 
-                                            style={{ padding: '4px 12px', fontSize: '12px' }}
+                                            className="btn btn-primary btn-sm" 
                                             onClick={() => completePayout(p.id)}
                                         >
                                             Mark Paid
                                         </button>
                                     ) : (
-                                        <span style={{ color: 'var(--mute)', fontSize: '12px' }}>Done</span>
+                                        <span style={{ color: 'var(--mute)', fontSize: '14px' }}>Done</span>
                                     )}
                                 </td>
                             </tr>

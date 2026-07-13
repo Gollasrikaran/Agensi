@@ -3,12 +3,15 @@ import Layout from '../../layouts/Layout.astro';
 import WalletIsland from '../../components/WalletIsland.tsx';
 ---
 
-<Layout title="Bodhic AI - Seller Wallet">
-    <div style="margin-bottom: var(--space-lg);">
-        <h1 style="font-size: 32px; letter-spacing: -1.28px;">Seller Wallet</h1>
-        <p style="color: var(--body);">Manage your earnings and request payouts to your bank account.</p>
-    </div>
+<Layout title="Wallet — Bodhic AI">
+    <div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
+        <div style="margin-bottom: var(--space-xl);">
+            <span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">wallet</span>
+            <h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Earnings & Payouts</h1>
+            <p style="color: var(--body); font-size: 16px;">Manage your earnings and request payouts to your bank account.</p>
+        </div>
 
-    <!-- Client Island for fetching and displaying wallet state -->
-    <WalletIsland client:load />
+        <!-- Client Island for fetching and displaying wallet state -->
+        <WalletIsland client:load />
+    </div>
 </Layout>

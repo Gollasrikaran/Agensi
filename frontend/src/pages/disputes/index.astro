@@ -1,12 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 ---
-<Layout title="Disputes | Bodhic AI">
-	<div style="max-width: 600px; margin: 2rem auto;">
-		<div class="glass-card">
-			<h1 style="margin-bottom: 2rem;">File a Dispute</h1>
-			<p style="color: var(--text-secondary); margin-bottom: 2rem;">If a skill you purchased doesn't work as advertised, you can file a dispute here. We review all disputes and offer refunds where appropriate.</p>
-			
+<Layout title="Disputes — Bodhic AI">
+	<div style="max-width: 600px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">support</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">File a Dispute</h1>
+			<p style="color: var(--body); font-size: 16px;">If a skill you purchased doesn't work as advertised, let us know. We review all disputes and offer refunds where appropriate.</p>
+		</div>
+
+		<div class="card" style="padding: var(--space-xl);">
 			<div class="form-group">
 				<label>Purchase ID</label>
 				<input type="text" placeholder="pur-12345" />
@@ -17,7 +20,7 @@ import Layout from '../../layouts/Layout.astro';
 				<textarea rows="4" placeholder="Please describe the issue in detail..."></textarea>
 			</div>
 			
-			<button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Submit Dispute</button>
+			<button class="btn btn-primary" style="width: 100%; margin-top: var(--space-sm);">Submit Dispute →</button>
 		</div>
 	</div>
 </Layout>

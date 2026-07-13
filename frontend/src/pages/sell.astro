@@ -2,43 +2,45 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Sell an AI Agent Skill | Bodhic AI">
-	<div style="max-width: 600px; margin: 0 auto;">
-		<h1 style="margin-bottom: 2rem;">Upload Your AI Agent Skill</h1>
-		
-		<div class="glass-card">
+<Layout title="Sell a Skill — Bodhic AI">
+	<div style="max-width: 580px; margin: 0 auto; padding-top: var(--space-3xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">upload</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Publish your AI skill.</h1>
+			<p style="color: var(--body); font-size: 15px;">Upload a .md file and our scanner will verify it for security before listing.</p>
+		</div>
+
+		<div class="card" style="padding: var(--space-xl);">
 			<form id="upload-form">
 				<div class="form-group">
 					<label for="title">Skill Title</label>
 					<input type="text" id="title" required placeholder="e.g. Postgres Expert Agent" />
 				</div>
-				
+
 				<div class="form-group">
 					<label for="description">Short Description</label>
 					<textarea id="description" required rows="3" placeholder="What does this agent skill do?"></textarea>
 				</div>
-				
+
 				<div class="form-group">
-					<label for="price">Base Price (USD)</label>
-					<input type="number" id="price" required min="0" step="0.01" placeholder="15.00" />
+					<label for="price">Base Price (INR)</label>
+					<input type="number" id="price" required min="0" step="1" placeholder="500" />
 				</div>
-				
+
 				<div class="form-group">
 					<label for="file">Skill Content (.md File)</label>
-					<input type="file" id="file" accept=".md" required />
+					<input type="file" id="file" accept=".md" required style="padding: var(--space-sm); height: auto;" />
 				</div>
-				
-				<button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Upload and Scan</button>
+
+				<button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-sm);">Upload & Scan →</button>
 			</form>
-			
-			<div id="result" style="margin-top: 1.5rem; display: none;">
-				<div class="glass-card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);" id="result-content">
-				</div>
+
+			<div id="result" style="margin-top: var(--space-lg); display: none;">
+				<div class="card" style="background: var(--success-soft); border-color: rgba(16, 185, 129, 0.2);" id="result-content"></div>
 			</div>
-			
-			<div id="error" style="margin-top: 1.5rem; display: none;">
-				<div class="glass-card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2);" id="error-content">
-				</div>
+
+			<div id="error" style="margin-top: var(--space-lg); display: none;">
+				<div class="card" style="background: var(--error-soft); border-color: rgba(239, 68, 68, 0.2);" id="error-content"></div>
 			</div>
 		</div>
 	</div>
@@ -48,45 +50,43 @@ import Layout from '../layouts/Layout.astro';
 	import { supabase } from '../lib/supabase';
 
 	const form = document.getElementById('upload-form');
-	
+
 	form?.addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const btn = form.querySelector('button');
 		if(btn) btn.textContent = 'Scanning...';
-		
+
 		const title = (document.getElementById('title') as HTMLInputElement).value;
 		const description = (document.getElementById('description') as HTMLTextAreaElement).value;
 		const price = parseFloat((document.getElementById('price') as HTMLInputElement).value);
 		const fileInput = document.getElementById('file') as HTMLInputElement;
 		const file = fileInput.files?.[0];
-		
+
 		if (!file) {
 			alert("Please select a .md file to upload.");
-			if(btn) btn.textContent = 'Upload and Scan';
+			if(btn) btn.textContent = 'Upload & Scan →';
 			return;
 		}
 
-		// Read file content
 		const content = await new Promise<string>((resolve, reject) => {
 			const reader = new FileReader();
 			reader.onload = (e) => resolve(e.target?.result as string);
 			reader.onerror = (e) => reject("Error reading file");
 			reader.readAsText(file);
 		});
-		
+
 		try {
-			// Get the current session to extract the JWT
 			const { data: { session } } = await supabase.auth.getSession();
-			
+
 			if (!session) {
 				alert("You must be logged in to upload a skill.");
-				if(btn) btn.textContent = 'Upload and Scan';
+				if(btn) btn.textContent = 'Upload & Scan →';
 				return;
 			}
 
 			const res = await fetch('http://localhost:8000/api/skills/upload', {
 				method: 'POST',
-				headers: { 
+				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${session.access_token}`
 				},
@@ -97,36 +97,35 @@ import Layout from '../layouts/Layout.astro';
 					base_price_usd: price
 				})
 			});
-			
+
 			const data = await res.json();
 			const resultDiv = document.getElementById('result');
 			const resultContent = document.getElementById('result-content');
 			const errorDiv = document.getElementById('error');
 			const errorContent = document.getElementById('error-content');
-			
+
 			if (res.ok) {
 				if(resultDiv && resultContent) {
 					resultDiv.style.display = 'block';
-					resultContent.innerHTML = `<h3 style="color: #34d399; margin-bottom: 0.5rem;">Upload Successful!</h3><p>Your skill has passed all security checks and is now auto-approved on the marketplace.</p>`;
+					resultContent.innerHTML = `<h3 style="color: var(--success); margin-bottom: var(--space-xs);">✓ Upload Successful</h3><p style="color: var(--body); font-size: 14px;">Your skill passed all security checks and is now live on the marketplace.</p>`;
 				}
 				if(errorDiv) errorDiv.style.display = 'none';
 			} else {
 				if(errorDiv && errorContent) {
 					errorDiv.style.display = 'block';
-					
+
 					if (res.status === 403) {
-						// User is blocked
 						const blockMsg = data.detail?.message || data.detail || "Account Blocked";
 						errorContent.innerHTML = `
-							<h3 style="color: #ef4444; margin-bottom: 0.5rem;">Account Blocked</h3>
-							<p>${blockMsg}</p>
-							<div style="margin-top: 1rem;">
-								<h4 style="margin-bottom: 0.5rem;">Submit an Appeal</h4>
-								<textarea id="appeal-msg" rows="3" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 4px;" placeholder="Explain your situation..."></textarea>
-								<button type="button" id="appeal-btn" class="btn btn-primary" style="margin-top: 0.5rem; background: #ef4444; border-color: #ef4444;">Submit Appeal</button>
+							<h3 style="color: var(--error); margin-bottom: var(--space-xs);">Account Blocked</h3>
+							<p style="color: var(--body); font-size: 14px;">${blockMsg}</p>
+							<div style="margin-top: var(--space-lg);">
+								<h4 style="margin-bottom: var(--space-xs); font-size: 16px;">Submit an Appeal</h4>
+								<textarea id="appeal-msg" rows="3" class="form-group" style="width: 100%; background: var(--canvas-soft-2); border: 1px solid var(--hairline); color: var(--ink); padding: var(--space-sm); border-radius: var(--radius-sm); font-family: var(--font-sans);" placeholder="Explain your situation..."></textarea>
+								<button type="button" id="appeal-btn" class="btn btn-primary btn-sm" style="margin-top: var(--space-xs);">Submit Appeal</button>
 							</div>
 						`;
-						
+
 						document.getElementById('appeal-btn')?.addEventListener('click', async () => {
 							const appealMsg = (document.getElementById('appeal-msg') as HTMLTextAreaElement).value;
 							if (!appealMsg) return alert("Please enter a message.");
@@ -150,9 +149,8 @@ import Layout from '../layouts/Layout.astro';
 							}
 						});
 					} else {
-						// Warning / Validation Error
-						const issuesList = data.detail?.scan?.issues?.map((i: any) => `<li>${i.rule}: ${i.description}</li>`).join('') || '';
-						errorContent.innerHTML = `<h3 style="color: #ef4444; margin-bottom: 0.5rem;">Security Scan Failed</h3><p>${data.detail?.message || 'Warning'}</p><ul style="margin-left: 1.5rem; margin-top: 0.5rem;">${issuesList}</ul>`;
+						const issuesList = data.detail?.scan?.issues?.map((i: any) => `<li style="margin-bottom: 4px;">${i.rule}: ${i.description}</li>`).join('') || '';
+						errorContent.innerHTML = `<h3 style="color: var(--error); margin-bottom: var(--space-xs);">Security Scan Failed</h3><p style="color: var(--body); font-size: 14px;">${data.detail?.message || 'Warning'}</p><ul style="margin-left: var(--space-lg); margin-top: var(--space-sm); font-size: 13px; color: var(--body);">${issuesList}</ul>`;
 					}
 				}
 				if(resultDiv) resultDiv.style.display = 'none';
@@ -160,7 +158,7 @@ import Layout from '../layouts/Layout.astro';
 		} catch (err) {
 			console.error(err);
 		} finally {
-			if(btn) btn.textContent = 'Upload and Scan';
+			if(btn) btn.textContent = 'Upload & Scan →';
 		}
 	});
 </script>
