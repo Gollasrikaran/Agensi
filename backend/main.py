@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 
-from security_scanner import scan_skill
+from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
 from routers import admin, users
@@ -53,16 +53,68 @@ def get_skill(skill_id: str):
     except Exception as e:
         raise HTTPException(status_code=404, detail="Skill not found")
 
+def send_admin_block_notification(user_id: str):
+    print("*" * 50)
+    print(f"AUTOMATED EMAIL NOTIFICATION TO ADMIN:")
+    print(f"Subject: Security Alert: User Blocked")
+    print(f"Body: User {user_id} has exceeded the 3-strike security limit and has been automatically blocked.")
+    print("*" * 50)
+
+def handle_security_failure(user_id: str, scan_result: dict, tier: int):
+    try:
+        user_db = supabase.table("users").select("warnings_count").eq("id", user_id).execute()
+        current_warnings = user_db.data[0].get("warnings_count", 0) if user_db.data else 0
+        new_warnings = current_warnings + 1
+        
+        update_data = {"warnings_count": new_warnings}
+        
+        if new_warnings >= 3:
+            update_data["is_blocked"] = True
+            
+        supabase.table("users").update(update_data).eq("id", user_id).execute()
+        
+        if new_warnings >= 3:
+            send_admin_block_notification(user_id)
+            raise HTTPException(status_code=403, detail={"message": f"Security scan failed at Tier {tier}. You have exceeded your 3 warnings and are now blocked. Please appeal.", "scan": scan_result})
+        else:
+            raise HTTPException(status_code=400, detail={"message": f"Security scan failed at Tier {tier}. Warning {new_warnings}/3.", "scan": scan_result})
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/skills/upload")
 def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     # The user object is provided by Supabase Auth via the JWT
     seller_id = user.id
+    
+    # Pre-check if user is blocked
+    try:
+        user_db = supabase.table("users").select("is_blocked").eq("id", seller_id).execute()
+        if user_db.data and user_db.data[0].get("is_blocked"):
+            raise HTTPException(status_code=403, detail="Your account is blocked. Please submit an appeal.")
+    except HTTPException:
+        raise
+    except Exception:
+        pass
 
     # Tier 1 synchronous scan
-    passed, scan_result = scan_skill(req.content)
+    passed_tier1, scan_result_tier1 = scan_skill(req.content)
     
-    if not passed:
-        raise HTTPException(status_code=400, detail={"message": "Security scan failed", "scan": scan_result})
+    if not passed_tier1:
+        handle_security_failure(seller_id, scan_result_tier1, 1)
+        
+    # Tier 2 synchronous scan (Cloudflare Workers AI)
+    passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
+    
+    if not passed_tier2:
+        handle_security_failure(seller_id, scan_result_tier2, 2)
+        
+    # Combine scan results for database
+    final_scan_result = {
+        "tier1": scan_result_tier1,
+        "tier2": scan_result_tier2
+    }
         
     import uuid
     from datetime import datetime
@@ -78,8 +130,8 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "base_price_usd": req.base_price_usd,
         "is_free": req.base_price_usd == 0,
         "skill_md_file_url": "pending_upload_url",
-        "moderation_status": "pending",
-        "scan_summary_json": scan_result,
+        "moderation_status": "approved",
+        "scan_summary_json": final_scan_result,
         "declared_capabilities_json": []
     }
     
@@ -88,13 +140,22 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         skill_res = supabase.table("skills").insert(new_skill).execute()
         inserted_skill = skill_res.data[0]
         
-        # Insert into security_scans
+        # Insert into security_scans (Tier 1)
         supabase.table("security_scans").insert({
             "skill_id": inserted_skill["id"],
             "tier": 1,
-            "scan_result_json": scan_result,
-            "rule_categories_triggered": [issue["rule"] for issue in scan_result.get("issues", [])],
-            "passed": passed
+            "scan_result_json": scan_result_tier1,
+            "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier1.get("issues", [])],
+            "passed": passed_tier1
+        }).execute()
+        
+        # Insert into security_scans (Tier 2)
+        supabase.table("security_scans").insert({
+            "skill_id": inserted_skill["id"],
+            "tier": 2,
+            "scan_result_json": scan_result_tier2,
+            "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
+            "passed": passed_tier2
         }).execute()
         
         return {"message": "Skill uploaded successfully", "skill": inserted_skill}

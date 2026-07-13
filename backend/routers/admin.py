@@ -39,20 +39,26 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-from pydantic import BaseModel
-
-class StatusUpdateRequest(BaseModel):
-    status: str
-
-@router.post("/skills/{skill_id}/status")
-def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = Depends(verify_admin)):
-    if req.status not in ["approved", "rejected", "pending"]:
-        raise HTTPException(status_code=400, detail="Invalid status")
-        
+@router.get("/appeals")
+def get_appeals(admin_user = Depends(verify_admin)):
     try:
-        res = supabase.table("skills").update({"moderation_status": req.status}).eq("id", skill_id).execute()
+        res = supabase.table("users").select("id, warnings_count, appeal_message").eq("appeal_requested", True).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/users/{user_id}/unblock")
+def unblock_user(user_id: str, admin_user = Depends(verify_admin)):
+    try:
+        res = supabase.table("users").update({
+            "is_blocked": False,
+            "warnings_count": 0,
+            "appeal_requested": False,
+            "appeal_message": None
+        }).eq("id", user_id).execute()
+        
         if not res.data:
-            raise HTTPException(status_code=404, detail="Skill not found")
-        return {"message": f"Skill status updated to {req.status}", "skill": res.data[0]}
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"message": "User unblocked successfully. Warnings reset to 0."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

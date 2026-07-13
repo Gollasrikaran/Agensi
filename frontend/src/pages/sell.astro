@@ -24,8 +24,8 @@ import Layout from '../layouts/Layout.astro';
 				</div>
 				
 				<div class="form-group">
-					<label for="content">Skill Content (SKILL.md)</label>
-					<textarea id="content" required rows="10" placeholder="Paste your raw SKILL.md prompt content here..." style="font-family: monospace;"></textarea>
+					<label for="file">Skill Content (.md File)</label>
+					<input type="file" id="file" accept=".md" required />
 				</div>
 				
 				<button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Upload and Scan</button>
@@ -57,7 +57,22 @@ import Layout from '../layouts/Layout.astro';
 		const title = (document.getElementById('title') as HTMLInputElement).value;
 		const description = (document.getElementById('description') as HTMLTextAreaElement).value;
 		const price = parseFloat((document.getElementById('price') as HTMLInputElement).value);
-		const content = (document.getElementById('content') as HTMLTextAreaElement).value;
+		const fileInput = document.getElementById('file') as HTMLInputElement;
+		const file = fileInput.files?.[0];
+		
+		if (!file) {
+			alert("Please select a .md file to upload.");
+			if(btn) btn.textContent = 'Upload and Scan';
+			return;
+		}
+
+		// Read file content
+		const content = await new Promise<string>((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = (e) => resolve(e.target?.result as string);
+			reader.onerror = (e) => reject("Error reading file");
+			reader.readAsText(file);
+		});
 		
 		try {
 			// Get the current session to extract the JWT
@@ -92,14 +107,53 @@ import Layout from '../layouts/Layout.astro';
 			if (res.ok) {
 				if(resultDiv && resultContent) {
 					resultDiv.style.display = 'block';
-					resultContent.innerHTML = `<h3 style="color: #34d399; margin-bottom: 0.5rem;">Upload Successful!</h3><p>Your skill is pending final review. Tier 1 security scan passed.</p>`;
+					resultContent.innerHTML = `<h3 style="color: #34d399; margin-bottom: 0.5rem;">Upload Successful!</h3><p>Your skill has passed all security checks and is now auto-approved on the marketplace.</p>`;
 				}
 				if(errorDiv) errorDiv.style.display = 'none';
 			} else {
 				if(errorDiv && errorContent) {
 					errorDiv.style.display = 'block';
-					const issuesList = data.detail?.scan?.issues?.map((i: any) => `<li>${i.rule}: ${i.description}</li>`).join('') || 'Unknown error';
-					errorContent.innerHTML = `<h3 style="color: #ef4444; margin-bottom: 0.5rem;">Security Scan Failed</h3><ul style="margin-left: 1.5rem;">${issuesList}</ul>`;
+					
+					if (res.status === 403) {
+						// User is blocked
+						const blockMsg = data.detail?.message || data.detail || "Account Blocked";
+						errorContent.innerHTML = `
+							<h3 style="color: #ef4444; margin-bottom: 0.5rem;">Account Blocked</h3>
+							<p>${blockMsg}</p>
+							<div style="margin-top: 1rem;">
+								<h4 style="margin-bottom: 0.5rem;">Submit an Appeal</h4>
+								<textarea id="appeal-msg" rows="3" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 4px;" placeholder="Explain your situation..."></textarea>
+								<button type="button" id="appeal-btn" class="btn btn-primary" style="margin-top: 0.5rem; background: #ef4444; border-color: #ef4444;">Submit Appeal</button>
+							</div>
+						`;
+						
+						document.getElementById('appeal-btn')?.addEventListener('click', async () => {
+							const appealMsg = (document.getElementById('appeal-msg') as HTMLTextAreaElement).value;
+							if (!appealMsg) return alert("Please enter a message.");
+							try {
+								const appealRes = await fetch('http://localhost:8000/api/users/me/appeal', {
+									method: 'POST',
+									headers: {
+										'Content-Type': 'application/json',
+										'Authorization': `Bearer ${session.access_token}`
+									},
+									body: JSON.stringify({ message: appealMsg })
+								});
+								if (appealRes.ok) {
+									alert("Appeal submitted successfully. The admin will review it.");
+								} else {
+									const errData = await appealRes.json();
+									alert("Failed to submit appeal: " + (errData.detail || "Unknown error"));
+								}
+							} catch (e) {
+								alert("Error submitting appeal.");
+							}
+						});
+					} else {
+						// Warning / Validation Error
+						const issuesList = data.detail?.scan?.issues?.map((i: any) => `<li>${i.rule}: ${i.description}</li>`).join('') || '';
+						errorContent.innerHTML = `<h3 style="color: #ef4444; margin-bottom: 0.5rem;">Security Scan Failed</h3><p>${data.detail?.message || 'Warning'}</p><ul style="margin-left: 1.5rem; margin-top: 0.5rem;">${issuesList}</ul>`;
+					}
 				}
 				if(resultDiv) resultDiv.style.display = 'none';
 			}
