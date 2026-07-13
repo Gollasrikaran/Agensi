@@ -8,7 +8,7 @@ from payments import create_payment_intent
 from auth import get_current_user, supabase
 from routers import admin, users
 
-app = FastAPI(title="Agensi Competitor AI Agent Skill Marketplace")
+app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 
 app.include_router(admin.router)
 app.include_router(users.router)

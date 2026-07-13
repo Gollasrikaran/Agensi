@@ -17,7 +17,7 @@ try {
 // In Astro, to enable SSR for dynamic routes without getStaticPaths, we must have `output: 'server'` configured, but for now we'll just mock it or assume it's fetched dynamically if running in dev.
 ---
 
-<Layout title={skill ? `${skill.title} | Agensi Competitor` : "Skill Not Found"}>
+<Layout title={skill ? `${skill.title} | Bodhic AI` : "Skill Not Found"}>
 	{!skill ? (
 		<div style="text-align: center; padding: 4rem;">
 			<h2>Skill not found</h2>

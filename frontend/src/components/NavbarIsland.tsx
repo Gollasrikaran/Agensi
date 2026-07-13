@@ -52,7 +52,7 @@ export default function NavbarIsland() {
   return (
     <header className="navbar">
       <div className="logo">
-        <a href="/">Agensi<span className="highlight">Competitor</span></a>
+        <a href="/">Bodhic<span className="highlight">AI</span></a>
       </div>
       <nav>
         <a href="/browse">Browse Skills</a>
