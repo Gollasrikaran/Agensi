@@ -65,6 +65,7 @@ export default function NavbarIsland() {
         {session && <a href="/dashboard/buyer">Buyer</a>}
         {session && <a href="/dashboard/seller">Seller</a>}
         {session && <a href="/dashboard/wallet">Wallet</a>}
+        {session && <a href="/dashboard/profile">Profile</a>}
       </nav>
       <div className="auth-buttons">
         <ThemeToggleIsland />

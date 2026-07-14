@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProfileSettingsIsland from '../../components/ProfileSettingsIsland.tsx';
+---
+<Layout 
+	title="Profile Settings — Bodhic AI"
+	description="Edit your Bodhic AI profile. Set your unique username so buyers can find you on the marketplace."
+>
+	<div style="max-width: 700px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">settings</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Profile Settings</h1>
+			<p style="color: var(--body); font-size: 16px;">Set your username so buyers can see who you are on the marketplace.</p>
+		</div>
+		<ProfileSettingsIsland client:load />
+	</div>
+</Layout>

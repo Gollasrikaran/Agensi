@@ -22,7 +22,6 @@ export default function UploadSkillFormIsland() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [billingType, setBillingType] = useState('one-time');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   
@@ -120,7 +119,7 @@ export default function UploadSkillFormIsland() {
           description,
           content,
           base_price_inr: parseFloat(price),
-          billing_type: billingType,
+          billing_type: 'one-time',
           categories: selectedCategories
         })
       });
@@ -256,7 +255,9 @@ export default function UploadSkillFormIsland() {
                   onClick={() => toggleCategory(category.value)}
                   style={{ 
                     padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                    background: selectedCategories.includes(category.value) ? 'var(--canvas-soft)' : 'transparent'
+                    background: selectedCategories.includes(category.value) ? 'var(--canvas-soft)' : 'transparent',
+                    fontSize: '14px',
+                    color: 'var(--ink)'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.background = 'var(--canvas-soft-2)'}
                   onMouseOut={(e) => e.currentTarget.style.background = selectedCategories.includes(category.value) ? 'var(--canvas-soft)' : 'transparent'}
@@ -265,9 +266,9 @@ export default function UploadSkillFormIsland() {
                     type="checkbox" 
                     checked={selectedCategories.includes(category.value)} 
                     readOnly
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', margin: 0, width: '16px', height: '16px', flexShrink: 0 }}
                   />
-                  {category.label}
+                  <span style={{ lineHeight: 1 }}>{category.label}</span>
                 </div>
               ))}
             </div>
@@ -286,19 +287,6 @@ export default function UploadSkillFormIsland() {
             onChange={(e) => setPrice(e.target.value)}
             style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }}
           />
-        </div>
-
-        <div className="form-group" style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Billing Type</label>
-          <select 
-            required 
-            value={billingType}
-            onChange={(e) => setBillingType(e.target.value)}
-            style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }}
-          >
-            <option value="one-time">One-Time Purchase</option>
-            <option value="monthly">Monthly Subscription</option>
-          </select>
         </div>
 
         <div className="form-group" style={{ marginBottom: '1.5rem' }}>

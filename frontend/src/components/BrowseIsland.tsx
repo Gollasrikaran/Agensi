@@ -29,7 +29,7 @@ export default function BrowseIsland() {
   }, []);
 
   const fetchSkills = () => {
-    fetch('http://localhost:8000/api/skills')
+    fetch('http://localhost:8000/api/public/skills')
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -162,9 +162,26 @@ export default function BrowseIsland() {
                         <span style={{ fontSize: '12px', fontWeight: '700' }}>{skill.upvotes || 0}</span>
                       </button>
                     </div>
-                    <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '20px', marginBottom: 'var(--space-lg)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '20px', marginBottom: 'var(--space-md)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {skill.description}
                     </p>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-md)' }}>
+                      {skill.seller?.avatar_url ? (
+                        <img 
+                          src={skill.seller.avatar_url} 
+                          alt="avatar" 
+                          style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--canvas-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mute)', fontSize: '12px' }}>
+                          ?
+                        </div>
+                      )}
+                      <span style={{ fontSize: '13px', color: 'var(--ink)' }}>
+                        {skill.seller?.username || 'Anonymous'}
+                      </span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hairline)', paddingTop: 'var(--space-md)' }}>
                     <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
@@ -176,7 +193,6 @@ export default function BrowseIsland() {
                     </div>
                     <div style={{ fontWeight: '600', fontSize: '16px', fontFamily: 'var(--font-mono)', color: 'var(--ink)' }}>
                       {skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
-                      {skill.billing_type === 'monthly' && <span style={{ fontSize: '12px', color: 'var(--mute)' }}>/mo</span>}
                     </div>
                   </div>
                 </a>

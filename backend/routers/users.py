@@ -23,6 +23,29 @@ def get_my_skills(user = Depends(get_current_user)):
 
 from pydantic import BaseModel
 
+class ProfileUpdateRequest(BaseModel):
+    username: str
+    avatar_url: str
+
+@router.post("/me/profile")
+def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
+    try:
+        # Check if username is taken by someone else
+        existing = supabase.table("users").select("id").eq("username", req.username).execute()
+        if existing.data and existing.data[0]["id"] != user.id:
+            raise HTTPException(status_code=400, detail="Username is already taken")
+            
+        res = supabase.table("users").update({
+            "username": req.username,
+            "avatar_url": req.avatar_url
+        }).eq("id", user.id).execute()
+        
+        return {"message": "Profile updated successfully", "user": res.data[0] if res.data else None}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 class AppealRequest(BaseModel):
     message: str
 

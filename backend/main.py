@@ -6,12 +6,13 @@ from typing import List, Optional
 from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
-from routers import admin, users
+from routers import admin, users, public
 
 app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 
 app.include_router(admin.router)
 app.include_router(users.router)
+app.include_router(public.router)
 
 app.add_middleware(
     CORSMiddleware,
