@@ -153,7 +153,7 @@ export default function AdminDashboardIsland() {
               {data.recent_skills?.map((skill: any) => (
                 <tr key={skill.id} style={{ borderBottom: '1px solid #1e293b' }}>
                   <td style={{ padding: '0.5rem' }}>{skill.title}</td>
-                  <td style={{ padding: '0.5rem' }}>${skill.base_price_usd}</td>
+                  <td style={{ padding: '0.5rem' }}>₹{skill.base_price_inr}</td>
                   <td style={{ padding: '0.5rem' }}>
                     <span style={{ 
                       padding: '0.2rem 0.5rem', 
