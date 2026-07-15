@@ -221,10 +221,31 @@ def checkout(req: CheckoutRequest):
 
 class CheckoutSuccessRequest(BaseModel):
     skill_id: str
+    razorpay_payment_id: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 @app.post("/api/checkout/success")
 def checkout_success(req: CheckoutSuccessRequest):
     try:
+        # 1. Verify Razorpay Signature if keys exist
+        import os
+        import hmac
+        import hashlib
+        razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+        
+        if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
+            msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
+            generated_signature = hmac.new(
+                razorpay_key_secret.encode('utf-8'),
+                msg.encode('utf-8'),
+                hashlib.sha256
+            ).hexdigest()
+            
+            if generated_signature != req.razorpay_signature:
+                raise HTTPException(status_code=400, detail="Invalid payment signature")
+
+        # 2. Process wallet credit
         skill_res = supabase.table("skills").select("base_price_inr, seller_id").eq("id", req.skill_id).single().execute()
         if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")

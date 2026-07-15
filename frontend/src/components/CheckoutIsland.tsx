@@ -31,21 +31,80 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
     }
   };
 
-  const handleMockPay = async () => {
+  const handlePayment = async () => {
     setLoading(true);
-    try {
-      const res = await fetch('http://localhost:8000/api/checkout/success', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skill_id: skillId })
-      });
-      if (!res.ok) throw new Error('Payment confirmation failed');
-      setSuccess(true);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    
+    // 1. Mock Fallback Flow
+    if (!intent.is_live) {
+        try {
+          const res = await fetch('http://localhost:8000/api/checkout/success', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ skill_id: skillId })
+          });
+          if (!res.ok) throw new Error('Payment confirmation failed');
+          setSuccess(true);
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+        return;
     }
+    
+    // 2. Real Razorpay SDK Flow
+    const loadScript = () => {
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+    };
+
+    const isLoaded = await loadScript();
+    if (!isLoaded) {
+      setError('Failed to load Razorpay SDK. Please check your connection.');
+      setLoading(false);
+      return;
+    }
+
+    const options = {
+      key: intent.razorpay_key_id,
+      amount: Math.round(intent.amount_inr * 100),
+      currency: "INR",
+      name: "Bodhic AI",
+      description: "Skill License Purchase",
+      order_id: intent.client_secret,
+      handler: async function (response: any) {
+        try {
+          const confirmRes = await fetch('http://localhost:8000/api/checkout/success', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              skill_id: skillId,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+          if (!confirmRes.ok) throw new Error('Payment verification failed');
+          setSuccess(true);
+        } catch (err: any) {
+          setError(err.message);
+        }
+      },
+      theme: { color: "#6C3CE1" }
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.on('payment.failed', function (response: any) {
+      setError(response.error.description);
+    });
+    
+    rzp.open();
+    setLoading(false);
   };
 
   if (success) {
@@ -113,7 +172,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
           <button 
             className="btn btn-primary btn-lg" 
             style={{ marginTop: 'var(--space-xl)', width: '100%' }}
-            onClick={handleMockPay}
+            onClick={handlePayment}
             disabled={loading}
           >
             {loading ? 'Processing...' : `Pay Now with ${intent.provider} →`}
