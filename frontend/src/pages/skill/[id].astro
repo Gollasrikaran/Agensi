@@ -42,10 +42,10 @@ try {
 			<div style="margin-bottom: var(--space-xl);">
 				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm);">
 					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
-					{skill.scan_summary_json?.passed ? (
+					{skill.moderation_status === 'approved' ? (
 						<span class="badge success">🛡️ Verified Safe</span>
 					) : (
-						<span class="badge warning">⚠️ Pending Scan</span>
+						<span class="badge warning">⏳ Pending Review</span>
 					)}
 				</div>
 				<h1 style="font-size: 48px; margin-bottom: var(--space-xs);">{skill.title}</h1>

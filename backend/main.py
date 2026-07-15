@@ -41,7 +41,8 @@ def read_root():
 @app.get("/api/skills")
 def get_skills():
     try:
-        res = supabase.table("skills").select("*").execute()
+        # Only return approved skills — pending/rejected must not be visible publicly
+        res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -49,11 +50,13 @@ def get_skills():
 @app.get("/api/skills/{skill_id}")
 def get_skill(skill_id: str):
     try:
-        res = supabase.table("skills").select("*").eq("id", skill_id).single().execute()
+        res = supabase.table("skills").select("*").eq("id", skill_id).eq("moderation_status", "approved").single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
         return res.data
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=404, detail="Skill not found")
 
 def send_admin_block_notification(user_id: str):
@@ -123,10 +126,9 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     # Determine status
     if not passed_tier1 or (not passed_tier2 and not tier2_error):
         moderation_status = "rejected"
-    elif tier2_error:
-        moderation_status = "pending"
     else:
-        moderation_status = "approved"
+        # All scans passed (or tier2 had a system error) — still needs admin approval
+        moderation_status = "pending"
 
     # ---------------------------------------------------------------
     # IMPORTANT: Increment warnings / block the user BEFORE any DB ops.
@@ -248,7 +250,7 @@ def checkout_success(req: CheckoutSuccessRequest):
 @app.get("/api/skills/leaderboard")
 def get_leaderboard():
     try:
-        res = supabase.table("skills").select("*").order("upvotes", desc=True).limit(20).execute()
+        res = supabase.table("skills").select("*").eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

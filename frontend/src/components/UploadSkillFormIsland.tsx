@@ -134,7 +134,7 @@ export default function UploadSkillFormIsland() {
           content: (
             <>
               <h3 style={{ color: 'var(--success)', marginBottom: 'var(--space-xs)' }}>✓ Upload Successful</h3>
-              <p style={{ color: 'var(--body)', fontSize: '14px' }}>Your skill passed all security checks and is now live on the marketplace.</p>
+              <p style={{ color: 'var(--body)', fontSize: '14px' }}>Your skill passed all security checks and is now <strong>pending admin approval</strong>. It will appear publicly once an admin reviews and approves it.</p>
             </>
           )
         });

@@ -185,10 +185,10 @@ export default function BrowseIsland() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hairline)', paddingTop: 'var(--space-md)' }}>
                     <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-                      {skill.scan_summary_json?.passed ? (
-                        <span className="badge success">Verified</span>
+                      {skill.moderation_status === 'approved' ? (
+                        <span className="badge success">✓ Verified</span>
                       ) : (
-                        <span className="badge warning">Pending</span>
+                        <span className="badge warning">Pending Review</span>
                       )}
                     </div>
                     <div style={{ fontWeight: '600', fontSize: '16px', fontFamily: 'var(--font-mono)', color: 'var(--ink)' }}>
