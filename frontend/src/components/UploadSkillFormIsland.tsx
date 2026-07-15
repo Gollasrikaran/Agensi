@@ -28,6 +28,7 @@ export default function UploadSkillFormIsland() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; content: React.ReactNode } | null>(null);
   const [appealMsg, setAppealMsg] = useState('');
+  const [isBlocked, setIsBlocked] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -127,6 +128,7 @@ export default function UploadSkillFormIsland() {
       const data = await res.json();
 
       if (res.ok) {
+        setIsBlocked(false);
         setResult({
           success: true,
           content: (
@@ -139,24 +141,13 @@ export default function UploadSkillFormIsland() {
       } else {
         if (res.status === 403) {
           const blockMsg = data.detail?.message || data.detail || "Account Blocked";
+          setIsBlocked(true);
           setResult({
             success: false,
             content: (
               <>
                 <h3 style={{ color: 'var(--error)', marginBottom: 'var(--space-xs)' }}>Account Blocked</h3>
                 <p style={{ color: 'var(--body)', fontSize: '14px' }}>{blockMsg}</p>
-                <div style={{ marginTop: 'var(--space-lg)' }}>
-                  <h4 style={{ marginBottom: 'var(--space-xs)', fontSize: '16px' }}>Submit an Appeal</h4>
-                  <textarea 
-                    rows={3} 
-                    className="form-group" 
-                    style={{ width: '100%', background: 'var(--canvas-soft-2)', border: '1px solid var(--hairline)', color: 'var(--ink)', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-sans)', marginBottom: '10px' }} 
-                    placeholder="Explain your situation..."
-                    value={appealMsg}
-                    onChange={(e) => setAppealMsg(e.target.value)}
-                  />
-                  <button type="button" onClick={handleAppeal} className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-xs)' }}>Submit Appeal</button>
-                </div>
               </>
             )
           });
@@ -164,6 +155,7 @@ export default function UploadSkillFormIsland() {
           const issuesList = data.detail?.scan?.issues?.map((i: any, idx: number) => (
             <li key={idx} style={{ marginBottom: '4px' }}>{i.rule}: {i.description}</li>
           )) || null;
+          setIsBlocked(false);
           setResult({
             success: false,
             content: (
@@ -314,6 +306,21 @@ export default function UploadSkillFormIsland() {
           }}>
             {result.content}
           </div>
+
+          {/* Appeal form rendered outside result.content so appealMsg state updates correctly */}
+          {isBlocked && (
+            <div style={{ marginTop: 'var(--space-lg)' }}>
+              <h4 style={{ marginBottom: 'var(--space-xs)', fontSize: '16px' }}>Submit an Appeal</h4>
+              <textarea
+                rows={3}
+                style={{ width: '100%', background: 'var(--canvas-soft-2)', border: '1px solid var(--hairline)', color: 'var(--ink)', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-sans)', marginBottom: '10px', resize: 'vertical', boxSizing: 'border-box' }}
+                placeholder="Explain your situation..."
+                value={appealMsg}
+                onChange={(e) => setAppealMsg(e.target.value)}
+              />
+              <button type="button" onClick={handleAppeal} className="btn btn-primary btn-sm">Submit Appeal</button>
+            </div>
+          )}
         </div>
       )}
     </div>

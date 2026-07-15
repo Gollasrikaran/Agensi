@@ -93,13 +93,14 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     
     # Pre-check if user is blocked
     try:
-        user_db = supabase.table("users").select("is_blocked").eq("id", seller_id).execute()
+        user_db = supabase.table("users").select("is_blocked, warnings_count").eq("id", seller_id).execute()
         if user_db.data and user_db.data[0].get("is_blocked"):
             raise HTTPException(status_code=403, detail="Your account is blocked. Please submit an appeal.")
     except HTTPException:
         raise
-    except Exception:
-        pass
+    except Exception as e:
+        # Log so DB/column errors are visible instead of being silently ignored
+        print(f"[WARN] Could not check user block status for {seller_id}: {e}")
 
     # Tier 1 synchronous scan
     passed_tier1, scan_result_tier1 = scan_skill(req.content)
@@ -127,17 +128,30 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     else:
         moderation_status = "approved"
 
-    # Combine scan results for database
+    # ---------------------------------------------------------------
+    # IMPORTANT: Increment warnings / block the user BEFORE any DB ops.
+    # Previously this was called AFTER the DB insert, so a DB error (500)
+    # would prevent warnings from ever being counted and the user would
+    # never get blocked no matter how many bad uploads they submitted.
+    # ---------------------------------------------------------------
+    if not passed_tier1:
+        handle_security_failure(seller_id, scan_result_tier1, 1)
+        # handle_security_failure always raises HTTPException — code below won't run
+    elif not passed_tier2 and not tier2_error:
+        handle_security_failure(seller_id, scan_result_tier2, 2)
+        # handle_security_failure always raises HTTPException — code below won't run
+
+    # Only approved / pending skills reach this point
+    import uuid
+    from datetime import datetime
+
     final_scan_result = {
         "tier1": scan_result_tier1,
         "tier2": scan_result_tier2
     }
-        
-    import uuid
-    from datetime import datetime
-    
+
     skill_slug = req.title.lower().replace(" ", "-") + "-" + uuid.uuid4().hex[:6]
-    
+
     new_skill = {
         "seller_id": seller_id,
         "title": req.title,
@@ -152,12 +166,12 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "scan_summary_json": final_scan_result,
         "declared_capabilities_json": []
     }
-    
+
     try:
         # Insert into skills
         skill_res = supabase.table("skills").insert(new_skill).execute()
         inserted_skill = skill_res.data[0]
-        
+
         # Insert into skill_versions to store the MD content
         supabase.table("skill_versions").insert({
             "skill_id": inserted_skill["id"],
@@ -165,7 +179,7 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
             "md_content": req.content,
             "changelog": "Initial upload"
         }).execute()
-        
+
         # Insert into security_scans (Tier 1)
         supabase.table("security_scans").insert({
             "skill_id": inserted_skill["id"],
@@ -174,7 +188,7 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
             "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier1.get("issues", [])],
             "passed": passed_tier1
         }).execute()
-        
+
         # Insert into security_scans (Tier 2) if run
         if scan_result_tier2:
             supabase.table("security_scans").insert({
@@ -184,16 +198,10 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
                 "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
                 "passed": passed_tier2
             }).execute()
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-        
-    # Trigger blocks if rejected
-    if not passed_tier1:
-        handle_security_failure(seller_id, scan_result_tier1, 1)
-    elif not passed_tier2 and not tier2_error:
-        handle_security_failure(seller_id, scan_result_tier2, 2)
-        
+
     return {"message": "Skill uploaded successfully", "skill": inserted_skill}
 
 @app.post("/api/checkout/intent")
