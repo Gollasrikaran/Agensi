@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface CheckoutIslandProps {
   skillId: string;
@@ -11,6 +12,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
   const [intent, setIntent] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const paymentSucceeded = useRef(false); // guard: prevents payment.failed from overriding success
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -33,13 +35,16 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
   const handlePayment = async () => {
     setLoading(true);
-    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setError('Please log in to complete purchase.'); setLoading(false); return; }
+    const token = session.access_token;
+
     // 1. Mock Fallback Flow
     if (!intent.is_live) {
         try {
           const res = await fetch('http://localhost:8000/api/checkout/success', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ skill_id: skillId })
           });
           if (!res.ok) throw new Error('Payment confirmation failed');
@@ -81,7 +86,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         try {
           const confirmRes = await fetch('http://localhost:8000/api/checkout/success', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ 
               skill_id: skillId,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -89,7 +94,11 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
               razorpay_signature: response.razorpay_signature
             })
           });
-          if (!confirmRes.ok) throw new Error('Payment verification failed');
+          if (!confirmRes.ok) {
+            const errData = await confirmRes.json().catch(() => ({}));
+            throw new Error(errData.detail || 'Payment confirmation failed');
+          }
+          paymentSucceeded.current = true;
           setSuccess(true);
         } catch (err: any) {
           setError(err.message);
@@ -100,19 +109,59 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
     const rzp = new (window as any).Razorpay(options);
     rzp.on('payment.failed', function (response: any) {
-      setError(response.error.description);
+      // Only show error if payment hasn't already been confirmed successfully
+      if (!paymentSucceeded.current) {
+        setError(response.error?.description || 'Payment failed. Please try again.');
+      }
     });
     
     rzp.open();
     setLoading(false);
   };
 
+  const [downloadingAfterPurchase, setDownloadingAfterPurchase] = useState(false);
+
+  const handlePostPurchaseDownload = async () => {
+    setDownloadingAfterPurchase(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { alert('Please log in.'); return; }
+      const res = await fetch(`http://localhost:8000/api/skills/${skillId}/download`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      if (!res.ok) { alert('Download failed. Please try again.'); return; }
+      const data = await res.json();
+      const blob = new Blob([data.content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(data.title || 'skill').replace(/\s+/g, '_')}_v${data.version}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Download error.');
+    } finally {
+      setDownloadingAfterPurchase(false);
+    }
+  };
+
   if (success) {
     return (
       <div className="card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)', background: 'var(--success-soft)', padding: 'var(--space-2xl)' }}>
         <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>✓ Payment Successful</h3>
-        <p style={{ color: 'var(--body)', fontSize: '16px' }}>You now have access to this artifact. The creator has been credited.</p>
-        <button className="btn btn-primary btn-lg" style={{ marginTop: 'var(--space-lg)' }} onClick={() => window.location.reload()}>View Artifact →</button>
+        <p style={{ color: 'var(--body)', fontSize: '16px', marginBottom: 'var(--space-lg)' }}>
+          You now have access to this skill. Download it below or find it anytime in your{' '}
+          <a href="/dashboard/buyer" style={{ color: 'var(--primary)' }}>Buyer Dashboard</a>.
+        </p>
+        <button
+          className="btn btn-primary btn-lg"
+          onClick={handlePostPurchaseDownload}
+          disabled={downloadingAfterPurchase}
+        >
+          {downloadingAfterPurchase ? 'Preparing download...' : '↓ Download Skill (.md)'}
+        </button>
       </div>
     );
   }
@@ -165,7 +214,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
                 </span>
               </div>
             <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
-              Mock Client Secret: {intent.client_secret}
+              Provider: {intent.provider} {intent.is_live ? '(Live)' : '(Test Mode)'}
             </p>
           </div>
           
