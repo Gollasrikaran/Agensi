@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 export default function ProfileSettingsIsland() {
   const [username, setUsername] = useState('');
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -18,13 +20,22 @@ export default function ProfileSettingsIsland() {
       // Fetch current profile from users table
       const { data } = await supabase
         .from('users')
-        .select('username')
+        .select('username, bio, avatar_url')
         .eq('id', session.user.id)
         .maybeSingle();
 
       if (data?.username) {
         setCurrentUsername(data.username);
         setUsername(data.username);
+      }
+      if (data?.bio) {
+        setBio(data.bio);
+      }
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url);
+      } else {
+        // Assign a random default bot avatar if none is set
+        setAvatarUrl(`https://api.dicebear.com/9.x/bottts/svg?seed=${session.user.id}`);
       }
       setLoading(false);
     };
@@ -56,7 +67,7 @@ export default function ProfileSettingsIsland() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ username, avatar_url: '' })
+        body: JSON.stringify({ username, avatar_url: avatarUrl, bio })
       });
 
       const data = await res.json();
@@ -85,11 +96,16 @@ export default function ProfileSettingsIsland() {
         {/* Avatar Initials */}
         <div style={{
           width: '72px', height: '72px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary), #9b5cff)',
+          background: 'var(--canvas-strong)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '28px', fontWeight: 700, color: '#fff', flexShrink: 0
+          fontSize: '28px', fontWeight: 700, color: '#fff', flexShrink: 0,
+          overflow: 'hidden', border: '1px solid var(--hairline-strong)'
         }}>
-          {currentUsername ? currentUsername[0].toUpperCase() : '?'}
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            currentUsername ? currentUsername[0].toUpperCase() : '?'
+          )}
         </div>
         <div>
           <h2 style={{ margin: 0, fontSize: '22px' }}>
@@ -99,6 +115,19 @@ export default function ProfileSettingsIsland() {
             {currentUsername ? 'This is how sellers and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
           </p>
         </div>
+        
+        {currentUsername && (
+          <div style={{ marginLeft: 'auto' }}>
+            <a 
+              href={`/profile/${currentUsername}`} 
+              target="_blank" 
+              className="btn btn-secondary" 
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+            >
+              View Public Profile ↗
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Form */}
@@ -135,6 +164,81 @@ export default function ProfileSettingsIsland() {
             <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
               3–30 characters. Lowercase letters, numbers, and underscores only. Must be unique.
             </p>
+          </div>
+
+          {/* Avatar Picker */}
+          <div style={{ marginBottom: 'var(--space-lg)' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500, fontSize: '14px' }}>
+              Choose your AI Avatar (or enter a custom URL)
+            </label>
+            
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              {/* Predefined Dicebear Bottts array */}
+              {['Nexus', 'Nova', 'Cyber', 'Neon', 'Byte', 'Glitch', 'Spark'].map((seed) => {
+                const url = `https://api.dicebear.com/9.x/bottts/svg?seed=${seed}&backgroundColor=transparent`;
+                const isSelected = avatarUrl === url;
+                return (
+                  <div 
+                    key={seed}
+                    onClick={() => setAvatarUrl(url)}
+                    style={{
+                      width: '48px', height: '48px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      border: isSelected ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
+                      background: 'var(--canvas-strong)',
+                      padding: '4px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <img src={url} alt={seed} style={{ width: '100%', height: '100%' }} />
+                  </div>
+                );
+              })}
+            </div>
+            
+            <input
+              type="text"
+              value={avatarUrl}
+              onChange={(e) => setAvatarUrl(e.target.value)}
+              placeholder="https://example.com/my-avatar.png"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--hairline-strong)',
+                background: 'var(--canvas-soft)',
+                color: 'var(--ink)',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+            <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
+              Select a predefined bot or paste a direct image URL.
+            </p>
+          </div>
+          
+          <div style={{ marginBottom: 'var(--space-lg)' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
+              Bio
+            </label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell us about yourself and your skills..."
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--hairline-strong)',
+                background: 'var(--canvas-soft)',
+                color: 'var(--ink)',
+                fontSize: '15px',
+                boxSizing: 'border-box',
+                resize: 'vertical'
+              }}
+            />
           </div>
 
           {message && (

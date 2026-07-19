@@ -200,6 +200,12 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
                 "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
                 "passed": passed_tier2
             }).execute()
+            
+        # Log activity (Streak System)
+        supabase.table("user_activity").insert({
+            "user_id": seller_id,
+            "activity_type": "upload"
+        }).execute()
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
@@ -301,6 +307,19 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
         else:
             supabase.table("seller_wallets").insert({"user_id": seller_id, "balance_inr": seller_share}).execute()
         print(f"[SALE] '{skill_res.data['title']}' sold. Seller {seller_id} credited ₹{seller_share}.")
+        
+        # Log activity for the seller getting a sale
+        supabase.table("user_activity").insert({
+            "user_id": seller_id,
+            "activity_type": "sale"
+        }).execute()
+        
+        # Also log for the buyer making a purchase
+        supabase.table("user_activity").insert({
+            "user_id": buyer_id,
+            "activity_type": "purchase"
+        }).execute()
+        
     except Exception as e:
         # Wallet credit failed — log it but still return success to buyer since purchase is recorded
         print(f"[ERROR] Wallet credit failed for seller {seller_id}: {e}")
@@ -393,16 +412,25 @@ def get_leaderboard():
 @app.post("/api/skills/{skill_id}/upvote")
 def upvote_skill(skill_id: str):
     try:
-        # Fetch current upvotes
-        res = supabase.table("skills").select("upvotes").eq("id", skill_id).single().execute()
+        # Fetch current upvotes and seller id
+        res = supabase.table("skills").select("upvotes, seller_id").eq("id", skill_id).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
         
         current_upvotes = res.data.get("upvotes") or 0
+        seller_id = res.data.get("seller_id")
         new_upvotes = current_upvotes + 1
         
         # Update
         supabase.table("skills").update({"upvotes": new_upvotes}).eq("id", skill_id).execute()
+        
+        # Log activity for receiving an upvote
+        if seller_id:
+            supabase.table("user_activity").insert({
+                "user_id": seller_id,
+                "activity_type": "upvote"
+            }).execute()
+            
         return {"message": "Upvoted", "upvotes": new_upvotes}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

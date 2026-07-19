@@ -1,0 +1,1 @@
+-- Migration 004 was skipped to fix a numbering gap. No changes applied.

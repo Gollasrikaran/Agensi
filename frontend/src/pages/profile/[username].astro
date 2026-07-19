@@ -1,0 +1,87 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavbarIsland from '../../components/NavbarIsland';
+import ProfileStatsHero from '../../components/ProfileStatsHero';
+import PinnedSkillsGrid from '../../components/PinnedSkillsGrid';
+import AchievementShowcase from '../../components/AchievementShowcase';
+import NeuralStreakGraph from '../../components/NeuralStreakGraph';
+import { API_BASE } from '../../lib/config';
+
+export async function getStaticPaths() {
+  try {
+    const res = await fetch(`${API_BASE}/api/public/users`);
+    if (res.ok) {
+      const users = await res.json();
+      return users.map((u: any) => ({
+        params: { username: u.username }
+      }));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
+}
+
+const { username } = Astro.params;
+
+let profile = null;
+let error = null;
+
+try {
+  const res = await fetch(`${API_BASE}/api/public/users/${username}/profile`);
+  if (!res.ok) {
+    if (res.status === 404) {
+      error = "User not found";
+    } else {
+      error = "Failed to load profile";
+    }
+  } else {
+    profile = await res.json();
+  }
+} catch (err) {
+  error = "Failed to load profile";
+}
+---
+
+<Layout 
+  title={profile ? `${profile.username}'s AI Skills | Bodhic AI` : "Profile Not Found | Bodhic AI"}
+  description={profile ? `Check out AI agent skills created by ${profile.username} on Bodhic AI.` : "User profile on Bodhic AI."}
+>
+  <NavbarIsland client:load />
+  
+  <main class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-4xl); min-height: 80vh;">
+    {error ? (
+      <div style="text-align: center; margin-top: 10vh;">
+        <h1 style="font-size: 48px; margin-bottom: var(--space-md);">{error}</h1>
+        <a href="/" class="btn btn-primary">Return Home</a>
+      </div>
+    ) : (
+      <div style="display: flex; flex-direction: column; gap: var(--space-3xl);">
+        
+        <!-- Stats Hero -->
+        <ProfileStatsHero 
+          username={profile.username}
+          avatarUrl={profile.avatar_url}
+          bio={profile.bio}
+          tier={profile.stats?.tier}
+          memberSince={profile.created_at}
+          stats={profile.stats}
+          client:load 
+        />
+        
+        <!-- Achievement Showcase -->
+        <AchievementShowcase achievements={profile.achievements || []} client:load />
+
+        <!-- Neural Pulse Streak Graph -->
+        <NeuralStreakGraph username={profile.username} client:load />
+
+        <!-- Pinned Skills Grid -->
+        <PinnedSkillsGrid 
+          skills={profile.pinned_skills || []}
+          client:load 
+        />
+        
+      </div>
+    )}
+  </main>
+</Layout>

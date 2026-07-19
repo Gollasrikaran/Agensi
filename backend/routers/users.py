@@ -22,10 +22,12 @@ def get_my_skills(user = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=str(e))
 
 from pydantic import BaseModel
+from typing import Optional
 
 class ProfileUpdateRequest(BaseModel):
     username: str
     avatar_url: str
+    bio: Optional[str] = None
 
 @router.post("/me/profile")
 def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
@@ -37,7 +39,8 @@ def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
             
         res = supabase.table("users").update({
             "username": req.username,
-            "avatar_url": req.avatar_url
+            "avatar_url": req.avatar_url,
+            "bio": req.bio
         }).eq("id", user.id).execute()
         
         return {"message": "Profile updated successfully", "user": res.data[0] if res.data else None}
@@ -107,6 +110,87 @@ def request_payout(req: PayoutRequest, user = Depends(get_current_user)):
         }).execute()
         
         return {"message": "Payout requested successfully", "new_balance": new_balance}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class PinnedSkillsRequest(BaseModel):
+    skill_ids: list[str]
+
+@router.post("/me/pinned-skills")
+def update_pinned_skills(req: PinnedSkillsRequest, user = Depends(get_current_user)):
+    try:
+        # 1. Validate max 3 skills
+        if len(req.skill_ids) > 3:
+            raise HTTPException(status_code=400, detail="You can only pin up to 3 skills")
+            
+        # 2. Verify user owns these skills
+        if req.skill_ids:
+            skills = supabase.table("skills").select("id").eq("seller_id", user.id).in_("id", req.skill_ids).execute()
+            if len(skills.data) != len(req.skill_ids):
+                raise HTTPException(status_code=400, detail="Invalid skill IDs or you do not own them")
+                
+        # 3. Delete existing pins
+        supabase.table("pinned_skills").delete().eq("user_id", user.id).execute()
+        
+        # 4. Insert new pins
+        if req.skill_ids:
+            pins_to_insert = [
+                {"user_id": user.id, "skill_id": skill_id, "pin_order": idx}
+                for idx, skill_id in enumerate(req.skill_ids)
+            ]
+            supabase.table("pinned_skills").insert(pins_to_insert).execute()
+            
+        return {"message": "Pinned skills updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/me/achievements")
+def get_my_achievements(user = Depends(get_current_user)):
+    try:
+        # Fetch all possible achievements
+        all_ach = supabase.table("achievements").select("*").execute()
+        
+        # Fetch user's unlocked achievements
+        user_ach = supabase.table("user_achievements").select("*").eq("user_id", user.id).execute()
+        unlocked_map = {a["achievement_id"]: a for a in user_ach.data}
+        
+        results = []
+        for ach in all_ach.data:
+            unlocked_data = unlocked_map.get(ach["id"])
+            results.append({
+                **ach,
+                "is_unlocked": bool(unlocked_data),
+                "is_public": unlocked_data["is_public"] if unlocked_data else False,
+                "unlocked_at": unlocked_data["unlocked_at"] if unlocked_data else None
+            })
+            
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class PrivacyToggleRequest(BaseModel):
+    is_public: bool
+
+@router.patch("/me/achievements/{achievement_id}/privacy")
+def toggle_achievement_privacy(achievement_id: str, req: PrivacyToggleRequest, user = Depends(get_current_user)):
+    try:
+        # Verify it's unlocked and not admin_awarded
+        ach = supabase.table("achievements").select("is_admin_awarded").eq("id", achievement_id).execute()
+        if not ach.data:
+            raise HTTPException(status_code=404, detail="Achievement not found")
+            
+        if ach.data[0]["is_admin_awarded"] and not req.is_public:
+            raise HTTPException(status_code=400, detail="Admin-awarded trust badges cannot be made private")
+            
+        res = supabase.table("user_achievements").update({"is_public": req.is_public}).eq("user_id", user.id).eq("achievement_id", achievement_id).execute()
+        if not res.data:
+            raise HTTPException(status_code=400, detail="Achievement not unlocked yet")
+            
+        return {"message": "Privacy updated", "is_public": req.is_public}
     except HTTPException:
         raise
     except Exception as e:

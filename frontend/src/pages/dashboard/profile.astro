@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ProfileSettingsIsland from '../../components/ProfileSettingsIsland.tsx';
+import AchievementManager from '../../components/AchievementManager.tsx';
 ---
 <Layout 
 	title="Profile Settings — Bodhic AI"
@@ -13,5 +14,8 @@ import ProfileSettingsIsland from '../../components/ProfileSettingsIsland.tsx';
 			<p style="color: var(--body); font-size: 16px;">Set your username so buyers can see who you are on the marketplace.</p>
 		</div>
 		<ProfileSettingsIsland client:load />
+		<div style="margin-top: var(--space-2xl);">
+			<AchievementManager client:load />
+		</div>
 	</div>
 </Layout>
