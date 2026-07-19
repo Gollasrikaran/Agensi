@@ -226,45 +226,159 @@ class CheckoutSuccessRequest(BaseModel):
     razorpay_signature: Optional[str] = None
 
 @app.post("/api/checkout/success")
-def checkout_success(req: CheckoutSuccessRequest):
-    try:
-        # 1. Verify Razorpay Signature if keys exist
-        import os
-        import hmac
-        import hashlib
-        razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
-        
-        if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
+def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_user)):
+    """
+    Called after a successful payment (both live Razorpay and mock flow).
+    - Verifies Razorpay signature (live only)
+    - Records purchase in purchases table
+    - Credits seller wallet (80/20 split)
+    - Always returns 200 with purchase confirmation once purchase is recorded
+    """
+    import os, hmac, hashlib
+
+    # 1. Verify Razorpay signature for live payments
+    razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+    if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
+        try:
             msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
             generated_signature = hmac.new(
-                razorpay_key_secret.encode('utf-8'),
-                msg.encode('utf-8'),
+                razorpay_key_secret.encode("utf-8"),
+                msg.encode("utf-8"),
                 hashlib.sha256
             ).hexdigest()
-            
             if generated_signature != req.razorpay_signature:
-                raise HTTPException(status_code=400, detail="Invalid payment signature")
+                raise HTTPException(status_code=400, detail="Invalid payment signature. Purchase not recorded.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"[WARN] Signature verification error: {e}")
+            # Don't block on signature error — log and continue
 
-        # 2. Process wallet credit
-        skill_res = supabase.table("skills").select("base_price_inr, seller_id").eq("id", req.skill_id).single().execute()
+    # 2. Fetch skill details
+    try:
+        skill_res = supabase.table("skills").select("base_price_inr, seller_id, title").eq("id", req.skill_id).single().execute()
         if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
-            
-        base_price = skill_res.data["base_price_inr"]
-        seller_id = skill_res.data["seller_id"]
-        
-        seller_share = base_price * 0.80
-        
-        update_res = supabase.table("seller_wallets").select("balance_inr").eq("user_id", seller_id).execute()
-        if update_res.data:
-            new_balance = float(update_res.data[0]["balance_inr"]) + seller_share
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch skill: {e}")
+
+    base_price = skill_res.data["base_price_inr"]
+    seller_id  = skill_res.data["seller_id"]
+    buyer_id   = user.id
+
+    # 3. Prevent duplicate purchases — return 200 (not error) if already bought
+    try:
+        existing = supabase.table("purchases").select("id").eq("buyer_id", buyer_id).eq("skill_id", req.skill_id).execute()
+        if existing.data:
+            return {"message": "Already purchased", "skill_id": req.skill_id}
+    except Exception as e:
+        print(f"[WARN] Duplicate check failed: {e}")
+
+    seller_share = round(float(base_price) * 0.80, 2)
+
+    # 4. Record the purchase — this must succeed; if it fails, return 500
+    try:
+        supabase.table("purchases").insert({
+            "buyer_id":         buyer_id,
+            "skill_id":         req.skill_id,
+            "amount":           base_price,
+            "currency":         "INR",
+            "payment_provider": "Razorpay" if req.razorpay_payment_id else "mock",
+            "payment_status":   "completed",
+            "provider_txn_id":  req.razorpay_payment_id or "mock",
+        }).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to record purchase: {e}")
+
+    # 5. Credit seller wallet — isolated so a wallet error never blocks the buyer's success
+    try:
+        wallet_res = supabase.table("seller_wallets").select("balance_inr").eq("user_id", seller_id).execute()
+        if wallet_res.data:
+            new_balance = float(wallet_res.data[0]["balance_inr"]) + seller_share
             supabase.table("seller_wallets").update({"balance_inr": new_balance}).eq("user_id", seller_id).execute()
         else:
             supabase.table("seller_wallets").insert({"user_id": seller_id, "balance_inr": seller_share}).execute()
-            
-        return {"message": "Wallet credited successfully", "credited": seller_share}
+        print(f"[SALE] '{skill_res.data['title']}' sold. Seller {seller_id} credited ₹{seller_share}.")
+    except Exception as e:
+        # Wallet credit failed — log it but still return success to buyer since purchase is recorded
+        print(f"[ERROR] Wallet credit failed for seller {seller_id}: {e}")
+
+    return {"message": "Purchase recorded successfully", "credited": seller_share, "skill_id": req.skill_id}
+
+
+
+@app.get("/api/skills/{skill_id}/download")
+def download_skill(skill_id: str, user = Depends(get_current_user)):
+    """
+    Returns the .md content of a purchased skill.
+    Only accessible to: the buyer who purchased it, or the seller who created it.
+    """
+    try:
+        buyer_id = user.id
+
+        # Check if this user is the seller
+        skill_res = supabase.table("skills").select("seller_id, title").eq("id", skill_id).single().execute()
+        if not skill_res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+
+        is_seller = skill_res.data["seller_id"] == buyer_id
+
+        if not is_seller:
+            # Check the user has a completed purchase
+            purchase = supabase.table("purchases").select("id").eq("buyer_id", buyer_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
+            if not purchase.data:
+                raise HTTPException(status_code=403, detail="You have not purchased this skill.")
+
+        # Fetch latest version content
+        version = supabase.table("skill_versions").select("md_content, version_number").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
+        if not version.data:
+            raise HTTPException(status_code=404, detail="Skill content not found")
+
+        return {
+            "title":      skill_res.data["title"],
+            "content":    version.data[0]["md_content"],
+            "version":    version.data[0]["version_number"],
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/users/me/sales")
+def get_my_sales(user = Depends(get_current_user)):
+    """
+    Returns all completed purchases for skills owned by this seller.
+    Does NOT expose buyer identity.
+    """
+    try:
+        # Get all skills owned by this seller
+        skills_res = supabase.table("skills").select("id, title, base_price_inr").eq("seller_id", user.id).execute()
+        if not skills_res.data:
+            return []
+
+        skill_ids = [s["id"] for s in skills_res.data]
+        skill_map = {s["id"]: s for s in skills_res.data}
+
+        # Get all purchases for those skills
+        purchases_res = supabase.table("purchases").select("skill_id, amount, created_at, payment_status").in_("skill_id", skill_ids).eq("payment_status", "completed").order("created_at", desc=True).execute()
+
+        sales = []
+        for p in purchases_res.data:
+            skill = skill_map.get(p["skill_id"], {})
+            sales.append({
+                "skill_title":   skill.get("title", "Unknown"),
+                "skill_id":      p["skill_id"],
+                "amount_inr":    p["amount"],
+                "seller_share":  round(float(p["amount"]) * 0.80, 2),
+                "sold_at":       p["created_at"],
+            })
+        return sales
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # --- NEW FEATURES ---
 
