@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-
 export default function PayoutsIsland() {
     const [payouts, setPayouts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

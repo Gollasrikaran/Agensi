@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
 export default function SellerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function SellerDashboardIsland() {
   };
 
   if (loading) return <div>Loading seller dashboard...</div>;
-  if (error) return <div className="glass-card" style={{ color: '#f87171' }}>Error: {error}</div>;
+  if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
 
   return (
     <div className="seller-dashboard">
@@ -54,7 +53,7 @@ export default function SellerDashboardIsland() {
         ) : (
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155' }}>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>Title</th>
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Moderation Status</th>
@@ -63,7 +62,7 @@ export default function SellerDashboardIsland() {
             </thead>
             <tbody>
               {skills.map((skill: any) => (
-                <tr key={skill.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr key={skill.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                   <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>{skill.title}</td>
                   <td style={{ padding: '0.5rem' }}>₹{skill.base_price_inr ?? 0}</td>
                   <td style={{ padding: '0.5rem' }}>
@@ -71,8 +70,8 @@ export default function SellerDashboardIsland() {
                       padding: '0.2rem 0.5rem', 
                       borderRadius: '4px', 
                       fontSize: '0.8rem',
-                      background: skill.moderation_status === 'approved' ? '#064e3b' : (skill.moderation_status === 'rejected' ? '#7f1d1d' : '#78350f'),
-                      color: skill.moderation_status === 'approved' ? '#34d399' : (skill.moderation_status === 'rejected' ? '#f87171' : '#fbbf24')
+                      background: skill.moderation_status === 'approved' ? 'var(--success-soft)' : (skill.moderation_status === 'rejected' ? '#7f1d1d' : 'var(--warning-soft)'),
+                      color: skill.moderation_status === 'approved' ? 'var(--success)' : (skill.moderation_status === 'rejected' ? 'var(--error)' : 'var(--warning)')
                     }}>
                       {skill.moderation_status}
                     </span>

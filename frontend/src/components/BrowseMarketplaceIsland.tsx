@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
 interface SellerProfile {
   username: string | null;
   avatar_url: string | null;
@@ -18,7 +17,7 @@ export default function BrowseMarketplaceIsland() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/public/skills')
+    fetch(`${API_BASE}/api/public/skills`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);

@@ -73,11 +73,11 @@ const {
 			<slot />
 		</main>
 		<footer style="margin-top: var(--space-5xl); padding: var(--space-xl) 0; border-top: 1px solid var(--hairline); text-align: center;">
-			<div style="display: flex; justify-content: center; gap: var(--space-lg); margin-bottom: var(--space-md); font-size: 14px;">
-				<a href="/privacy" style="color: var(--mute); text-decoration: none;">Privacy Policy</a>
-				<a href="/terms" style="color: var(--mute); text-decoration: none;">Terms & Conditions</a>
-				<a href="/refund" style="color: var(--mute); text-decoration: none;">Refund Policy</a>
-				<a href="/contact" style="color: var(--mute); text-decoration: none;">Contact Us</a>
+			<div class="footer-links" style="display: flex; justify-content: center; gap: var(--space-lg); margin-bottom: var(--space-md); font-size: 14px;">
+				<a href="/privacy" class="footer-link">Privacy Policy</a>
+				<a href="/terms" class="footer-link">Terms & Conditions</a>
+				<a href="/refund" class="footer-link">Refund Policy</a>
+				<a href="/contact" class="footer-link">Contact Us</a>
 			</div>
 			<p style="color: var(--mute); font-size: 14px;">&copy; {new Date().getFullYear()} Bodhic AI. All rights reserved.</p>
 		</footer>
@@ -86,4 +86,13 @@ const {
 
 <style is:global>
 	@import "../styles/global.css";
+	
+	.footer-link {
+		color: var(--mute);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+	.footer-link:hover {
+		color: var(--primary);
+	}
 </style>

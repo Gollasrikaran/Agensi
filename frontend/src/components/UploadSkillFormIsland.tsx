@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-
 const CATEGORIES = [
   { value: 'development', label: 'Development' },
   { value: 'copywriting', label: 'Copywriting' },

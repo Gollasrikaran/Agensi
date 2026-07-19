@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
 export default function BountyBoardIsland() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);

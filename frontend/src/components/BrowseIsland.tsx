@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+import SkillCard from './SkillCard';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Domains' },
@@ -23,6 +25,8 @@ export default function BrowseIsland() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [upvoteStates, setUpvoteStates] = useState<Record<string, boolean>>({});
+  const [upvotingIds, setUpvotingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchSkills();
@@ -34,6 +38,7 @@ export default function BrowseIsland() {
       .then(data => {
         setSkills(data);
         setLoading(false);
+        checkUpvoteStates(data);
       })
       .catch(err => {
         console.error(err);
@@ -41,16 +46,59 @@ export default function BrowseIsland() {
       });
   };
 
+  const checkUpvoteStates = async (skillsData: any[]) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    
+    const states: Record<string, boolean> = {};
+    for (const skill of skillsData) {
+      try {
+        const res = await fetch(`http://localhost:8000/api/skills/${skill.id}/upvote/status`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          states[skill.id] = data.upvoted;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    setUpvoteStates(states);
+  };
+
   const handleUpvote = async (e: React.MouseEvent, skillId: string) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (upvotingIds.has(skillId)) return;
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setUpvotingIds(prev => new Set(prev).add(skillId));
+    
     try {
-      const res = await fetch(`http://localhost:8000/api/skills/${skillId}/upvote`, { method: 'POST' });
+      const res = await fetch(`http://localhost:8000/api/skills/${skillId}/upvote`, { 
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
       if (res.ok) {
-        fetchSkills(); // refresh upvotes
+        const data = await res.json();
+        setUpvoteStates(prev => ({...prev, [skillId]: data.upvoted}));
+        setSkills((prev: any) => prev.map((s: any) => s.id === skillId ? {...s, upvotes: data.upvotes} : s));
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setUpvotingIds(prev => {
+        const next = new Set(prev);
+        next.delete(skillId);
+        return next;
+      });
     }
   };
 
@@ -60,8 +108,12 @@ export default function BrowseIsland() {
     return matchesCategory && matchesSearch;
   });
   
-  // Sort by upvotes descending
-  filteredSkills.sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0));
+  filteredSkills.sort((a: any, b: any) => {
+    if ((b.upvotes || 0) === (a.upvotes || 0)) {
+        return (b.purchase_count || 0) - (a.purchase_count || 0);
+    }
+    return (b.upvotes || 0) - (a.upvotes || 0);
+  });
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 'var(--space-2xl)', alignItems: 'start' }}>
@@ -79,7 +131,7 @@ export default function BrowseIsland() {
               padding: '12px 16px',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--hairline-strong)',
-              background: 'var(--canvas-soft)',
+              background: 'var(--canvas)',
               color: 'var(--ink)',
               fontSize: '14px',
               fontFamily: 'inherit'
@@ -115,8 +167,10 @@ export default function BrowseIsland() {
       {/* Main Content Grid */}
       <div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-4xl)' }}>
-            <p style={{ color: 'var(--mute)' }}>Loading skills...</p>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            {[1,2,3,4].map(i => (
+              <div key={i} style={{ background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', height: '250px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            ))}
           </div>
         ) : filteredSkills.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: 'var(--space-4xl)' }}>
@@ -126,76 +180,17 @@ export default function BrowseIsland() {
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
             {filteredSkills.map((skill: any, index: number) => {
               const isTopVoted = index === 0 && (skill.upvotes || 0) > 0 && searchQuery === '';
+              const isUpvoted = upvoteStates[skill.id];
               
               return (
-                <a 
-                  key={skill.id} 
-                  href={`/skill/${skill.id}`} 
-                  className="card" 
-                  style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'space-between', 
-                    textDecoration: 'none', 
-                    padding: 'var(--space-lg)',
-                    position: 'relative',
-                    border: isTopVoted ? '1px solid var(--primary)' : '1px solid var(--hairline-strong)',
-                    background: isTopVoted ? 'var(--canvas-soft-2)' : 'var(--canvas)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {isTopVoted && (
-                    <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--primary)', color: 'white', padding: '4px 12px', fontSize: '11px', fontWeight: '700', borderBottomLeftRadius: 'var(--radius-md)', textTransform: 'uppercase' }}>
-                      TOP IN {activeCategory === 'all' ? 'OVERALL' : activeCategory}
-                    </div>
-                  )}
-                  
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-xs)', marginTop: isTopVoted ? 'var(--space-sm)' : '0' }}>
-                      <h4 style={{ fontSize: '18px', marginBottom: 0, color: 'var(--ink)' }}>{skill.title}</h4>
-                      <button 
-                        onClick={(e) => handleUpvote(e, skill.id)}
-                        className="btn" 
-                        style={{ padding: '4px 8px', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-strong)', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <span style={{ fontSize: '12px' }}>▲</span>
-                        <span style={{ fontSize: '12px', fontWeight: '700' }}>{skill.upvotes || 0}</span>
-                      </button>
-                    </div>
-                    <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '20px', marginBottom: 'var(--space-md)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {skill.description}
-                    </p>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-md)' }}>
-                      {skill.seller?.avatar_url ? (
-                        <img 
-                          src={skill.seller.avatar_url} 
-                          alt="avatar" 
-                          style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--canvas-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mute)', fontSize: '12px' }}>
-                          ?
-                        </div>
-                      )}
-                      <span style={{ fontSize: '13px', color: 'var(--ink)' }}>
-                        {skill.seller?.username || 'Anonymous'}
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hairline)', paddingTop: 'var(--space-md)' }}>
-                    <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-                      {skill.moderation_status === 'approved' ? (
-                        <span className="badge success">✓ Verified</span>
-                      ) : (
-                        <span className="badge warning">Pending Review</span>
-                      )}
-                    </div>
-                    <div style={{ fontWeight: '600', fontSize: '16px', fontFamily: 'var(--font-mono)', color: 'var(--ink)' }}>
-                      {skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
-                    </div>
-                  </div>
-                </a>
+                <SkillCard
+                  key={skill.id}
+                  skill={skill}
+                  isUpvoted={isUpvoted}
+                  isUpvoting={upvotingIds.has(skill.id)}
+                  onUpvote={handleUpvote}
+                  showRank={isTopVoted ? 1 : null}
+                />
               );
             })}
           </div>

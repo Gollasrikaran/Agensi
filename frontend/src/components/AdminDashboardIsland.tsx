@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
 export default function AdminDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +111,7 @@ export default function AdminDashboardIsland() {
   };
 
   if (loading) return <div>Loading admin dashboard...</div>;
-  if (error) return <div className="glass-card" style={{ color: '#f87171' }}>Error: {error}</div>;
+  if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
 
   return (
     <div className="admin-dashboard">
@@ -131,9 +130,7 @@ export default function AdminDashboardIsland() {
         </div>
         <div className="glass-card" style={{ textAlign: 'center' }}>
           <h3>Total Sales Volume</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>
-            ${(data.stats.total_sales_volume || 0).toFixed(2)}
-          </p>
+          <div style={{ fontSize: '32px', fontWeight: 'bold' }}>₹{(data.stats.total_sales_volume || 0).toFixed(2)}</div>
         </div>
       </div>
 
@@ -142,7 +139,7 @@ export default function AdminDashboardIsland() {
           <h2>Recent Skills</h2>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155' }}>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>Title</th>
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
@@ -151,16 +148,16 @@ export default function AdminDashboardIsland() {
             </thead>
             <tbody>
               {data.recent_skills?.map((skill: any) => (
-                <tr key={skill.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr key={skill.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                   <td style={{ padding: '0.5rem' }}>{skill.title}</td>
-                  <td style={{ padding: '0.5rem' }}>${skill.base_price_usd}</td>
+                  <td style={{ padding: '0.5rem' }}>₹{skill.base_price_usd || skill.base_price_inr}</td>
                   <td style={{ padding: '0.5rem' }}>
                     <span style={{ 
                       padding: '0.2rem 0.5rem', 
                       borderRadius: '4px', 
                       fontSize: '0.8rem',
-                      background: skill.moderation_status === 'approved' ? '#064e3b' : '#78350f',
-                      color: skill.moderation_status === 'approved' ? '#34d399' : '#fbbf24'
+                      background: skill.moderation_status === 'approved' ? 'var(--success-soft)' : 'var(--warning-soft)',
+                      color: skill.moderation_status === 'approved' ? 'var(--success)' : 'var(--warning)'
                     }}>
                       {skill.moderation_status}
                     </span>
@@ -170,13 +167,13 @@ export default function AdminDashboardIsland() {
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button 
                           onClick={() => updateSkillStatus(skill.id, 'approved')}
-                          style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
+                          style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           Approve
                         </button>
                         <button 
                           onClick={() => updateSkillStatus(skill.id, 'rejected')}
-                          style={{ padding: '0.2rem 0.5rem', background: '#7f1d1d', color: '#f87171', border: '1px solid #dc2626', borderRadius: '4px', cursor: 'pointer' }}
+                          style={{ padding: '0.2rem 0.5rem', background: 'var(--error-soft)', color: 'var(--error)', border: '1px solid var(--error)', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           Reject
                         </button>
@@ -193,7 +190,7 @@ export default function AdminDashboardIsland() {
           <h2>Pending Appeals</h2>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155' }}>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>User ID</th>
                 <th style={{ padding: '0.5rem' }}>Warnings</th>
                 <th style={{ padding: '0.5rem' }}>Message</th>
@@ -202,21 +199,21 @@ export default function AdminDashboardIsland() {
             </thead>
             <tbody>
               {appeals?.map((appeal: any) => (
-                <tr key={appeal.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr key={appeal.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                   <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{appeal.id}</td>
-                  <td style={{ padding: '0.5rem', color: '#ef4444' }}>{appeal.warnings_count}</td>
+                  <td style={{ padding: '0.5rem', color: 'var(--error)' }}>{appeal.warnings_count}</td>
                   <td style={{ padding: '0.5rem' }}>{appeal.appeal_message}</td>
                   <td style={{ padding: '0.5rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
                         onClick={() => unblockUser(appeal.id)}
-                        style={{ padding: '0.2rem 0.5rem', background: '#064e3b', color: '#34d399', border: '1px solid #059669', borderRadius: '4px', cursor: 'pointer' }}
+                        style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
                       >
                         Unblock
                       </button>
                       <button 
                         onClick={() => fetchUserSkills(appeal.id)}
-                        style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: '#60a5fa', border: '1px solid #3b82f6', borderRadius: '4px', cursor: 'pointer' }}
+                        style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '4px', cursor: 'pointer' }}
                       >
                         View History
                       </button>
@@ -226,7 +223,7 @@ export default function AdminDashboardIsland() {
               ))}
               {(!appeals || appeals.length === 0) && (
                 <tr>
-                  <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: 'var(--mute)' }}>
                     No pending appeals.
                   </td>
                 </tr>
@@ -239,7 +236,7 @@ export default function AdminDashboardIsland() {
           <h2>Recent Purchases</h2>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155' }}>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>Amount</th>
                 <th style={{ padding: '0.5rem' }}>Currency</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
@@ -247,15 +244,15 @@ export default function AdminDashboardIsland() {
             </thead>
             <tbody>
               {data.recent_purchases?.map((purchase: any) => (
-                <tr key={purchase.id} style={{ borderBottom: '1px solid #1e293b' }}>
-                  <td style={{ padding: '0.5rem' }}>${purchase.amount}</td>
+                <tr key={purchase.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                  <td style={{ padding: '0.5rem' }}>₹{purchase.amount}</td>
                   <td style={{ padding: '0.5rem' }}>{purchase.currency}</td>
                   <td style={{ padding: '0.5rem' }}>{purchase.payment_status}</td>
                 </tr>
               ))}
               {(!data.recent_purchases || data.recent_purchases.length === 0) && (
                 <tr>
-                  <td colSpan={3} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={3} style={{ padding: '1rem', textAlign: 'center', color: 'var(--mute)' }}>
                     No recent purchases found.
                   </td>
                 </tr>
@@ -288,8 +285,8 @@ export default function AdminDashboardIsland() {
                     <td style={{ padding: '0.5rem' }}>
                       <span style={{
                         padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem',
-                        background: skill.moderation_status === 'approved' ? '#064e3b' : skill.moderation_status === 'rejected' ? '#7f1d1d' : '#78350f',
-                        color: skill.moderation_status === 'approved' ? '#34d399' : skill.moderation_status === 'rejected' ? '#fca5a5' : '#fbbf24'
+                        background: skill.moderation_status === 'approved' ? 'var(--success-soft)' : skill.moderation_status === 'rejected' ? 'var(--error-soft)' : 'var(--warning-soft)',
+                        color: skill.moderation_status === 'approved' ? 'var(--success)' : skill.moderation_status === 'rejected' ? 'var(--error)' : 'var(--warning)'
                       }}>
                         {skill.moderation_status}
                       </span>
@@ -297,7 +294,7 @@ export default function AdminDashboardIsland() {
                     <td style={{ padding: '0.5rem' }}>
                        <button 
                          onClick={() => setPreviewSkill(skill)}
-                         style={{ padding: '0.2rem 0.5rem', background: '#1e293b', color: '#e2e8f0', border: '1px solid #475569', borderRadius: '4px', cursor: 'pointer' }}
+                         style={{ padding: '0.2rem 0.5rem', background: 'var(--canvas-soft-2)', color: 'var(--ink)', border: '1px solid var(--hairline-strong)', borderRadius: '4px', cursor: 'pointer' }}
                        >
                          Secure Preview .md
                        </button>
@@ -321,8 +318,8 @@ export default function AdminDashboardIsland() {
               <h2 style={{ margin: 0 }}>Secure Preview: {previewSkill.title}.md</h2>
               <button onClick={() => setPreviewSkill(null)} style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             </div>
-            <div style={{ background: '#0f172a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', border: '1px solid #334155' }}>
-              <pre style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
+            <div style={{ background: 'var(--canvas-soft-2)', padding: '1rem', borderRadius: '8px', overflowX: 'auto', border: '1px solid var(--hairline-strong)' }}>
+              <pre style={{ color: 'var(--ink)', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
                 {previewSkill.md_content || "No content available."}
               </pre>
             </div>

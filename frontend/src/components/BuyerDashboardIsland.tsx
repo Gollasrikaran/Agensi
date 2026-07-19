@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
 export default function BuyerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function BuyerDashboardIsland() {
   };
 
   if (loading) return <div>Loading buyer dashboard...</div>;
-  if (error) return <div className="glass-card" style={{ color: '#f87171' }}>Error: {error}</div>;
+  if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
 
   return (
     <div className="buyer-dashboard">
@@ -54,7 +53,7 @@ export default function BuyerDashboardIsland() {
         ) : (
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155' }}>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>Skill</th>
                 <th style={{ padding: '0.5rem' }}>Amount Paid</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
@@ -63,18 +62,18 @@ export default function BuyerDashboardIsland() {
             </thead>
             <tbody>
               {purchases.map((purchase: any) => (
-                <tr key={purchase.id} style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr key={purchase.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                   <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>
                     {purchase.skills?.title || 'Unknown Skill'}
                   </td>
-                  <td style={{ padding: '0.5rem' }}>${purchase.amount} {purchase.currency}</td>
+                  <td style={{ padding: '0.5rem' }}>₹{purchase.amount}</td>
                   <td style={{ padding: '0.5rem' }}>
                     <span style={{ 
                       padding: '0.2rem 0.5rem', 
                       borderRadius: '4px', 
                       fontSize: '0.8rem',
-                      background: purchase.payment_status === 'completed' ? '#064e3b' : '#78350f',
-                      color: purchase.payment_status === 'completed' ? '#34d399' : '#fbbf24'
+                      background: purchase.payment_status === 'completed' ? 'var(--success-soft)' : 'var(--warning-soft)',
+                      color: purchase.payment_status === 'completed' ? 'var(--success)' : 'var(--warning)'
                     }}>
                       {purchase.payment_status}
                     </span>

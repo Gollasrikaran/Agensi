@@ -71,8 +71,8 @@ export default function AuthForm({ type }: AuthFormProps) {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {error && <div style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</div>}
-        {success && <div style={{ color: '#34d399', marginBottom: '1rem' }}>{success}</div>}
+        {error && <div style={{ color: 'var(--error)', marginBottom: '1rem' }}>{error}</div>}
+        {success && <div style={{ color: 'var(--success)', marginBottom: '1rem' }}>{success}</div>}
         
         <div className="form-group">
           <label>Email</label>
@@ -119,7 +119,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           <button 
             onClick={() => handleOAuth('github')}
             className="btn" 
-            style={{ width: '100%', background: '#24292e', border: '1px solid #24292e', color: '#fff' }}
+            style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--ink)', color: 'var(--canvas)' }}
             type="button"
           >
             GitHub

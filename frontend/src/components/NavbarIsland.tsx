@@ -49,6 +49,8 @@ export default function NavbarIsland() {
     window.location.href = '/';
   };
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <header className="navbar">
       <div className="logo">
@@ -57,7 +59,21 @@ export default function NavbarIsland() {
           <span>Bodhic<strong>AI</strong></span>
         </a>
       </div>
-      <nav>
+      
+      {/* Desktop Navigation */}
+      <nav className={`desktop-nav ${isMenuOpen ? 'mobile-open' : ''}`} style={{
+        display: isMenuOpen ? 'flex' : undefined,
+        flexDirection: isMenuOpen ? 'column' : undefined,
+        position: isMenuOpen ? 'absolute' : undefined,
+        top: isMenuOpen ? '64px' : undefined,
+        left: isMenuOpen ? '0' : undefined,
+        right: isMenuOpen ? '0' : undefined,
+        background: isMenuOpen ? 'var(--nav-bg)' : undefined,
+        padding: isMenuOpen ? 'var(--space-md)' : undefined,
+        borderBottom: isMenuOpen ? '1px solid var(--hairline)' : undefined,
+        backdropFilter: isMenuOpen ? 'saturate(180%) blur(12px)' : undefined,
+        zIndex: isMenuOpen ? 99 : undefined
+      }}>
         <a href="/browse">Browse Skills</a>
         <a href="/sell">Sell a Skill</a>
         <a href="/pricing">Pricing</a>
@@ -67,16 +83,47 @@ export default function NavbarIsland() {
         {session && <a href="/dashboard/wallet">Wallet</a>}
         {session && <a href="/dashboard/profile">Profile</a>}
       </nav>
+
       <div className="auth-buttons">
         <ThemeToggleIsland />
         {session ? (
-          <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
+          <button onClick={handleLogout} className="btn btn-secondary desktop-only">Logout</button>
         ) : (
           <>
-            <a href="/login" className="btn btn-secondary">Login</a>
-            <a href="/signup" className="btn btn-primary">Sign Up</a>
+            <a href="/login" className="btn btn-secondary desktop-only">Login</a>
+            <a href="/signup" className="btn btn-primary desktop-only">Sign Up</a>
           </>
         )}
+        
+        {/* Mobile Menu Toggle */}
+        <button 
+          className="mobile-toggle"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--ink)',
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'none' // will be shown via CSS media query
+          }}
+          aria-label="Toggle menu"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {isMenuOpen ? (
+              <>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </>
+            )}
+          </svg>
+        </button>
       </div>
     </header>
   );

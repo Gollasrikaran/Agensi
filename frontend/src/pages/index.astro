@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import TrendingSkillsIsland from '../components/TrendingSkillsIsland';
 ---
 
 <Layout 
 	title="AI Agent Skill Marketplace | Bodhic AI" 
-	description="Discover, verify, and monetize premium AI agent skills. Bodhic AI provides a secure marketplace with automated prompt injection scanning and zero markup for buyers."
+	description="Discover, verify, and monetize premium AI agent skills. Bodhic AI provides a secure marketplace with automated prompt injection scanning and zero markup for buyers. Compete for our monthly ₹20,000 top-creator prize."
 >
 	<!-- Dynamic Hero Section -->
 	<section style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
@@ -68,38 +69,7 @@ import Layout from '../layouts/Layout.astro';
 			<a href="/browse" class="btn btn-secondary" style="font-weight: 600;">View All →</a>
 		</div>
 
-		<!-- A static mock representation for SEO, simulating dynamic fetch visually -->
-		<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg);">
-			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
-				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
-					<span class="badge success">🛡️ Verified</span>
-					<span class="badge" style="text-transform: uppercase;">Development</span>
-				</div>
-				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">Next.js Boilerplate Expert</a></h3>
-				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">An agent skill that autonomously scaffolds complete Next.js applications with Tailwind and Supabase pre-configured.</p>
-				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹1,500</div>
-			</div>
-			
-			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
-				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
-					<span class="badge success">🛡️ Verified</span>
-					<span class="badge" style="text-transform: uppercase;">Copywriting</span>
-				</div>
-				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">SEO Content Architect</a></h3>
-				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">Analyzes SERPs and generates long-form, human-sounding content designed to bypass AI detectors and rank highly.</p>
-				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹900</div>
-			</div>
-			
-			<div class="card" style="padding: var(--space-xl); display: flex; flex-direction: column;">
-				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-md);">
-					<span class="badge success">🛡️ Verified</span>
-					<span class="badge" style="text-transform: uppercase;">Data Science</span>
-				</div>
-				<h3 style="font-size: 22px; margin-bottom: var(--space-sm);"><a href="/browse" style="text-decoration: none; color: inherit;">Pandas Data Cleaner</a></h3>
-				<p style="color: var(--body); font-size: 14px; flex-grow: 1; margin-bottom: var(--space-lg);">Automated data sanitization, handling missing values, and generating comprehensive exploratory data analysis reports.</p>
-				<div style="font-size: 24px; font-weight: 700; letter-spacing: -1px;">₹500</div>
-			</div>
-		</div>
+		<TrendingSkillsIsland client:visible />
 	</section>
 
 	<!-- Final CTA Band -->
