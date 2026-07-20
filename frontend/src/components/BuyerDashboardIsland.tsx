@@ -4,6 +4,36 @@ export default function BuyerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [purchases, setPurchases] = useState<any[]>([]);
+  
+  // Review State
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const submitReview = async (skillId: string) => {
+    try {
+      setSubmittingReview(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('http://localhost:8000/api/users/me/reviews', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ skill_id: skillId, rating, comment: comment || null })
+      });
+      if (!res.ok) throw new Error('Failed to submit review');
+      alert('Review submitted successfully!');
+      setReviewingId(null);
+      setRating(5);
+      setComment('');
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   useEffect(() => {
     fetchPurchases();
@@ -58,6 +88,7 @@ export default function BuyerDashboardIsland() {
                 <th style={{ padding: '0.5rem' }}>Amount Paid</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
                 <th style={{ padding: '0.5rem' }}>Date</th>
+                <th style={{ padding: '0.5rem' }}>Review</th>
               </tr>
             </thead>
             <tbody>
@@ -80,6 +111,32 @@ export default function BuyerDashboardIsland() {
                   </td>
                   <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
                     {new Date(purchase.created_at).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '0.5rem' }}>
+                    {reviewingId === purchase.skill_id ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--canvas-soft)', padding: '12px', borderRadius: '8px', minWidth: '200px' }}>
+                        <div style={{ display: 'flex', gap: '4px', cursor: 'pointer' }}>
+                          {[1,2,3,4,5].map(star => (
+                            <span key={star} onClick={() => setRating(star)} style={{ color: rating >= star ? '#fbbf24' : 'var(--hairline-strong)', fontSize: '24px' }}>★</span>
+                          ))}
+                        </div>
+                        <textarea 
+                          placeholder="Leave a comment (optional)..." 
+                          value={comment} 
+                          onChange={(e) => setComment(e.target.value)}
+                          style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)' }}
+                          rows={2}
+                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button className="btn btn-primary" onClick={() => submitReview(purchase.skill_id)} disabled={submittingReview} style={{ padding: '4px 12px', fontSize: '12px' }}>Submit</button>
+                          <button className="btn btn-secondary" onClick={() => setReviewingId(null)} style={{ padding: '4px 12px', fontSize: '12px' }}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button className="btn btn-secondary" onClick={() => { setReviewingId(purchase.skill_id); setRating(5); setComment(''); }} style={{ padding: '6px 12px', fontSize: '12px' }}>
+                        Rate Skill
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

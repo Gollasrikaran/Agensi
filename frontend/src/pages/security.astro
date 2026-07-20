@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+	title="Security & Scanning — Bodhic AI"
+	description="How Bodhic AI protects users by scanning skills for prompt injections and malicious content."
+>
+	<div style="max-width: 800px; margin: 0 auto; padding: var(--space-3xl) var(--space-md);">
+		<h1 style="font-size: 36px; margin-bottom: var(--space-xl);">Security & Skill Scanning</h1>
+		
+		<div class="card" style="padding: var(--space-xl);">
+			<h3 style="margin-bottom: var(--space-sm); font-size: 20px;">How We Protect You</h3>
+			<p style="margin-bottom: var(--space-md); line-height: 1.6; color: var(--body);">
+				At Bodhic AI, trust and security are paramount. Every skill uploaded to our marketplace undergoes automated static analysis and LLM-based heuristic scanning before it is made available for purchase.
+			</p>
+			
+			<h3 style="margin-bottom: var(--space-sm); font-size: 20px;">What We Scan For</h3>
+			<ul style="margin-bottom: var(--space-lg); line-height: 1.6; color: var(--body); margin-left: var(--space-lg);">
+				<li><strong>Prompt Injections (OWASP LLM01):</strong> We detect and block instructions designed to bypass agent constraints or exfiltrate context window data.</li>
+				<li><strong>Malicious Tool Use (OWASP LLM06):</strong> For skills requiring MCP tools, we scan for arbitrary code execution (e.g., `rm -rf`, unexpected curl requests) within the suggested instructions.</li>
+				<li><strong>Data Exfiltration (OWASP LLM04):</strong> We block prompts that attempt to secretly pipe output or environment variables to unauthorized external servers.</li>
+			</ul>
+
+			<h3 style="margin-bottom: var(--space-sm); font-size: 20px;">The Verification Badge</h3>
+			<p style="margin-bottom: var(--space-md); line-height: 1.6; color: var(--body);">
+				Skills that pass all automated checks receive a <strong>🛡️ Verified Safe</strong> badge. If a skill flags a warning, it remains in a <strong>⏳ Pending Review</strong> state until a human moderator approves it.
+			</p>
+			
+			<h3 style="margin-bottom: var(--space-sm); font-size: 20px;">Reporting Issues</h3>
+			<p style="margin-bottom: var(--space-md); line-height: 1.6; color: var(--body);">
+				If you believe a skill is exhibiting malicious behavior, please immediately report it to security@bodhic.app. Our incident response team will take the skill down pending investigation.
+			</p>
+		</div>
+	</div>
+</Layout>

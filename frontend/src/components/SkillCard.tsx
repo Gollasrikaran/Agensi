@@ -43,7 +43,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
       
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Top Badges */}
-        <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)', marginTop: showRank ? 'var(--space-sm)' : '0' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-md)', marginTop: showRank ? 'var(--space-sm)' : '0', flexWrap: 'wrap' }}>
           {skill.moderation_status === 'approved' ? (
             <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: 'none' }}>🛡️ Verified</span>
           ) : (
@@ -54,10 +54,16 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
               {skill.category}
             </span>
           )}
+          {/* Agent Compatibility Tags */}
+          {skill.compatible_agents && skill.compatible_agents.map((agent: string) => (
+            <span key={agent} className="badge" style={{ background: 'rgba(108, 60, 225, 0.1)', color: 'var(--primary)', border: '1px solid rgba(108, 60, 225, 0.2)' }}>
+              {agent}
+            </span>
+          ))}
         </div>
         
         {/* Title and Upvote */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-sm)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-xs)' }}>
           <h3 style={{ fontSize: '22px', marginBottom: 0, color: 'var(--ink)', lineHeight: '1.2' }}>{skill.title}</h3>
           
           {onUpvote && (
@@ -84,6 +90,20 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           )}
         </div>
         
+        {/* Star Rating */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: 'var(--space-sm)' }}>
+          <div style={{ display: 'flex', color: '#fbbf24', fontSize: '14px' }}>
+            {'★'.repeat(Math.round(skill.average_rating || 0))}
+            <span style={{ color: 'var(--hairline-strong)' }}>
+              {'★'.repeat(5 - Math.round(skill.average_rating || 0))}
+            </span>
+          </div>
+          <span style={{ fontSize: '12px', color: 'var(--mute)', fontWeight: '500' }}>
+            {skill.average_rating ? skill.average_rating.toFixed(1) : 'New'} 
+            {skill.review_count > 0 && ` (${skill.review_count})`}
+          </span>
+        </div>
+        
         {/* Description */}
         <p style={{ color: 'var(--body)', fontSize: '15px', lineHeight: '1.6', marginBottom: 'var(--space-xl)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flexGrow: 1 }}>
           {skill.description}
@@ -92,7 +112,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         {/* Footer: Price and Author */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
           <div style={{ fontSize: '24px', fontWeight: '700', letterSpacing: '-1px', color: 'var(--ink)' }}>
-            {skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
+            {Number(skill.base_price_inr || 0) === 0 ? 'Free' : `₹${Number(skill.base_price_inr || 0).toFixed(0)}`}
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'var(--canvas-soft)', borderRadius: 'var(--radius-pill)', border: '1px solid var(--hairline)' }}>

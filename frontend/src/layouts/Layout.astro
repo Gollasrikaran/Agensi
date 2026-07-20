@@ -7,14 +7,16 @@ export interface Props {
 	image?: string;
 	canonicalURL?: string;
 	type?: string;
+	jsonLd?: string;
 }
 
 const { 
 	title, 
 	description = "Bodhic AI — Buy and Sell AI Agent Skills. The premier marketplace for prompt artifacts and verified AI agent components.", 
 	image = "https://bodhic.app/og-image.png",
-	canonicalURL = new URL(Astro.url.pathname, Astro.site).toString(),
-	type = "website"
+	canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://bodhic.app').toString(),
+	type = "website",
+	jsonLd
 } = Astro.props;
 ---
 
@@ -46,6 +48,8 @@ const {
 		<meta property="twitter:description" content={description} />
 		<meta property="twitter:image" content={image} />
 
+		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+
 		<!-- Bot-Filtered Analytics -->
 		<script is:inline>
 			(function() {
@@ -73,10 +77,12 @@ const {
 			<slot />
 		</main>
 		<footer style="margin-top: var(--space-5xl); padding: var(--space-xl) 0; border-top: 1px solid var(--hairline); text-align: center;">
-			<div class="footer-links" style="display: flex; justify-content: center; gap: var(--space-lg); margin-bottom: var(--space-md); font-size: 14px;">
+			<div class="footer-links" style="display: flex; justify-content: center; gap: var(--space-lg); margin-bottom: var(--space-md); font-size: 14px; flex-wrap: wrap;">
 				<a href="/privacy" class="footer-link">Privacy Policy</a>
 				<a href="/terms" class="footer-link">Terms & Conditions</a>
 				<a href="/refund" class="footer-link">Refund Policy</a>
+				<a href="/dmca" class="footer-link">DMCA</a>
+				<a href="/security" class="footer-link">Security Scanning</a>
 				<a href="/contact" class="footer-link">Contact Us</a>
 			</div>
 			<p style="color: var(--mute); font-size: 14px;">&copy; {new Date().getFullYear()} Bodhic AI. All rights reserved.</p>

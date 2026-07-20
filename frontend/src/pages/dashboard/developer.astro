@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ApiKeysIsland from '../../components/ApiKeysIsland.tsx';
+---
+<Layout 
+	title="Developer Settings — Bodhic AI"
+	description="Manage your API keys for integrating Bodhic AI skills into Cursor, Claude, and other local agents."
+>
+	<div style="max-width: 900px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">Developer</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">API Keys & Integrations</h1>
+			<p style="color: var(--body); font-size: 16px;">Generate API keys to connect Bodhic AI skills directly to your local AI agents (Cursor, Windsurf, Claude) via the Model Context Protocol (MCP).</p>
+		</div>
+		<ApiKeysIsland client:load />
+	</div>
+</Layout>

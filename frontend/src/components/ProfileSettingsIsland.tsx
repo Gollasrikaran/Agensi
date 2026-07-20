@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+
 export default function ProfileSettingsIsland() {
   const [username, setUsername] = useState('');
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [backgroundUrl, setBackgroundUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -20,13 +26,17 @@ export default function ProfileSettingsIsland() {
       // Fetch current profile from users table
       const { data } = await supabase
         .from('users')
-        .select('username, bio, avatar_url')
+        .select('username, bio, avatar_url, background_url')
         .eq('id', session.user.id)
         .maybeSingle();
 
-      if (data?.username) {
-        setCurrentUsername(data.username);
-        setUsername(data.username);
+      if (data) {
+        if (data.username) {
+          setCurrentUsername(data.username);
+          setUsername(data.username);
+        }
+        if (data.avatar_url) setAvatarUrl(data.avatar_url);
+        if (data.background_url) setBackgroundUrl(data.background_url);
       }
       if (data?.bio) {
         setBio(data.bio);
@@ -41,6 +51,49 @@ export default function ProfileSettingsIsland() {
     };
     loadProfile();
   }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'background') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // reset input
+    event.target.value = '';
+
+    setUploading(true);
+    setMessage(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${session.user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('user_media')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user_media')
+        .getPublicUrl(filePath);
+
+      if (type === 'avatar') {
+        setAvatarUrl(publicUrl);
+      } else {
+        setBackgroundUrl(publicUrl);
+      }
+      setMessage({ type: 'success', text: `${type === 'avatar' ? 'Avatar' : 'Background'} uploaded! Don't forget to save.` });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: `Upload failed: ${error.message}` });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +120,12 @@ export default function ProfileSettingsIsland() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ username, avatar_url: avatarUrl, bio })
+        body: JSON.stringify({ 
+          username, 
+          avatar_url: avatarUrl,
+          background_url: backgroundUrl,
+          bio
+        })
       });
 
       const data = await res.json();
@@ -91,29 +149,39 @@ export default function ProfileSettingsIsland() {
 
   return (
     <div>
-      {/* Profile Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 'var(--space-xl)', padding: 'var(--space-xl)', background: 'var(--canvas)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--hairline-strong)' }}>
-        {/* Avatar Initials */}
-        <div style={{
-          width: '72px', height: '72px', borderRadius: '50%',
-          background: 'var(--canvas-strong)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '28px', fontWeight: 700, color: '#fff', flexShrink: 0,
-          overflow: 'hidden', border: '1px solid var(--hairline-strong)'
-        }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            currentUsername ? currentUsername[0].toUpperCase() : '?'
-          )}
-        </div>
-        <div>
-          <h2 style={{ margin: 0, fontSize: '22px' }}>
-            {currentUsername ? `@${currentUsername}` : 'No username set yet'}
-          </h2>
-          <p style={{ margin: '4px 0 0', color: 'var(--mute)', fontSize: '14px' }}>
-            {currentUsername ? 'This is how sellers and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
-          </p>
+      {/* Profile Header Preview */}
+      <div style={{ 
+        position: 'relative',
+        marginBottom: 'var(--space-xl)', 
+        background: backgroundUrl ? `url(${backgroundUrl}) center/cover no-repeat` : 'var(--canvas)', 
+        borderRadius: 'var(--radius-lg)', 
+        border: '1px solid var(--hairline-strong)',
+        overflow: 'hidden'
+      }}>
+        {/* Dark overlay if background exists for readability */}
+        {backgroundUrl && (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4))' }}></div>
+        )}
+        
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '20px', padding: 'var(--space-xl)' }}>
+          {/* Avatar Preview */}
+          <div style={{
+            width: '72px', height: '72px', borderRadius: '50%',
+            background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), #9b5cff)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '28px', fontWeight: 700, color: '#fff', flexShrink: 0,
+            border: '2px solid rgba(255,255,255,0.2)'
+          }}>
+            {!avatarUrl && (currentUsername ? currentUsername[0].toUpperCase() : '?')}
+          </div>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '22px', color: backgroundUrl ? '#fff' : 'inherit' }}>
+              {currentUsername ? `@${currentUsername}` : 'No username set yet'}
+            </h2>
+            <p style={{ margin: '4px 0 0', color: backgroundUrl ? 'rgba(255,255,255,0.7)' : 'var(--mute)', fontSize: '14px' }}>
+              {currentUsername ? 'This is how sellers and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
+            </p>
+          </div>
         </div>
         
         {currentUsername && (
@@ -166,56 +234,76 @@ export default function ProfileSettingsIsland() {
             </p>
           </div>
 
-          {/* Avatar Picker */}
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500, fontSize: '14px' }}>
-              Choose your AI Avatar (or enter a custom URL)
-            </label>
-            
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              {/* Predefined Dicebear Bottts array */}
-              {['Nexus', 'Nova', 'Cyber', 'Neon', 'Byte', 'Glitch', 'Spark'].map((seed) => {
-                const url = `https://api.dicebear.com/9.x/bottts/svg?seed=${seed}&backgroundColor=transparent`;
-                const isSelected = avatarUrl === url;
-                return (
-                  <div 
-                    key={seed}
-                    onClick={() => setAvatarUrl(url)}
-                    style={{
-                      width: '48px', height: '48px',
-                      borderRadius: '50%',
-                      cursor: 'pointer',
-                      border: isSelected ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
-                      background: 'var(--canvas-strong)',
-                      padding: '4px',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <img src={url} alt={seed} style={{ width: '100%', height: '100%' }} />
-                  </div>
-                );
-              })}
+          {/* Media Uploads */}
+          <div style={{ display: 'flex', gap: '20px', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
+                Profile Avatar
+              </label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={avatarInputRef} 
+                style={{ display: 'none' }} 
+                onChange={(e) => handleFileUpload(e, 'avatar')} 
+              />
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploading}
+                style={{ width: '100%', marginBottom: '12px' }}
+              >
+                {uploading ? 'Uploading...' : (avatarUrl ? 'Change Avatar' : 'Upload Avatar')}
+              </button>
+              
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {/* Predefined Dicebear Bottts array */}
+                {['Nexus', 'Nova', 'Cyber', 'Neon', 'Byte', 'Glitch', 'Spark'].map((seed) => {
+                  const url = `https://api.dicebear.com/9.x/bottts/svg?seed=${seed}&backgroundColor=transparent`;
+                  const isSelected = avatarUrl === url;
+                  return (
+                    <div 
+                      key={seed}
+                      onClick={() => setAvatarUrl(url)}
+                      style={{
+                        width: '40px', height: '40px',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        border: isSelected ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
+                        background: 'var(--canvas-strong)',
+                        padding: '4px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <img src={url} alt={seed} style={{ width: '100%', height: '100%' }} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             
-            <input
-              type="text"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="https://example.com/my-avatar.png"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--hairline-strong)',
-                background: 'var(--canvas-soft)',
-                color: 'var(--ink)',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
-            />
-            <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
-              Select a predefined bot or paste a direct image URL.
-            </p>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
+                Profile Background
+              </label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={backgroundInputRef} 
+                style={{ display: 'none' }} 
+                onChange={(e) => handleFileUpload(e, 'background')} 
+              />
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={() => backgroundInputRef.current?.click()}
+                disabled={uploading}
+                style={{ width: '100%' }}
+              >
+                {uploading ? 'Uploading...' : (backgroundUrl ? 'Change Background' : 'Upload Background')}
+              </button>
+            </div>
           </div>
           
           <div style={{ marginBottom: 'var(--space-lg)' }}>
@@ -257,7 +345,7 @@ export default function ProfileSettingsIsland() {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={saving}
+            disabled={saving || uploading}
             style={{ minWidth: '120px' }}
           >
             {saving ? 'Saving...' : 'Save Profile'}

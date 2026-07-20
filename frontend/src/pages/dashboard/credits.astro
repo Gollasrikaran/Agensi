@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CreditWalletIsland from '../../components/CreditWalletIsland.tsx';
+---
+<Layout 
+	title="Bodhic Credits — Bodhic AI"
+	description="Top up your Bodhic Credits to interact with AI skills using the Model Context Protocol."
+>
+	<div style="max-width: 900px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">Wallet</span>
+			<h1 style="font-size: 36px; margin-bottom: var(--space-xs);">Bodhic Credits</h1>
+			<p style="color: var(--body); font-size: 16px;">Purchase credits to chat with premium agent skills directly from your local IDE. 10 Credits = 1 Chat.</p>
+		</div>
+		<CreditWalletIsland client:load />
+	</div>
+</Layout>
