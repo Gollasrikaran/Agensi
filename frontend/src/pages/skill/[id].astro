@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
+import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 
 export async function getStaticPaths() {
 	try {
@@ -26,11 +27,33 @@ try {
 } catch (e) {
 	console.error(e);
 }
+
+const jsonLd = skill ? JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": "Product",
+	"name": skill.title,
+	"description": skill.description,
+	"image": skill.cover_image_url || "https://bodhic.app/og-image.png",
+	"offers": {
+		"@type": "Offer",
+		"price": skill.base_price_inr || 0,
+		"priceCurrency": "INR",
+		"availability": "https://schema.org/InStock"
+	},
+	"aggregateRating": skill.review_count > 0 ? {
+		"@type": "AggregateRating",
+		"ratingValue": skill.average_rating || 5,
+		"reviewCount": skill.review_count
+	} : undefined
+}) : undefined;
 ---
 
 <Layout 
 	title={skill ? `${skill.title} — Bodhic AI` : "Skill Not Found"}
 	description={skill ? skill.description : "This AI agent skill could not be found."}
+	image={skill?.cover_image_url}
+	type="product"
+	jsonLd={jsonLd}
 >
 	{!skill ? (
 		<div style="text-align: center; padding: var(--space-5xl);">
@@ -72,6 +95,18 @@ try {
 						</div>
 					)}
 				</div>
+			</div>
+
+			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
+				<h3 style="font-size: 20px; color: var(--ink); font-weight: 700; margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+					Buyer Reviews
+					{skill.review_count > 0 && (
+						<span style="font-size: 14px; font-weight: 500; color: var(--mute); background: var(--canvas-soft); padding: 2px 8px; border-radius: 12px;">
+							★ {skill.average_rating ? Number(skill.average_rating).toFixed(1) : 0} ({skill.review_count})
+						</span>
+					)}
+				</h3>
+				<ReviewsIsland client:load skillId={skill.id} />
 			</div>
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />

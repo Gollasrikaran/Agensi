@@ -59,3 +59,16 @@ def get_public_users():
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/skills/{skill_id}/reviews")
+def get_skill_reviews(skill_id: str):
+    try:
+        # Fetch reviews and join with users table to get buyer's public profile info
+        res = supabase.table("reviews") \
+            .select("rating, comment, created_at, buyer:buyer_id(username, avatar_url)") \
+            .eq("skill_id", skill_id) \
+            .order("created_at", desc=True) \
+            .execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

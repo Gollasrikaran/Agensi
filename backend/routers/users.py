@@ -116,3 +116,34 @@ def request_payout(req: PayoutRequest, user = Depends(get_current_user)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class ReviewRequest(BaseModel):
+    skill_id: str
+    rating: int
+    comment: str | None = None
+
+@router.post("/me/reviews")
+def submit_review(req: ReviewRequest, user = Depends(get_current_user)):
+    try:
+        if req.rating < 1 or req.rating > 5:
+            raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+            
+        # Verify purchase
+        purchase = supabase.table("purchases").select("id").eq("buyer_id", user.id).eq("skill_id", req.skill_id).eq("payment_status", "completed").execute()
+        if not purchase.data:
+            raise HTTPException(status_code=403, detail="You can only review skills you have purchased")
+            
+        review_data = {
+            "skill_id": req.skill_id,
+            "buyer_id": user.id,
+            "rating": req.rating,
+            "comment": req.comment
+        }
+        
+        # Upsert based on unique constraint
+        res = supabase.table("reviews").upsert(review_data, on_conflict="skill_id,buyer_id").execute()
+        return {"message": "Review submitted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
