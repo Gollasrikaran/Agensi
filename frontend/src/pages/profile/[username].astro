@@ -1,0 +1,66 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProfileStatsHero from '../../components/ProfileStatsHero.tsx';
+import SkillCard from '../../components/SkillCard.tsx';
+
+export async function getStaticPaths() {
+	try {
+		const res = await fetch('http://localhost:8000/api/public/users');
+		if (res.ok) {
+			const users = await res.json();
+			return users.map((u: any) => ({
+				params: { username: u.username }
+			}));
+		}
+	} catch (e) {
+		console.error(e);
+	}
+	return [];
+}
+
+const { username } = Astro.params;
+
+let profileData: any = null;
+try {
+	const res = await fetch(`http://localhost:8000/api/public/profile/${username}`);
+	if (res.ok) {
+		profileData = await res.json();
+	}
+} catch (e) {
+	console.error(e);
+}
+---
+
+<Layout 
+	title={profileData ? `@${profileData.seller.username} — Bodhic AI` : "Profile Not Found"}
+	description={profileData ? `View @${profileData.seller.username}'s AI agent skills on Bodhic AI.` : "This profile could not be found."}
+>
+	{!profileData ? (
+		<div style="text-align: center; padding: var(--space-5xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-md);">Profile not found.</h2>
+			<a href="/browse" class="btn btn-primary">← Back to Browse</a>
+		</div>
+	) : (
+		<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-xl);">
+			<ProfileStatsHero 
+				user={profileData.seller} 
+				stats={{ totalSales: 0, skillsCount: profileData.skills.length }} 
+			/>
+
+			<div style="margin-bottom: var(--space-2xl);">
+				<h2 style="font-size: 24px; margin-bottom: var(--space-lg);">Published Skills</h2>
+				{profileData.skills.length > 0 ? (
+					<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-lg);">
+						{profileData.skills.map((skill: any) => (
+							<SkillCard skill={skill} />
+						))}
+					</div>
+				) : (
+					<div style="padding: var(--space-2xl); text-align: center; background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px dashed var(--hairline-strong);">
+						<p style="color: var(--mute); margin: 0;">This user hasn't published any skills yet.</p>
+					</div>
+				)}
+			</div>
+		</div>
+	)}
+</Layout>

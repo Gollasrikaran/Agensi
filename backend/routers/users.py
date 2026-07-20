@@ -26,6 +26,7 @@ from pydantic import BaseModel
 class ProfileUpdateRequest(BaseModel):
     username: str
     avatar_url: str
+    background_url: str | None = None
 
 @router.post("/me/profile")
 def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
@@ -35,10 +36,14 @@ def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
         if existing.data and existing.data[0]["id"] != user.id:
             raise HTTPException(status_code=400, detail="Username is already taken")
             
-        res = supabase.table("users").update({
+        update_data = {
             "username": req.username,
             "avatar_url": req.avatar_url
-        }).eq("id", user.id).execute()
+        }
+        if req.background_url is not None:
+            update_data["background_url"] = req.background_url
+
+        res = supabase.table("users").update(update_data).eq("id", user.id).execute()
         
         return {"message": "Profile updated successfully", "user": res.data[0] if res.data else None}
     except HTTPException:
