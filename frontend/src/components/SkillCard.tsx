@@ -112,7 +112,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         {/* Footer: Price and Author */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
           <div style={{ fontSize: '24px', fontWeight: '700', letterSpacing: '-1px', color: 'var(--ink)' }}>
-            {skill.base_price_inr === 0 ? 'Free' : `₹${(skill.base_price_inr || 0).toFixed(0)}`}
+            {Number(skill.base_price_inr || 0) === 0 ? 'Free' : `₹${Number(skill.base_price_inr || 0).toFixed(0)}`}
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'var(--canvas-soft)', borderRadius: 'var(--radius-pill)', border: '1px solid var(--hairline)' }}>

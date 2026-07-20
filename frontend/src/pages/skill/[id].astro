@@ -2,10 +2,11 @@
 import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
+import McpTestIsland from '../../components/McpTestIsland.tsx';
 
 export async function getStaticPaths() {
 	try {
-		const res = await fetch('http://localhost:8000/api/skills');
+		const res = await fetch('http://localhost:8000/api/skills?all_status=true');
 		if (res.ok) {
 			const skills = await res.json();
 			return skills.map((s: any) => ({
@@ -110,6 +111,7 @@ const jsonLd = skill ? JSON.stringify({
 			</div>
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
+			<McpTestIsland client:load skillId={skill.id} />
 		</div>
 	)}
 </Layout>

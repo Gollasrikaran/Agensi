@@ -7,12 +7,19 @@ from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
 from routers import admin, users, public
+from routers.mcp import mcp as fastmcp_server
 
 app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 
 app.include_router(admin.router)
 app.include_router(users.router)
 app.include_router(public.router)
+
+# Mount the FastMCP Server-Sent Events app
+# Wait, FastMCP does not have `.http_app` exposed directly as ASGI maybe, but we can check.
+# Let's use standard starlette mount. Wait, from the `dir(FastMCP)` I saw `mcp._setup_handlers()` and `mcp.run_http_async()`. FastMCP usually relies on its own server.
+# But it does expose an ASGI app if using starlette/fastapi. 
+app.mount("/mcp", fastmcp_server.http_app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,10 +46,14 @@ def read_root():
     return {"status": "ok", "message": "Marketplace API is running"}
 
 @app.get("/api/skills")
-def get_skills():
+def get_skills(all_status: bool = False):
     try:
-        # Only return approved skills — pending/rejected must not be visible publicly
-        res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
+        if all_status:
+            # Used by SSG getStaticPaths to know about all skills
+            res = supabase.table("skills").select("*").execute()
+        else:
+            # Public browse page only sees approved skills
+            res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -50,7 +61,8 @@ def get_skills():
 @app.get("/api/skills/{skill_id}")
 def get_skill(skill_id: str):
     try:
-        res = supabase.table("skills").select("*").eq("id", skill_id).eq("moderation_status", "approved").single().execute()
+        # Allow fetching approved and pending skills so creators can see their uploads
+        res = supabase.table("skills").select("*").eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
         return res.data

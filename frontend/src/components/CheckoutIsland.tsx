@@ -134,7 +134,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
             onClick={handleCheckout}
             disabled={loading}
           >
-            {loading ? 'Processing...' : `Proceed to Checkout (₹${(basePrice || 0).toFixed(2)})`}
+            {loading ? 'Processing...' : `Proceed to Checkout (₹${Number(basePrice || 0).toFixed(2)})`}
           </button>
           
           {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
