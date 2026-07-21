@@ -19,7 +19,7 @@ export default function SellerDashboardIsland() {
         return;
       }
 
-      const res = await fetch('http://localhost:8000/api/users/me/skills', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/skills`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }

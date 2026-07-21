@@ -157,7 +157,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                fetch(`http://localhost:8000/api/public/skills/${skill.id}/vote`, {
+                fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills/${skill.id}/vote`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ type: 'upvote' })
@@ -172,7 +172,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                fetch(`http://localhost:8000/api/public/skills/${skill.id}/vote`, {
+                fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills/${skill.id}/vote`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ type: 'downvote' })

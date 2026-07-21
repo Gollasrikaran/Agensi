@@ -86,7 +86,7 @@ export default function UploadSkillFormIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const res = await fetch('http://localhost:8000/api/users/me/appeal', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/appeal`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ export default function UploadSkillFormIsland() {
         return;
       }
 
-      const res = await fetch('http://localhost:8000/api/skills/upload', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

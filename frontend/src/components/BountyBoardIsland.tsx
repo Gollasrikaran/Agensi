@@ -21,7 +21,7 @@ export default function BountyBoardIsland() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/requests');
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests`);
       if (res.ok) {
         const data = await res.json();
         setRequests(data);
@@ -42,7 +42,7 @@ export default function BountyBoardIsland() {
 
     setIsPosting(true);
     try {
-      const res = await fetch('http://localhost:8000/api/requests', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -15,7 +15,7 @@ export default function BuyerDashboardIsland() {
     try {
       setSubmittingReview(true);
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('http://localhost:8000/api/users/me/reviews', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/reviews`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -49,7 +49,7 @@ export default function BuyerDashboardIsland() {
         return;
       }
 
-      const res = await fetch('http://localhost:8000/api/users/me/purchases', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/purchases`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -151,7 +151,7 @@ export default function BuyerDashboardIsland() {
                     onClick={async () => {
                       try {
                         const { data: { session } } = await supabase.auth.getSession();
-                        const res = await fetch(`http://localhost:8000/api/skills/${purchase.skill_id}/download`, {
+                        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${purchase.skill_id}/download`, {
                           headers: { 'Authorization': `Bearer ${session?.access_token}` }
                         });
                         if (!res.ok) throw new Error('Download failed');

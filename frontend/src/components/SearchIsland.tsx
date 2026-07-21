@@ -23,7 +23,7 @@ export default function SearchIsland() {
       return;
     }
 
-    fetch(`http://localhost:8000/api/public/search?q=${encodeURIComponent(q)}`)
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/search?q=${encodeURIComponent(q)}`)
       .then(res => res.json())
       .then(data => {
         setSkills(data || []);

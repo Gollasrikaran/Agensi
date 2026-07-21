@@ -18,7 +18,7 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const res = await fetch(`http://localhost:8000/api/public/skills/${skillId}/reviews`);
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills/${skillId}/reviews`);
         if (!res.ok) throw new Error('Failed to fetch reviews');
         const data = await res.json();
         setReviews(data);

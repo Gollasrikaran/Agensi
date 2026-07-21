@@ -23,7 +23,7 @@ export default function AdminDashboardIsland() {
         return;
       }
 
-      const res = await fetch('http://localhost:8000/api/admin/dashboard', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -37,7 +37,7 @@ export default function AdminDashboardIsland() {
       setData(dashboardData);
 
       // Fetch appeals
-      const appealsRes = await fetch('http://localhost:8000/api/admin/appeals', {
+      const appealsRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/appeals`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
@@ -57,7 +57,7 @@ export default function AdminDashboardIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const res = await fetch(`http://localhost:8000/api/admin/users/${userId}/unblock`, {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}/unblock`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`
@@ -78,7 +78,7 @@ export default function AdminDashboardIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const res = await fetch(`http://localhost:8000/api/admin/skills/${skillId}/status`, {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/skills/${skillId}/status`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
@@ -99,7 +99,7 @@ export default function AdminDashboardIsland() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const res = await fetch(`http://localhost:8000/api/admin/users/${userId}/skills`, {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}/skills`, {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch user skills');

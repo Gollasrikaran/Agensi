@@ -17,7 +17,7 @@ export default function ApiKeysIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const res = await fetch('http://localhost:8000/api/users/me/api_keys', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/api_keys`, {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       if (res.ok) setKeys(await res.json());
@@ -34,7 +34,7 @@ export default function ApiKeysIsland() {
     setGeneratedKey(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('http://localhost:8000/api/users/me/api_keys', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/api_keys`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${session?.access_token}`,
@@ -61,7 +61,7 @@ export default function ApiKeysIsland() {
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`http://localhost:8000/api/users/me/api_keys/${id}`, {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/api_keys/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${session?.access_token}` }
       });
@@ -156,7 +156,7 @@ export default function ApiKeysIsland() {
       "args": [
         "-H",
         "Authorization: Bearer YOUR_API_KEY",
-        "http://localhost:8000/api/public/mcp/sse"
+        `${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/mcp/sse`
       ]
     }
   }

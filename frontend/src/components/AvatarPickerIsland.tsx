@@ -40,7 +40,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
   useEffect(() => {
     const fetchPacks = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/avatars/packs');
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/avatars/packs`);
         if (res.ok) {
           const data = await res.json();
           setPacks(data);
@@ -54,7 +54,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
       const token = getSessionToken();
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:8000/api/avatars/my-unlocks', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/avatars/my-unlocks`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -78,7 +78,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
       return;
     }
     try {
-      const orderRes = await fetch(`http://localhost:8000/api/avatars/packs/${pack.slug}/order`, {
+      const orderRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/avatars/packs/${pack.slug}/order`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -92,7 +92,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
       const order = await orderRes.json();
 
       if (order.is_free) {
-        const verifyRes = await fetch(`http://localhost:8000/api/avatars/packs/${pack.slug}/verify`, {
+        const verifyRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/avatars/packs/${pack.slug}/verify`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ razorpay_payment_id: "free", razorpay_order_id: "free", razorpay_signature: "free" })
@@ -111,7 +111,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
         description: `Unlock ${pack.name}`,
         order_id: order.client_secret,
         handler: async function (response: any) {
-          const verifyRes = await fetch(`http://localhost:8000/api/avatars/packs/${pack.slug}/verify`, {
+          const verifyRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/avatars/packs/${pack.slug}/verify`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({

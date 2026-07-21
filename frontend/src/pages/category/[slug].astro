@@ -5,7 +5,7 @@ const { slug } = Astro.params;
 
 let matchedSkills = [];
 try {
-    const res = await fetch('http://localhost:8000/api/skills');
+    const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills`);
     if (res.ok) {
         const allSkills = await res.json();
         matchedSkills = allSkills.filter((s: any) => s.category?.toLowerCase().replace(/\s+/g, '-') === slug?.toLowerCase());

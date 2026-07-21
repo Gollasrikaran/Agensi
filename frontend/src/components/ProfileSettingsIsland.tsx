@@ -119,7 +119,7 @@ export default function ProfileSettingsIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const res = await fetch('http://localhost:8000/api/users/me/profile', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

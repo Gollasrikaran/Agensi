@@ -16,7 +16,7 @@ export default function CreditWalletIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const res = await fetch('http://localhost:8000/api/users/me/credits', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits`, {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
       if (res.ok) {
@@ -40,7 +40,7 @@ export default function CreditWalletIsland() {
       }
       
       // 1. Create order intent
-      const res = await fetch('http://localhost:8000/api/users/me/credits/checkout', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits/checkout`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${session.access_token}`,
@@ -53,7 +53,7 @@ export default function CreditWalletIsland() {
       
       // 2. Mock Fallback Flow (if no Razorpay keys configured)
       if (!orderData.is_live) {
-        const successRes = await fetch('http://localhost:8000/api/users/me/credits/checkout/success', {
+        const successRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits/checkout/success`, {
           method: 'POST',
           headers: { 
             'Authorization': `Bearer ${session.access_token}`,
@@ -82,7 +82,7 @@ export default function CreditWalletIsland() {
         order_id: orderData.client_secret,
         handler: async function (response: any) {
           // 4. Confirm success
-          const successRes = await fetch('http://localhost:8000/api/users/me/credits/checkout/success', {
+          const successRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits/checkout/success`, {
             method: 'POST',
             headers: { 
               'Authorization': `Bearer ${session.access_token}`,

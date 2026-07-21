@@ -18,7 +18,7 @@ export default function SkillPulseGraph({ username }: { username: string }) {
   const [streaks, setStreaks] = useState({ current: 0, longest: 0 });
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/public/users/${username}/activity`)
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/users/${username}/activity`)
       .then(res => res.json())
       .then(data => {
         // Aggregate activity by date and type

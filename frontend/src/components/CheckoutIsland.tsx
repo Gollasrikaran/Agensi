@@ -29,7 +29,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
     setError('');
     const token = getSessionToken();
     try {
-      const res = await fetch('http://localhost:8000/api/checkout/intent', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/intent`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
     // 1. Mock Fallback Flow
     if (!intent.is_live) {
         try {
-          const res = await fetch('http://localhost:8000/api/checkout/success', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
       order_id: intent.client_secret,
       handler: async function (response: any) {
         try {
-          const confirmRes = await fetch('http://localhost:8000/api/checkout/success', {
+          const confirmRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',

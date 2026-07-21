@@ -33,7 +33,7 @@ export default function BrowseIsland() {
   }, []);
 
   const fetchSkills = () => {
-    fetch('http://localhost:8000/api/public/skills')
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -53,7 +53,7 @@ export default function BrowseIsland() {
     const states: Record<string, boolean> = {};
     for (const skill of skillsData) {
       try {
-        const res = await fetch(`http://localhost:8000/api/skills/${skill.id}/upvote/status`, {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${skill.id}/upvote/status`, {
           headers: { 'Authorization': `Bearer ${session.access_token}` }
         });
         if (res.ok) {
@@ -82,7 +82,7 @@ export default function BrowseIsland() {
     setUpvotingIds(prev => new Set(prev).add(skillId));
     
     try {
-      const res = await fetch(`http://localhost:8000/api/skills/${skillId}/upvote`, { 
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${skillId}/upvote`, { 
         method: 'POST',
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });

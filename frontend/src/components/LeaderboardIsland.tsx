@@ -14,7 +14,7 @@ export default function LeaderboardIsland() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/skills/leaderboard');
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/leaderboard`);
       if (res.ok) {
         const data = await res.json();
         setSkills(data);
@@ -40,7 +40,7 @@ export default function LeaderboardIsland() {
 
     setUpvotingIds(prev => new Set(prev).add(skillId));
     try {
-      const res = await fetch(`http://localhost:8000/api/skills/${skillId}/upvote`, { 
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${skillId}/upvote`, { 
         method: 'POST',
         headers: { 'Authorization': `Bearer ${session.access_token}` }
       });

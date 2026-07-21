@@ -13,7 +13,7 @@ export default function PayoutsIsland() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
             
-            const res = await fetch('http://localhost:8000/api/admin/payouts', {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/payouts`, {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             });
             
@@ -35,7 +35,7 @@ export default function PayoutsIsland() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
             
-            const res = await fetch(`http://localhost:8000/api/admin/payouts/${id}/complete`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/payouts/${id}/complete`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             });

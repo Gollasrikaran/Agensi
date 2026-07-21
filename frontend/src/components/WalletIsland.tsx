@@ -17,7 +17,7 @@ export default function WalletIsland() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
             
-            const res = await fetch('http://localhost:8000/api/users/me/wallet', {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/wallet`, {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             });
             
@@ -40,7 +40,7 @@ export default function WalletIsland() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
             
-            const res = await fetch('http://localhost:8000/api/users/me/payout', {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/payout`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${session.access_token}`,
