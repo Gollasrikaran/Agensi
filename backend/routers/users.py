@@ -252,7 +252,7 @@ def create_api_key(req: CreateKeyRequest, user = Depends(get_current_user)):
         import secrets, hashlib
         raw_key = "bodhic_" + secrets.token_urlsafe(32)
         key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
-        key_prefix = raw_key[:12]
+        key_prefix = raw_key[:10]
         
         res = supabase.table("user_api_keys").insert({
             "user_id": user.id,
