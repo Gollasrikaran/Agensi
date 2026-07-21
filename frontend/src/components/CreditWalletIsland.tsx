@@ -51,16 +51,37 @@ export default function CreditWalletIsland() {
       
       const orderData = await res.json();
       
-      // 2. Load Razorpay UI
+      // 2. Mock Fallback Flow (if no Razorpay keys configured)
+      if (!orderData.is_live) {
+        const successRes = await fetch('http://localhost:8000/api/users/me/credits/checkout/success', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ amount_inr: amountInr })
+        });
+        
+        if (successRes.ok) {
+          alert('Credits added successfully (Mock Payment)!');
+          fetchCredits();
+        } else {
+          alert('Error verifying payment.');
+        }
+        setProcessing(false);
+        return;
+      }
+      
+      // 3. Load Real Razorpay UI
       const rzp = await loadRazorpay({
-        key: orderData.key,
-        amount: orderData.amount,
+        key: orderData.razorpay_key_id,
+        amount: Math.round(orderData.amount_inr * 100),
         currency: orderData.currency,
         name: "Bodhic AI",
         description: `Purchase Bodhic Credits`,
-        order_id: orderData.id,
+        order_id: orderData.client_secret,
         handler: async function (response: any) {
-          // 3. Confirm success
+          // 4. Confirm success
           const successRes = await fetch('http://localhost:8000/api/users/me/credits/checkout/success', {
             method: 'POST',
             headers: { 

@@ -77,7 +77,7 @@ export default function ApiKeysIsland() {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-xl)' }}>
       <div>
         <div className="card" style={{ padding: 'var(--space-xl)' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, margin-bottom: 'var(--space-md)' }}>Create New Key</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, marginbottom: 'var(--space-md)' }}>Create New Key</h3>
           <form onSubmit={createKey} className="form-group">
             <div>
               <label>Key Name</label>

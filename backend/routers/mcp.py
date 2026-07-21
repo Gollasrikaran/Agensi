@@ -18,8 +18,11 @@ def search_skills(query: str) -> str:
 @mcp.tool()
 def get_credit_balance(api_key: str) -> str:
     """Check the user's Bodhic Credit balance. You must provide the user's Bodhic API Key."""
+    import hashlib
+    key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+    
     # Authenticate
-    res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", api_key).execute()
+    res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
     if not res.data:
         return "Error: Invalid API Key"
     
@@ -31,14 +34,17 @@ def get_credit_balance(api_key: str) -> str:
 @mcp.tool()
 async def chat_with_skill(api_key: str, skill_id: str, message: str) -> str:
     """Send a message to a specific skill. Checks if the user purchased it or deducts 10 credits. Requires the user's Bodhic API Key."""
+    import hashlib
+    key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+    
     # Authenticate
-    res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", api_key).execute()
+    res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
     if not res.data:
         return "Error: Invalid API Key"
     user_id = res.data[0]["user_id"]
     
     # Update last_used_at
-    supabase.table("user_api_keys").update({"last_used_at": "now()"}).eq("api_key_hash", api_key).execute()
+    supabase.table("user_api_keys").update({"last_used_at": "now()"}).eq("api_key_hash", key_hash).execute()
     
     # 1. Fetch Skill Info & Secret Prompt
     skill_res = supabase.table("skills").select("title, prompt_template").eq("id", skill_id).execute()
