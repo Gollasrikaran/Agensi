@@ -1,8 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-export async function getStaticPaths() {
-  const posts = [
+const posts = [
     {
       title: "How to prevent Prompt Injections in your Agents",
       slug: "preventing-prompt-injections",
@@ -53,13 +52,12 @@ Every month, Bodhic AI distributes a Creator Fund bonus to the top 3 highest-vot
     }
   ];
 
-  return posts.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
-}
+const { slug } = Astro.params;
+const post = posts.find(p => p.slug === slug);
 
-const { post } = Astro.props;
+if (!post) {
+  return Astro.redirect('/404');
+}
 ---
 
 <Layout 

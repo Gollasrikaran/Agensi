@@ -6,7 +6,7 @@ from typing import List, Optional
 from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
-from routers import admin, users, public
+from routers import admin, users, public, avatars, pulse
 from routers.mcp import mcp as fastmcp_server
 
 app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
@@ -14,6 +14,8 @@ app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 app.include_router(admin.router)
 app.include_router(users.router)
 app.include_router(public.router)
+app.include_router(avatars.router)
+app.include_router(pulse.router)
 
 # Mount the FastMCP Server-Sent Events app
 # Wait, FastMCP does not have `.http_app` exposed directly as ASGI maybe, but we can check.
@@ -446,6 +448,11 @@ def upvote_skill(skill_id: str):
         return {"message": "Upvoted", "upvotes": new_upvotes}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/skills/{skill_id}/upvote/status")
+def get_upvote_status(skill_id: str):
+    # Mocking this for now as we don't track who upvoted what yet.
+    return {"has_upvoted": False}
 
 class SkillRequestModel(BaseModel):
     title: str

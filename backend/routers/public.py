@@ -6,14 +6,23 @@ router = APIRouter(prefix="/api/public", tags=["public"])
 @router.get("/skills")
 def get_public_skills():
     try:
-        # Fetch approved skills and join with the users table to get seller profile info
+        # Fetch approved skills and join with the users table and reviews
         res = supabase.table("skills") \
-            .select("*, seller:seller_id(username, avatar_url, background_url)") \
+            .select("*, seller:seller_id(username, avatar_url, background_url), reviews(rating)") \
             .eq("moderation_status", "approved") \
             .order("published_at", desc=True) \
             .execute()
         
-        return res.data
+        # Calculate average rating for each skill
+        skills = res.data
+        for skill in skills:
+            if "reviews" in skill and skill["reviews"]:
+                ratings = [r["rating"] for r in skill["reviews"] if r.get("rating")]
+                skill["rating"] = round(sum(ratings) / len(ratings), 1) if ratings else None
+            else:
+                skill["rating"] = None
+        
+        return skills
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -22,7 +31,7 @@ def get_public_profile(username: str):
     try:
         # Fetch user details
         user_res = supabase.table("users") \
-            .select("id, username, avatar_url, background_url, created_at") \
+            .select("id, username, avatar_url, background_url, created_at, bio, is_private") \
             .eq("username", username) \
             .single() \
             .execute()
@@ -31,6 +40,7 @@ def get_public_profile(username: str):
             raise HTTPException(status_code=404, detail="User not found")
             
         seller = user_res.data
+        # We still return the profile if it's private, so the frontend can display uploaded skills but mask achievements.
         
         # Fetch seller's approved skills
         skills_res = supabase.table("skills") \
@@ -59,6 +69,62 @@ def get_public_users():
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/search")
+def search_skills(q: str):
+    try:
+        # ILIKE search on title or description
+        res = supabase.table("skills") \
+            .select("*, seller:seller_id(username, avatar_url, background_url), reviews(rating)") \
+            .eq("moderation_status", "approved") \
+            .or_(f"title.ilike.%{q}%,description.ilike.%{q}%") \
+            .order("published_at", desc=True) \
+            .execute()
+            
+        skills = res.data
+        for skill in skills:
+            if "reviews" in skill and skill["reviews"]:
+                ratings = [r["rating"] for r in skill["reviews"] if r.get("rating")]
+                skill["rating"] = round(sum(ratings) / len(ratings), 1) if ratings else None
+            else:
+                skill["rating"] = None
+        
+        return skills
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+class VoteRequest(BaseModel):
+    type: str # "upvote" or "downvote"
+
+@router.post("/skills/{skill_id}/vote")
+def vote_skill(skill_id: str, req: VoteRequest):
+    try:
+        # In a real app we'd get current_user and prevent multiple votes. 
+        # For pilot, we just increment the counter.
+        skill_res = supabase.table("skills").select("upvotes, downvotes").eq("id", skill_id).single().execute()
+        if not skill_res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+            
+        skill = skill_res.data
+        upvotes = skill.get("upvotes") or 0
+        downvotes = skill.get("downvotes") or 0
+        
+        if req.type == "upvote":
+            upvotes += 1
+        elif req.type == "downvote":
+            downvotes += 1
+            
+        supabase.table("skills").update({
+            "upvotes": upvotes,
+            "downvotes": downvotes
+        }).eq("id", skill_id).execute()
+        
+        return {"status": "success", "upvotes": upvotes, "downvotes": downvotes}
+    except Exception as e:
+        if isinstance(e, HTTPException): raise
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/users/{username}/profile")
 def get_user_profile(username: str):

@@ -2,25 +2,10 @@
 import Layout from '../../layouts/Layout.astro';
 import NavbarIsland from '../../components/NavbarIsland';
 import ProfileStatsHero from '../../components/ProfileStatsHero';
-import PinnedSkillsGrid from '../../components/PinnedSkillsGrid';
+import SkillCard from '../../components/SkillCard';
 import AchievementShowcase from '../../components/AchievementShowcase';
 import NeuralStreakGraph from '../../components/NeuralStreakGraph';
 import { API_BASE } from '../../lib/config';
-
-export async function getStaticPaths() {
-  try {
-    const res = await fetch(`${API_BASE}/api/public/users`);
-    if (res.ok) {
-      const users = await res.json();
-      return users.map((u: any) => ({
-        params: { username: u.username }
-      }));
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return [];
-}
 
 const { username } = Astro.params;
 
@@ -28,10 +13,12 @@ let profile = null;
 let error = null;
 
 try {
-  const res = await fetch(`${API_BASE}/api/public/users/${username}/profile`);
+  const res = await fetch(`${API_BASE}/api/public/profile/${username}`);
   if (!res.ok) {
     if (res.status === 404) {
       error = "User not found";
+    } else if (res.status === 403) {
+      error = "This profile is private";
     } else {
       error = "Failed to load profile";
     }
@@ -47,7 +34,6 @@ try {
   title={profile ? `${profile.username}'s AI Skills | Bodhic AI` : "Profile Not Found | Bodhic AI"}
   description={profile ? `Check out AI agent skills created by ${profile.username} on Bodhic AI.` : "User profile on Bodhic AI."}
 >
-  <NavbarIsland client:load />
   
   <main class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-4xl); min-height: 80vh;">
     {error ? (
@@ -60,28 +46,49 @@ try {
         
         <!-- Stats Hero -->
         <ProfileStatsHero 
-          username={profile.username}
-          avatarUrl={profile.avatar_url}
-          backgroundUrl={profile.background_url}
-          bio={profile.bio}
-          tier={profile.stats?.tier}
-          memberSince={profile.created_at}
-          stats={profile.stats}
+          profile={{
+            username: profile.seller?.username || username,
+            avatar_url: profile.seller?.avatar_url || '',
+            avatar_tier: profile.seller?.avatar_tier || 'free',
+            streak: profile.seller?.streak || 0,
+            pulse_score: profile.seller?.pulse_score || 0,
+            total_skills: profile.skills?.length || 0,
+            total_sales: profile.seller?.total_sales || 0,
+            is_verified: profile.seller?.is_verified || false,
+            is_private: profile.seller?.is_private || false,
+            join_date: new Date(profile.seller?.created_at || Date.now()).toLocaleDateString()
+          }}
           client:load 
         />
         
-        <!-- Achievement Showcase -->
-        <AchievementShowcase achievements={profile.achievements || []} client:load />
+        {/* Achievement Showcase */}
+        {profile.seller?.is_private ? (
+          <div style="text-align: center; padding: 40px; background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px dashed var(--hairline-strong); color: var(--mute);">
+            🔒 @{profile.seller?.username || username} has chosen to keep their achievements private.
+          </div>
+        ) : (
+          <AchievementShowcase achievements={profile.achievements || []} client:load />
+        )}
 
-        <!-- Neural Pulse Streak Graph -->
-        <NeuralStreakGraph username={profile.username} client:load />
-
-        <!-- Pinned Skills Grid -->
-        <PinnedSkillsGrid 
-          skills={profile.pinned_skills || []}
-          client:load 
-        />
-        
+        <!-- Uploaded Skills Grid (GitHub Style) -->
+        <div style="margin-top: var(--space-md);">
+          <h2 style="font-size: 24px; color: var(--text-primary); margin-bottom: var(--space-lg); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--hairline-strong); padding-bottom: 16px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+            Uploaded Skills
+            <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 2px 10px; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600;">{profile.skills?.length || 0}</span>
+          </h2>
+          {profile.skills && profile.skills.length > 0 ? (
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-xl);">
+              {profile.skills.map((skill: any) => (
+                <SkillCard skill={{...skill, seller: profile.seller}} client:load />
+              ))}
+            </div>
+          ) : (
+            <div style="text-align: center; padding: 40px; background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px dashed var(--hairline-strong); color: var(--mute);">
+              @{profile.seller?.username || username} hasn't uploaded any skills yet.
+            </div>
+          )}
+        </div>
       </div>
     )}
   </main>

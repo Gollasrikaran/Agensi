@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import AvatarPickerIsland from './AvatarPickerIsland';
 
 export default function ProfileSettingsIsland() {
   const [username, setUsername] = useState('');
@@ -7,6 +8,8 @@ export default function ProfileSettingsIsland() {
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [backgroundUrl, setBackgroundUrl] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [userId, setUserId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -22,11 +25,12 @@ export default function ProfileSettingsIsland() {
         window.location.href = '/login';
         return;
       }
+      setUserId(session.user.id);
 
       // Fetch current profile from users table
       const { data } = await supabase
         .from('users')
-        .select('username, bio, avatar_url, background_url')
+        .select('username, bio, avatar_url, background_url, is_private')
         .eq('id', session.user.id)
         .maybeSingle();
 
@@ -37,6 +41,7 @@ export default function ProfileSettingsIsland() {
         }
         if (data.avatar_url) setAvatarUrl(data.avatar_url);
         if (data.background_url) setBackgroundUrl(data.background_url);
+        if (data.is_private !== undefined) setIsPrivate(data.is_private);
       }
       if (data?.bio) {
         setBio(data.bio);
@@ -124,7 +129,8 @@ export default function ProfileSettingsIsland() {
           username, 
           avatar_url: avatarUrl,
           background_url: backgroundUrl,
-          bio
+          bio,
+          is_private: isPrivate
         })
       });
 
@@ -182,20 +188,43 @@ export default function ProfileSettingsIsland() {
               {currentUsername ? 'This is how sellers and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
             </p>
           </div>
+
+          {currentUsername && (
+            <div style={{ marginLeft: 'auto' }}>
+              <a 
+                href={`/profile/${currentUsername}`} 
+                target="_blank" 
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  padding: '10px 20px',
+                  borderRadius: 'var(--radius-pill)',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  backdropFilter: 'blur(10px)',
+                  transition: 'background 0.2s ease, transform 0.1s ease',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                View Public Profile ↗
+              </a>
+            </div>
+          )}
         </div>
-        
-        {currentUsername && (
-          <div style={{ marginLeft: 'auto' }}>
-            <a 
-              href={`/profile/${currentUsername}`} 
-              target="_blank" 
-              className="btn btn-secondary" 
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-            >
-              View Public Profile ↗
-            </a>
-          </div>
-        )}
       </div>
 
       {/* Form */}
@@ -257,32 +286,21 @@ export default function ProfileSettingsIsland() {
                 {uploading ? 'Uploading...' : (avatarUrl ? 'Change Avatar' : 'Upload Avatar')}
               </button>
               
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                {/* Predefined Dicebear Bottts array */}
-                {['Nexus', 'Nova', 'Cyber', 'Neon', 'Byte', 'Glitch', 'Spark'].map((seed) => {
-                  const url = `https://api.dicebear.com/9.x/bottts/svg?seed=${seed}&backgroundColor=transparent`;
-                  const isSelected = avatarUrl === url;
-                  return (
-                    <div 
-                      key={seed}
-                      onClick={() => setAvatarUrl(url)}
-                      style={{
-                        width: '40px', height: '40px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        border: isSelected ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
-                        background: 'var(--canvas-strong)',
-                        padding: '4px',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <img src={url} alt={seed} style={{ width: '100%', height: '100%' }} />
-                    </div>
-                  );
-                })}
-              </div>
             </div>
-            
+          </div>
+          
+          <div style={{ marginBottom: 'var(--space-xl)' }}>
+            <label style={{ display: 'block', marginBottom: '16px', fontWeight: 500, fontSize: '14px' }}>
+              Choose Avatar
+            </label>
+            <AvatarPickerIsland 
+              userId={userId} 
+              currentUsername={username} 
+              onAvatarSelect={setAvatarUrl} 
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '20px', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '200px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
                 Profile Background
@@ -327,6 +345,21 @@ export default function ProfileSettingsIsland() {
                 resize: 'vertical'
               }}
             />
+          </div>
+
+          <div style={{ marginBottom: 'var(--space-lg)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={isPrivate} 
+                onChange={(e) => setIsPrivate(e.target.checked)} 
+                style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }}
+              />
+              <span style={{ fontWeight: 500, fontSize: '14px' }}>Private Profile</span>
+            </label>
+            <p style={{ margin: '4px 0 0 26px', fontSize: '12px', color: 'var(--mute)' }}>
+              If enabled, your public profile and Skill Pulse will be hidden from other users.
+            </p>
           </div>
 
           {message && (

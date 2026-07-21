@@ -1,39 +1,20 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-export async function getStaticPaths() {
-    // In SSG mode, we need to know all categories ahead of time to generate paths.
-    // Since skills are dynamic in the DB, we fetch them here at build time.
-    let skills: any[] = [];
-    try {
-        const res = await fetch('http://localhost:8000/api/skills');
-        if (res.ok) {
-            skills = await res.json();
-        }
-    } catch (e) {
-        console.error("Failed to fetch skills for pSEO:", e);
+const { slug } = Astro.params;
+
+let matchedSkills = [];
+try {
+    const res = await fetch('http://localhost:8000/api/skills');
+    if (res.ok) {
+        const allSkills = await res.json();
+        matchedSkills = allSkills.filter((s: any) => s.category?.toLowerCase().replace(/\s+/g, '-') === slug?.toLowerCase());
     }
-
-    // Extract unique categories (mock categories if none exist)
-    const rawCategories = skills.map((s: any) => s.category).filter(Boolean);
-    const uniqueCategories = [...new Set(rawCategories)];
-    
-    // Add some default SEO categories if DB is empty
-    const allCategories = uniqueCategories.length > 0 
-        ? uniqueCategories 
-        : ['development', 'copywriting', 'productivity', 'data-science', 'marketing'];
-
-    return allCategories.map((cat: string) => ({
-        params: { slug: cat.toLowerCase().replace(/\s+/g, '-') },
-        props: { 
-            originalName: cat,
-            matchedSkills: skills.filter((s: any) => s.category?.toLowerCase() === cat.toLowerCase()) 
-        }
-    }));
+} catch (e) {
+    console.error("Failed to fetch skills:", e);
 }
 
-const { slug } = Astro.params;
-const { originalName, matchedSkills } = Astro.props;
+const originalName = slug || '';
 
 // Humanize the category name for the H1 and Title
 const displayCategory = originalName.charAt(0).toUpperCase() + originalName.slice(1);

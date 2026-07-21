@@ -73,6 +73,33 @@ export default function BuyerDashboardIsland() {
 
   return (
     <div className="buyer-dashboard">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{ margin: 0, fontSize: '28px' }}>Buyer Dashboard</h1>
+        <a 
+          href="/dashboard/seller" 
+          style={{ 
+            background: 'var(--bg-tertiary)', 
+            border: '1px solid var(--accent-deep)', 
+            padding: '8px 16px', 
+            borderRadius: '8px', 
+            color: 'var(--accent)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'var(--transition-smooth)'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-soft)'}
+          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+        >
+          <span>Switch to Seller Dashboard</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+      
       <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h2>Your Purchased Skills</h2>
         
@@ -81,67 +108,104 @@ export default function BuyerDashboardIsland() {
             You have not purchased any skills yet.
           </p>
         ) : (
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                <th style={{ padding: '0.5rem' }}>Skill</th>
-                <th style={{ padding: '0.5rem' }}>Amount Paid</th>
-                <th style={{ padding: '0.5rem' }}>Status</th>
-                <th style={{ padding: '0.5rem' }}>Date</th>
-                <th style={{ padding: '0.5rem' }}>Review</th>
-              </tr>
-            </thead>
-            <tbody>
-              {purchases.map((purchase: any) => (
-                <tr key={purchase.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px', marginTop: '1.5rem' }}>
+            {purchases.map((purchase: any) => (
+              <div key={purchase.id} style={{ 
+                background: 'var(--bg-tertiary)', 
+                border: 'var(--glass-border)', 
+                borderRadius: '16px', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'transform 0.2s, box-shadow 0.2s'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>
                     {purchase.skills?.title || 'Unknown Skill'}
-                  </td>
-                  <td style={{ padding: '0.5rem' }}>₹{purchase.amount}</td>
-                  <td style={{ padding: '0.5rem' }}>
-                    <span style={{ 
-                      padding: '0.2rem 0.5rem', 
-                      borderRadius: '4px', 
-                      fontSize: '0.8rem',
-                      background: purchase.payment_status === 'completed' ? 'var(--success-soft)' : 'var(--warning-soft)',
-                      color: purchase.payment_status === 'completed' ? 'var(--success)' : 'var(--warning)'
-                    }}>
-                      {purchase.payment_status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
-                    {new Date(purchase.created_at).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: '0.5rem' }}>
-                    {reviewingId === purchase.skill_id ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--canvas-soft)', padding: '12px', borderRadius: '8px', minWidth: '200px' }}>
-                        <div style={{ display: 'flex', gap: '4px', cursor: 'pointer' }}>
-                          {[1,2,3,4,5].map(star => (
-                            <span key={star} onClick={() => setRating(star)} style={{ color: rating >= star ? '#fbbf24' : 'var(--hairline-strong)', fontSize: '24px' }}>★</span>
-                          ))}
-                        </div>
-                        <textarea 
-                          placeholder="Leave a comment (optional)..." 
-                          value={comment} 
-                          onChange={(e) => setComment(e.target.value)}
-                          style={{ width: '100%', padding: '8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)' }}
-                          rows={2}
-                        />
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button className="btn btn-primary" onClick={() => submitReview(purchase.skill_id)} disabled={submittingReview} style={{ padding: '4px 12px', fontSize: '12px' }}>Submit</button>
-                          <button className="btn btn-secondary" onClick={() => setReviewingId(null)} style={{ padding: '4px 12px', fontSize: '12px' }}>Cancel</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button className="btn btn-secondary" onClick={() => { setReviewingId(purchase.skill_id); setRating(5); setComment(''); }} style={{ padding: '6px 12px', fontSize: '12px' }}>
-                        Rate Skill
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </h3>
+                  <span style={{ 
+                    padding: '4px 8px', 
+                    borderRadius: 'var(--radius-pill)', 
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    background: purchase.payment_status === 'completed' ? 'var(--success-soft)' : 'var(--warning-soft)',
+                    color: purchase.payment_status === 'completed' ? 'var(--success)' : 'var(--warning)'
+                  }}>
+                    {purchase.payment_status}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                  <span>Price Paid: <strong style={{ color: 'var(--text-primary)' }}>₹{purchase.amount}</strong></span>
+                  <span>{new Date(purchase.created_at).toLocaleDateString()}</span>
+                </div>
+
+                <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)', margin: '4px 0' }} />
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={async () => {
+                      try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        const res = await fetch(`http://localhost:8000/api/skills/${purchase.skill_id}/download`, {
+                          headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                        });
+                        if (!res.ok) throw new Error('Download failed');
+                        const data = await res.json();
+                        const blob = new Blob([data.content], { type: 'text/markdown' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${(purchase.skills?.title || 'skill').replace(/\s+/g, '_').toLowerCase()}.md`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                      } catch (err: any) {
+                        alert(err.message);
+                      }
+                    }}
+                    style={{ flex: 1, justifyContent: 'center' }}
+                  >
+                    ↓ Download
+                  </button>
+                  
+                  {reviewingId === purchase.skill_id ? (
+                    null // handled below
+                  ) : (
+                    <button className="btn btn-secondary" onClick={() => { setReviewingId(purchase.skill_id); setRating(5); setComment(''); }} style={{ flex: 1, justifyContent: 'center' }}>
+                      Rate Skill
+                    </button>
+                  )}
+                </div>
+
+                {reviewingId === purchase.skill_id && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--canvas-soft)', padding: '16px', borderRadius: '12px', border: '1px solid var(--primary-soft)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} onClick={() => setRating(star)} style={{ color: rating >= star ? '#fbbf24' : 'var(--hairline-strong)', fontSize: '28px', transition: 'color 0.2s' }}>★</span>
+                      ))}
+                    </div>
+                    <textarea 
+                      placeholder="Leave a review..." 
+                      value={comment} 
+                      onChange={(e) => setComment(e.target.value)}
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }}
+                      rows={2}
+                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="btn btn-primary" onClick={() => submitReview(purchase.skill_id)} disabled={submittingReview} style={{ flex: 1 }}>Submit</button>
+                      <button className="btn btn-secondary" onClick={() => setReviewingId(null)} style={{ flex: 1 }}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
       

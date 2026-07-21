@@ -11,13 +11,30 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const getSessionToken = () => {
+    if (typeof window !== 'undefined') {
+      const sessionStr = localStorage.getItem('sb-localhost-auth-token') || localStorage.getItem('supabase.auth.token');
+      if (sessionStr) {
+        try {
+          const session = JSON.parse(sessionStr);
+          return session?.currentSession?.access_token || session?.access_token;
+        } catch(e) {}
+      }
+    }
+    return null;
+  };
+
   const handleCheckout = async () => {
     setLoading(true);
     setError('');
+    const token = getSessionToken();
     try {
       const res = await fetch('http://localhost:8000/api/checkout/intent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
         body: JSON.stringify({ skill_id: skillId, country_code: country })
       });
       if (!res.ok) throw new Error('Checkout failed');
@@ -32,13 +49,17 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
   const handlePayment = async () => {
     setLoading(true);
+    const token = getSessionToken();
     
     // 1. Mock Fallback Flow
     if (!intent.is_live) {
         try {
           const res = await fetch('http://localhost:8000/api/checkout/success', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` })
+            },
             body: JSON.stringify({ skill_id: skillId })
           });
           if (!res.ok) throw new Error('Payment confirmation failed');
@@ -80,7 +101,10 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         try {
           const confirmRes = await fetch('http://localhost:8000/api/checkout/success', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` })
+            },
             body: JSON.stringify({ 
               skill_id: skillId,
               razorpay_payment_id: response.razorpay_payment_id,

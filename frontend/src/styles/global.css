@@ -5,6 +5,7 @@
    ═══════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import './design-tokens.css';
 
 /* ─── LIGHT MODE ─── */
 :root {
@@ -47,6 +48,14 @@
   --error-soft: rgba(239, 68, 68, 0.08);
   --warning: #F59E0B;
   --warning-soft: rgba(245, 158, 11, 0.08);
+
+  /* Skill Pulse Activity Graph */
+  --pulse-empty: rgba(108, 60, 225, 0.08);
+  --pulse-upload: #10B981;
+  --pulse-sale: #00D4FF;
+  --pulse-upvote: #F59E0B;
+  --pulse-review: #6C3CE1;
+  --pulse-bounty: #EF4444;
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -128,6 +137,13 @@
     --warning: #FBBF24;
     --warning-soft: rgba(251, 191, 36, 0.1);
 
+    --pulse-empty: rgba(139, 92, 246, 0.15);
+    --pulse-upload: #34D399;
+    --pulse-sale: #22D3EE;
+    --pulse-upvote: #FBBF24;
+    --pulse-review: #8B5CF6;
+    --pulse-bounty: #F87171;
+
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
@@ -177,6 +193,13 @@
   --error-soft: rgba(248, 113, 113, 0.1);
   --warning: #FBBF24;
   --warning-soft: rgba(251, 191, 36, 0.1);
+
+  --pulse-empty: rgba(139, 92, 246, 0.15);
+  --pulse-upload: #34D399;
+  --pulse-sale: #22D3EE;
+  --pulse-upvote: #FBBF24;
+  --pulse-review: #8B5CF6;
+  --pulse-bounty: #F87171;
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);

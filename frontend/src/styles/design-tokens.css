@@ -1,0 +1,75 @@
+:root {
+  /* === CORE PALETTE (Dark Mode Default) === */
+  --bg-primary: #0a0e1a;          /* Deep space navy */
+  --bg-secondary: #111827;         /* Card backgrounds */
+  --bg-tertiary: #1e2538;          /* Elevated surfaces */
+  --bg-glass: rgba(17, 24, 39, 0.7); /* Glassmorphism */
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent-primary: #6366f1;       /* Indigo */
+  --accent-secondary: #8b5cf6;     /* Violet */
+  --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  --accent-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  /* === PRICE BADGE COLORS === */
+  --price-free: linear-gradient(135deg, #10b981, #059669);
+  --price-paid: linear-gradient(135deg, #f59e0b, #d97706);
+  --price-premium: linear-gradient(135deg, #8b5cf6, #7c3aed);
+
+  /* === SKILL PULSE COLORS === */
+  --pulse-upload: #3b82f6;
+  --pulse-sale: #10b981;
+  --pulse-upvote: #f59e0b;
+  --pulse-review: #8b5cf6;
+  --pulse-bounty: #ec4899;
+  --pulse-purchase: #14b8a6;
+  --pulse-empty: rgba(255, 255, 255, 0.05);
+
+  /* === AVATAR TIER RINGS === */
+  --ring-free: transparent;
+  --ring-standard: #3b82f6;
+  --ring-premium: #8b5cf6;
+  --ring-exclusive: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+
+  /* === CATEGORY ACCENT COLORS === */
+  --cat-frontend: #3b82f6;
+  --cat-testing: #10b981;
+  --cat-devops: #f97316;
+  --cat-docs: #8b5cf6;
+  --cat-productivity: #ec4899;
+  --cat-data: #14b8a6;
+  --cat-api: #6366f1;
+  --cat-ai: #a855f7;
+
+  /* === EFFECTS === */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(16px);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --card-shadow-hover: 0 8px 40px rgba(99, 102, 241, 0.15);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius-card: 16px;
+  --border-radius-pill: 9999px;
+}
+
+/* Light mode override */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --glass-border: 1px solid rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 8px 40px rgba(99, 102, 241, 0.12);
+  --pulse-empty: rgba(0, 0, 0, 0.05);
+}

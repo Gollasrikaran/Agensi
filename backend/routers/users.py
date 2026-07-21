@@ -29,6 +29,7 @@ class ProfileUpdateRequest(BaseModel):
     avatar_url: str
     bio: Optional[str] = None
     background_url: str | None = None
+    is_private: Optional[bool] = None
 
 @router.post("/me/profile")
 def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
@@ -45,6 +46,8 @@ def update_profile(req: ProfileUpdateRequest, user = Depends(get_current_user)):
         }
         if req.background_url is not None:
             update_data["background_url"] = req.background_url
+        if req.is_private is not None:
+            update_data["is_private"] = req.is_private
 
         res = supabase.table("users").update(update_data).eq("id", user.id).execute()
         
@@ -148,6 +151,10 @@ def update_pinned_skills(req: PinnedSkillsRequest, user = Depends(get_current_us
             supabase.table("pinned_skills").insert(pins_to_insert).execute()
             
         return {"message": "Pinned skills updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 class ReviewRequest(BaseModel):
     skill_id: str

@@ -4,20 +4,7 @@ import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
 
-export async function getStaticPaths() {
-	try {
-		const res = await fetch('http://localhost:8000/api/skills?all_status=true');
-		if (res.ok) {
-			const skills = await res.json();
-			return skills.map((s: any) => ({
-				params: { id: s.id }
-			}));
-		}
-	} catch (e) {
-		console.error(e);
-	}
-	return [];
-}
+
 
 const { id } = Astro.params;
 
@@ -83,7 +70,7 @@ const jsonLd = skill ? JSON.stringify({
 			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
 				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Security Scan</h3>
 				<div style="display: flex; flex-direction: column; gap: var(--space-xs); font-size: 14px; color: var(--body);">
-					<div><strong style="color: var(--ink);">Status:</strong> {skill.scan_summary_json?.passed ? '✓ Passed' : '⚠ Flagged'}</div>
+					<div><strong style="color: var(--ink);">Status:</strong> {skill.moderation_status === 'approved' ? '✓ Passed' : '⚠ Flagged'}</div>
 					<div><strong style="color: var(--ink);">Checks:</strong> <span style="font-family: var(--font-mono); font-size: 12px;">OWASP LLM01, LLM06, LLM04</span></div>
 					{skill.scan_summary_json?.issues && skill.scan_summary_json.issues.length > 0 && (
 						<div style="color: var(--error); margin-top: var(--space-sm);">

@@ -43,6 +43,33 @@ export default function SellerDashboardIsland() {
 
   return (
     <div className="seller-dashboard">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{ margin: 0, fontSize: '28px' }}>Seller Dashboard</h1>
+        <a 
+          href="/dashboard/buyer" 
+          style={{ 
+            background: 'var(--bg-tertiary)', 
+            border: '1px solid var(--accent-deep)', 
+            padding: '8px 16px', 
+            borderRadius: '8px', 
+            color: 'var(--accent)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'var(--transition-smooth)'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-soft)'}
+          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+        >
+          <span>Switch to Buyer Dashboard</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
       <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h2>Your Listed Skills</h2>
         

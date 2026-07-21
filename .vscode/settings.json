@@ -1,0 +1,33 @@
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/frontend/node_modules/**": true,
+    "**/dist/**": true,
+    "**/frontend/dist/**": true,
+    "**/backend/venv/**": true,
+    "**/backend/.venv/**": true,
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/__pycache__/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/frontend/node_modules": true,
+    "**/dist": true,
+    "**/frontend/dist": true,
+    "**/backend/venv": true,
+    "**/backend/.venv": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/__pycache__": true
+  },
+  "python.analysis.exclude": [
+    "**/backend/venv",
+    "**/backend/.venv",
+    "**/.venv",
+    "**/venv",
+    "**/node_modules"
+  ]
+}
