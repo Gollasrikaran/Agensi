@@ -8,6 +8,19 @@ export default function ApiKeysIsland() {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  const mcpConfigSnippet = `{
+  "mcpServers": {
+    "bodhic": {
+      "command": "curl",
+      "args": [
+        "-H",
+        "Authorization: Bearer YOUR_API_KEY",
+        "${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/mcp/sse"
+      ]
+    }
+  }
+}`;
+
   useEffect(() => {
     fetchKeys();
   }, []);
@@ -149,18 +162,7 @@ export default function ApiKeysIsland() {
             To connect Cursor or Claude Desktop to Bodhic AI, add the following to your MCP configuration file (e.g., <code>cursor_mcp.json</code>):
           </p>
           <pre style={{ background: '#111', color: '#fff', padding: '16px', borderRadius: '8px', fontSize: '12px', overflowX: 'auto' }}>
-{`{
-  "mcpServers": {
-    "bodhic": {
-      "command": "curl",
-      "args": [
-        "-H",
-        "Authorization: Bearer YOUR_API_KEY",
-        `${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/mcp/sse`
-      ]
-    }
-  }
-}`}
+            {mcpConfigSnippet}
           </pre>
         </div>
       </div>
