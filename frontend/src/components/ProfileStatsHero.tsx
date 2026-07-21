@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AvatarBadge, { AvatarTier } from './AvatarBadge';
+import AvatarBadge, { type AvatarTier } from './AvatarBadge';
 import StreakBadge from './StreakBadge';
 import SkillPulseGraph from './SkillPulseGraph';
 import PulseComparisonIsland from './PulseComparisonIsland';
