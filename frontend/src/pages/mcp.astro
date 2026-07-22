@@ -1,16 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const mcpConfigSnippet = `<code>&#123;
-  "mcpServers": &#123;
-    "bodhic-ai": &#123;
-      "url": "https://your-api-url/mcp/sse",
-      "headers": &#123;
-        "Authorization": "Bearer YOUR_API_KEY"
-      &#125;
-    &#125;
-  &#125;
-&#125;</code>`;
+const mcpConfig = {
+  mcpServers: {
+    "bodhic-ai": {
+      url: "https://your-api-url/mcp/sse",
+      headers: {
+        Authorization: "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+};
+const mcpConfigSnippet = JSON.stringify(mcpConfig, null, 2);
 ---
 
 <Layout 
@@ -65,7 +66,7 @@ const mcpConfigSnippet = `<code>&#123;
 			</p>
 			
 			<div style="background: var(--surface-2, #1a1a2e); border-radius: 12px; padding: var(--space-lg); margin-bottom: var(--space-lg); overflow-x: auto; border: 1px solid var(--hairline);">
-				<pre style="margin: 0; color: var(--code-text, #e2e8f0); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7;" set:html={mcpConfigSnippet} />
+				<pre style="margin: 0; color: var(--code-text, #e2e8f0); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap;"><code>{mcpConfigSnippet}</code></pre>
 			</div>
 
 			<p style="color: var(--mute); font-size: 13px; margin-bottom: var(--space-lg);">
