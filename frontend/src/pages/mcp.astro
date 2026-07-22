@@ -1,0 +1,157 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+	title="MCP — Connect Your AI Agent | Bodhic AI"
+	description="Use the Model Context Protocol (MCP) to connect AI agents like Cursor, Windsurf, and Claude Desktop to the Bodhic AI skill marketplace. Try skills before you buy."
+>
+	<div style="max-width: 900px; margin: 0 auto; padding: var(--space-3xl) var(--space-md);">
+		
+		<!-- Hero -->
+		<div style="text-align: center; margin-bottom: var(--space-3xl);">
+			<span style="display: inline-block; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: var(--space-md);">MODEL CONTEXT PROTOCOL</span>
+			<h1 style="font-size: clamp(32px, 5vw, 48px); margin-bottom: var(--space-md); line-height: 1.2;">
+				Connect Your AI Agent to<br/>
+				<span style="background: linear-gradient(135deg, var(--accent), #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Every Skill on Bodhic</span>
+			</h1>
+			<p style="color: var(--body); font-size: 18px; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+				Use MCP to let your AI coding assistant search, try, and use skills directly from the marketplace — without leaving your editor.
+			</p>
+		</div>
+
+		<!-- How It Works -->
+		<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-3xl);">
+			<div class="card" style="padding: var(--space-xl); text-align: center;">
+				<div style="font-size: 36px; margin-bottom: var(--space-sm);">🔑</div>
+				<h3 style="font-size: 18px; margin-bottom: var(--space-xs);">1. Get an API Key</h3>
+				<p style="color: var(--body); font-size: 14px; line-height: 1.6;">Go to <a href="/dashboard/developer" style="color: var(--accent);">Developer Dashboard</a> and generate a free API key.</p>
+			</div>
+			<div class="card" style="padding: var(--space-xl); text-align: center;">
+				<div style="font-size: 36px; margin-bottom: var(--space-sm);">⚡</div>
+				<h3 style="font-size: 18px; margin-bottom: var(--space-xs);">2. Connect Your Agent</h3>
+				<p style="color: var(--body); font-size: 14px; line-height: 1.6;">Add the MCP config snippet to Cursor, Windsurf, or Claude Desktop.</p>
+			</div>
+			<div class="card" style="padding: var(--space-xl); text-align: center;">
+				<div style="font-size: 36px; margin-bottom: var(--space-sm);">🧪</div>
+				<h3 style="font-size: 18px; margin-bottom: var(--space-xs);">3. Try Before You Buy</h3>
+				<p style="color: var(--body); font-size: 14px; line-height: 1.6;">Chat with any skill for <strong>10 credits</strong> per interaction. Love it? Buy it for unlimited use.</p>
+			</div>
+		</div>
+
+		<!-- Setup Guide -->
+		<div class="card" style="padding: var(--space-2xl); margin-bottom: var(--space-2xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-lg);">🛠️ Quick Setup</h2>
+			
+			<h3 style="font-size: 18px; margin-bottom: var(--space-sm); color: var(--ink);">Step 1 — Generate Your API Key</h3>
+			<p style="color: var(--body); line-height: 1.6; margin-bottom: var(--space-md);">
+				Head to the <a href="/dashboard/developer" style="color: var(--accent); font-weight: 600;">Developer Dashboard</a> and click <strong>"Generate New Key"</strong>. Copy the key immediately — for security, it is only shown once.
+			</p>
+
+			<h3 style="font-size: 18px; margin-bottom: var(--space-sm); color: var(--ink);">Step 2 — Add MCP Config to Your Editor</h3>
+			<p style="color: var(--body); line-height: 1.6; margin-bottom: var(--space-sm);">
+				Add this JSON snippet to your AI agent's MCP configuration file:
+			</p>
+			
+			<div style="background: var(--surface-2, #1a1a2e); border-radius: 12px; padding: var(--space-lg); margin-bottom: var(--space-lg); overflow-x: auto; border: 1px solid var(--hairline);">
+				<pre style="margin: 0; color: var(--code-text, #e2e8f0); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7;"><code>{
+  "mcpServers": {
+    "bodhic-ai": {
+      "url": "https://your-api-url/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}</code></pre>
+			</div>
+
+			<p style="color: var(--mute); font-size: 13px; margin-bottom: var(--space-lg);">
+				💡 Replace <code style="background: var(--surface-2, rgba(255,255,255,0.08)); padding: 2px 6px; border-radius: 4px;">YOUR_API_KEY</code> with the key you generated. The exact API URL is shown in your Developer Dashboard.
+			</p>
+
+			<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<strong style="font-size: 14px;">Cursor</strong>
+					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">Settings → MCP → Add from JSON</p>
+				</div>
+				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<strong style="font-size: 14px;">Windsurf</strong>
+					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">Settings → Cascade → MCP Config</p>
+				</div>
+				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<strong style="font-size: 14px;">Claude Desktop</strong>
+					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">claude_desktop_config.json</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Credits System -->
+		<div class="card" style="padding: var(--space-2xl); margin-bottom: var(--space-2xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-lg);">💰 Credits System</h2>
+			
+			<p style="color: var(--body); line-height: 1.8; margin-bottom: var(--space-lg);">
+				Credits let you <strong>try before you buy</strong>. Every MCP interaction with a skill costs <strong>10 Bodhic Credits</strong>. Once you purchase a skill outright, all future interactions with it are <strong>completely free</strong>.
+			</p>
+
+			<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
+				<div style="padding: var(--space-lg); border-radius: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02)); border: 1px solid rgba(99, 102, 241, 0.2); text-align: center;">
+					<div style="font-size: 28px; font-weight: 700; color: var(--accent);">1,000</div>
+					<div style="font-size: 13px; color: var(--mute); margin-top: 4px;">Credits for ₹100</div>
+				</div>
+				<div style="padding: var(--space-lg); border-radius: 12px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.02)); border: 1px solid rgba(168, 85, 247, 0.2); text-align: center;">
+					<div style="font-size: 28px; font-weight: 700; color: #a855f7;">5,500</div>
+					<div style="font-size: 13px; color: var(--mute); margin-top: 4px;">Credits for ₹499 <span style="color: #10b981; font-weight: 600;">+500 Bonus</span></div>
+				</div>
+			</div>
+
+			<a href="/dashboard/buyer" style="display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; transition: opacity 0.2s;">
+				Top Up Credits →
+			</a>
+		</div>
+
+		<!-- Available MCP Tools -->
+		<div class="card" style="padding: var(--space-2xl); margin-bottom: var(--space-2xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-lg);">🔧 Available MCP Tools</h2>
+			<p style="color: var(--body); line-height: 1.6; margin-bottom: var(--space-lg);">
+				Once connected, your AI agent can call these tools automatically:
+			</p>
+			
+			<div style="display: flex; flex-direction: column; gap: var(--space-md);">
+				<div style="display: flex; gap: var(--space-md); align-items: flex-start; padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<code style="background: rgba(99, 102, 241, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 13px; white-space: nowrap; font-weight: 600;">search_skills</code>
+					<span style="color: var(--body); font-size: 14px; line-height: 1.5;">Search the entire Bodhic marketplace by keyword. Returns matching skills with descriptions, prices, and ratings.</span>
+				</div>
+				<div style="display: flex; gap: var(--space-md); align-items: flex-start; padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<code style="background: rgba(168, 85, 247, 0.15); color: #a855f7; padding: 4px 10px; border-radius: 6px; font-size: 13px; white-space: nowrap; font-weight: 600;">chat_with_skill</code>
+					<span style="color: var(--body); font-size: 14px; line-height: 1.5;">Try a skill by chatting with it. Uses 10 credits per interaction. Free if you've already purchased the skill.</span>
+				</div>
+				<div style="display: flex; gap: var(--space-md); align-items: flex-start; padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
+					<code style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 13px; white-space: nowrap; font-weight: 600;">get_credit_balance</code>
+					<span style="color: var(--body); font-size: 14px; line-height: 1.5;">Check your remaining Bodhic Credit balance directly from your editor.</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- API Key Security -->
+		<div class="card" style="padding: var(--space-2xl); margin-bottom: var(--space-2xl);">
+			<h2 style="font-size: 24px; margin-bottom: var(--space-lg);">🔒 API Key Security</h2>
+			<ul style="color: var(--body); line-height: 2; margin-left: var(--space-lg); font-size: 15px;">
+				<li>API keys are <strong>shown only once</strong> at creation. Copy it immediately.</li>
+				<li>We store only a <strong>SHA-256 hash</strong> of your key — we can never see it.</li>
+				<li>You can <strong>revoke</strong> any key at any time from the Developer Dashboard.</li>
+				<li>Keys are prefixed with <code style="background: var(--surface-2, rgba(255,255,255,0.08)); padding: 2px 6px; border-radius: 4px;">bodhic_</code> for easy identification.</li>
+				<li>If you lose a key, simply revoke it and generate a new one.</li>
+			</ul>
+		</div>
+
+		<!-- CTA -->
+		<div style="text-align: center; padding: var(--space-2xl) 0;">
+			<h2 style="font-size: 28px; margin-bottom: var(--space-md);">Ready to supercharge your AI agent?</h2>
+			<p style="color: var(--body); font-size: 16px; margin-bottom: var(--space-xl);">Generate your API key and start using skills in under 2 minutes.</p>
+			<a href="/dashboard/developer" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), #a855f7); color: #fff; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);">
+				Go to Developer Dashboard →
+			</a>
+		</div>
+	</div>
+</Layout>
