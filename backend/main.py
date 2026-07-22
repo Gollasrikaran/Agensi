@@ -514,7 +514,8 @@ def raise_dispute(req: DisputeRequest, user = Depends(get_current_user)):
             if smtp_password:
                 msg = MIMEMultipart()
                 msg["From"] = smtp_user
-                msg["To"] = "support@bodhicai.tech"
+                recipients = ["support@bodhicai.tech", "srikaran@bodhicai.tech", "karteek@bodhicai.tech"]
+                msg["To"] = ", ".join(recipients)
                 msg["Subject"] = f"[Dispute #{dispute_id}] New dispute raised for skill {req.skill_id}"
                 
                 timestamp = datetime.datetime.now().isoformat()

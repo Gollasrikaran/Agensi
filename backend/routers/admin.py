@@ -26,6 +26,7 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
         # Recent activities (mocked complex joins by just fetching raw tables for simplicity)
         recent_skills = supabase.table("skills").select("*").order("created_at", desc=True).limit(5).execute().data
         recent_purchases = supabase.table("purchases").select("*").order("created_at", desc=True).limit(5).execute().data
+        pending_payouts = supabase.table("payout_requests").select("*").eq("status", "pending").order("created_at", desc=True).execute().data
 
         return {
             "stats": {
@@ -34,8 +35,19 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
                 "total_sales_volume": total_sales_volume
             },
             "recent_skills": recent_skills,
-            "recent_purchases": recent_purchases
+            "recent_purchases": recent_purchases,
+            "pending_payouts": pending_payouts
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/payouts/{payout_id}/complete")
+def complete_payout(payout_id: str, admin_user = Depends(verify_admin)):
+    try:
+        res = supabase.table("payout_requests").update({"status": "completed"}).eq("id", payout_id).execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Payout request not found")
+        return {"message": "Payout marked as completed successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

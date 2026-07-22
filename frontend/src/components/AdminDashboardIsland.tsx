@@ -103,6 +103,27 @@ export default function AdminDashboardIsland() {
     }
   };
 
+  const completePayout = async (payoutId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/payouts/${payoutId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Failed to complete payout');
+      
+      showToast('Payout marked as completed successfully!', 'success');
+      fetchAdminData();
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    }
+  };
+
   const fetchUserSkills = async (userId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -210,6 +231,44 @@ export default function AdminDashboardIsland() {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="glass-card" style={{ marginBottom: '2rem' }}>
+          <h2>Pending Payouts</h2>
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
+                <th style={{ padding: '0.5rem' }}>Seller ID</th>
+                <th style={{ padding: '0.5rem' }}>UPI ID</th>
+                <th style={{ padding: '0.5rem' }}>Amount</th>
+                <th style={{ padding: '0.5rem' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.pending_payouts?.map((payout: any) => (
+                <tr key={payout.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                  <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{payout.seller_id}</td>
+                  <td style={{ padding: '0.5rem', fontFamily: 'var(--font-mono)' }}>{payout.upi_id}</td>
+                  <td style={{ padding: '0.5rem', fontWeight: 600 }}>₹{payout.amount_inr.toFixed(2)}</td>
+                  <td style={{ padding: '0.5rem' }}>
+                    <button 
+                      onClick={() => completePayout(payout.id)}
+                      style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Mark as Paid
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {(!data.pending_payouts || data.pending_payouts.length === 0) && (
+                <tr>
+                  <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: 'var(--mute)' }}>
+                    No pending payouts.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
