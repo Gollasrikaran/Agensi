@@ -51,25 +51,17 @@ const {
 
 		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 
-		<!-- Bot-Filtered Analytics -->
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ70S6EJ3W"></script>
 		<script is:inline>
-			(function() {
-				// Only run in production on actual domain
-				if (window.location.hostname !== 'bodhic.app') return;
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
 
-				const ua = navigator.userAgent.toLowerCase();
-				const isBot = /cloudflare-worker|headless|bot|spider|crawler|googlebot|bingbot|yandexbot|duckduckbot|slurp/.test(ua);
-
-				if (!isBot) {
-					// Inject Google Analytics or tracking here
-					window.dataLayer = window.dataLayer || [];
-					function gtag(){dataLayer.push(arguments);}
-					gtag('js', new Date());
-					gtag('config', 'G-XXXXXXXXXX'); // Placeholder GA ID
-					
-					// console.log("Analytics triggered (human user)");
-				}
-			})();
+		  // Only track in production (ignore localhost)
+		  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+		      gtag('config', 'G-ZZ70S6EJ3W');
+		  }
 		</script>
 	</head>
 	<body>
