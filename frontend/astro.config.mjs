@@ -8,7 +8,7 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://bodhic.app',
+  site: 'https://bodhicai.tech',
   output: 'server',
   adapter: cloudflare(),
   integrations: [react(), sitemap()]
