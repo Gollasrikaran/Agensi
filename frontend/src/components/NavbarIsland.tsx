@@ -115,6 +115,9 @@ export default function NavbarIsland() {
         <a href="/sell" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Sell a Skill</a>
         <a href="/mcp" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>MCP</a>
         <a href="/dashboard/buyer" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Dashboard</a>
+        {isAdmin && (
+          <a href="/admin" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: '600' }}>Control Panel</a>
+        )}
       </nav>
 
       {/* Right: Search & Auth */}
