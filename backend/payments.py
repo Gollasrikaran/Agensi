@@ -47,6 +47,7 @@ def create_payment_intent(country_code: str, amount_inr: float) -> Dict[str, Any
     return {
         "provider": provider,
         "amount_inr": round(amount_inr, 2),
+        "base_price_inr": round(amount_inr, 2),
         "platform_fee_inr": platform_fee,
         "seller_amount_inr": seller_amount,
         "currency": "INR",

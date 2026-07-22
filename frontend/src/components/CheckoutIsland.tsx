@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
+
 interface CheckoutIslandProps {
   skillId: string;
   basePrice: number;
@@ -11,29 +13,16 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const getSessionToken = () => {
-    if (typeof window !== 'undefined') {
-      const sessionStr = localStorage.getItem('sb-localhost-auth-token') || localStorage.getItem('supabase.auth.token');
-      if (sessionStr) {
-        try {
-          const session = JSON.parse(sessionStr);
-          return session?.currentSession?.access_token || session?.access_token;
-        } catch(e) {}
-      }
-    }
-    return null;
-  };
-
   const handleCheckout = async () => {
     setLoading(true);
     setError('');
-    const token = getSessionToken();
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/intent`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
+          ...(session && { 'Authorization': `Bearer ${session.access_token}` })
         },
         body: JSON.stringify({ skill_id: skillId, country_code: country })
       });
@@ -49,17 +38,22 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
   const handlePayment = async () => {
     setLoading(true);
-    const token = getSessionToken();
-    
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      setError('You must be logged in to complete payment.');
+      setLoading(false);
+      return;
+    }
+
+    const authHeader = { 'Authorization': `Bearer ${session.access_token}` };
+
     // 1. Mock Fallback Flow
     if (!intent.is_live) {
         try {
           const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
             method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              ...(token && { 'Authorization': `Bearer ${token}` })
-            },
+            headers: { 'Content-Type': 'application/json', ...authHeader },
             body: JSON.stringify({ skill_id: skillId })
           });
           if (!res.ok) throw new Error('Payment confirmation failed');
@@ -99,12 +93,15 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
       order_id: intent.client_secret,
       handler: async function (response: any) {
         try {
+          // Re-fetch session in case token refreshed during Razorpay modal
+          const { data: { session: freshSession } } = await supabase.auth.getSession();
+          const freshAuthHeader = freshSession
+            ? { 'Authorization': `Bearer ${freshSession.access_token}` }
+            : authHeader;
+
           const confirmRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
             method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              ...(token && { 'Authorization': `Bearer ${token}` })
-            },
+            headers: { 'Content-Type': 'application/json', ...freshAuthHeader },
             body: JSON.stringify({ 
               skill_id: skillId,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -112,7 +109,10 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
               razorpay_signature: response.razorpay_signature
             })
           });
-          if (!confirmRes.ok) throw new Error('Payment verification failed');
+          if (!confirmRes.ok) {
+            const errData = await confirmRes.json().catch(() => ({}));
+            throw new Error(errData.detail || 'Payment verification failed');
+          }
           setSuccess(true);
         } catch (err: any) {
           setError(err.message);
@@ -187,9 +187,11 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
                   ₹{(intent.amount_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
                 </span>
               </div>
-            <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
-              Mock Client Secret: {intent.client_secret}
-            </p>
+            {!intent.is_live && (
+              <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
+                Mock Order: {intent.client_secret}
+              </p>
+            )}
           </div>
           
           <button 
