@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { loadRazorpay } from '../utils/razorpay';
 import { showToast } from '../lib/toast';
-import { supabase } from '../lib/supabase';
-import { loadRazorpay } from '../utils/razorpay';
 
 export default function CreditWalletIsland() {
   const [balance, setBalance] = useState(0);

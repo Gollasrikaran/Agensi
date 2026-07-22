@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
 export default function WalletIsland() {
