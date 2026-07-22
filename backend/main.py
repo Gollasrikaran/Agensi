@@ -481,3 +481,53 @@ def get_skill_requests():
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class DisputeRequest(BaseModel):
+    skill_id: str
+    reason: str
+
+@app.post("/api/disputes")
+def raise_dispute(req: DisputeRequest, user = Depends(get_current_user)):
+    try:
+        res = supabase.table("disputes").insert({
+            "buyer_id": user.id,
+            "skill_id": req.skill_id,
+            "reason": req.reason,
+            "status": "open"
+        }).execute()
+        
+        dispute_id = res.data[0].get("id", "UNKNOWN") if res.data else "UNKNOWN"
+        
+        # Send email
+        try:
+            import os
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            import datetime
+            
+            smtp_host = os.environ.get("SMTP_HOST", "smtp.zoho.in")
+            smtp_port = int(os.environ.get("SMTP_PORT", 465))
+            smtp_user = os.environ.get("SMTP_USER", "support@bodhicai.tech")
+            smtp_password = os.environ.get("SMTP_PASSWORD", "")
+            
+            if smtp_password:
+                msg = MIMEMultipart()
+                msg["From"] = smtp_user
+                msg["To"] = "support@bodhicai.tech"
+                msg["Subject"] = f"[Dispute #{dispute_id}] New dispute raised for skill {req.skill_id}"
+                
+                timestamp = datetime.datetime.now().isoformat()
+                
+                body = f"New Dispute Raised:\nBuyer ID: {user.id}\nSkill ID: {req.skill_id}\nTimestamp: {timestamp}\n\nReason:\n{req.reason}\n"
+                msg.attach(MIMEText(body, "plain"))
+                
+                with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+                    server.login(smtp_user, smtp_password)
+                    server.send_message(msg)
+        except Exception as e:
+            print(f"[ERROR] Failed to send dispute email: {e}")
+            
+        return {"message": "Dispute raised successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { showToast } from '../lib/toast';
+
 export default function AdminDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -8,6 +10,8 @@ export default function AdminDashboardIsland() {
   const [viewingUser, setViewingUser] = useState<string | null>(null);
   const [userSkills, setUserSkills] = useState<any[]>([]);
   const [previewSkill, setPreviewSkill] = useState<any | null>(null);
+  const [confirmSkillId, setConfirmSkillId] = useState<string | null>(null);
+  const [confirmSkillAction, setConfirmSkillAction] = useState<'approved' | 'rejected' | null>(null);
 
   useEffect(() => {
     fetchAdminData();
@@ -66,10 +70,10 @@ export default function AdminDashboardIsland() {
       
       if (!res.ok) throw new Error('Failed to unblock user');
       
-      alert('User unblocked successfully!');
+      showToast('User unblocked successfully!', 'success');
       fetchAdminData();
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -89,9 +93,13 @@ export default function AdminDashboardIsland() {
       
       if (!res.ok) throw new Error('Failed to update status');
       
+      showToast(`Skill ${status} successfully.`, 'success');
       fetchAdminData();
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, 'error');
+    } finally {
+      setConfirmSkillId(null);
+      setConfirmSkillAction(null);
     }
   };
 
@@ -106,7 +114,7 @@ export default function AdminDashboardIsland() {
       setUserSkills(await res.json());
       setViewingUser(userId);
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, 'error');
     }
   };
 
@@ -164,19 +172,39 @@ export default function AdminDashboardIsland() {
                   </td>
                   <td style={{ padding: '0.5rem' }}>
                     {skill.moderation_status === 'pending' && (
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                          onClick={() => updateSkillStatus(skill.id, 'approved')}
-                          style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => updateSkillStatus(skill.id, 'rejected')}
-                          style={{ padding: '0.2rem 0.5rem', background: 'var(--error-soft)', color: 'var(--error)', border: '1px solid var(--error)', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                          Reject
-                        </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {confirmSkillId === skill.id ? (
+                          <>
+                            <span style={{ fontSize: '12px', color: 'var(--mute)' }}>Confirm?</span>
+                            <button 
+                              onClick={() => updateSkillStatus(skill.id, confirmSkillAction!)}
+                              style={{ padding: '0.2rem 0.5rem', background: confirmSkillAction === 'approved' ? 'var(--success)' : 'var(--error)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Yes, {confirmSkillAction === 'approved' ? 'Approve' : 'Reject'}
+                            </button>
+                            <button 
+                              onClick={() => { setConfirmSkillId(null); setConfirmSkillAction(null); }}
+                              style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: 'var(--body)', border: '1px solid var(--hairline)', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button 
+                              onClick={() => { setConfirmSkillId(skill.id); setConfirmSkillAction('approved'); }}
+                              style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Approve
+                            </button>
+                            <button 
+                              onClick={() => { setConfirmSkillId(skill.id); setConfirmSkillAction('rejected'); }}
+                              style={{ padding: '0.2rem 0.5rem', background: 'var(--error-soft)', color: 'var(--error)', border: '1px solid var(--error)', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </td>

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'preact/hooks';
 import { supabase } from '../lib/supabase';
+import { showToast } from '../lib/toast';
 
 export default function ApiKeysIsland() {
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [newKeyName, setNewKeyName] = useState('');
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
 
   const mcpConfigSnippet = `{
   "mcpServers": {
@@ -70,17 +72,21 @@ export default function ApiKeysIsland() {
   };
 
   const deleteKey = async (id: string) => {
-    if (!confirm('Are you sure you want to revoke this API key? Any agents using it will be disconnected.')) return;
-    
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/api_keys/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${session?.access_token}` }
       });
-      if (res.ok) fetchKeys();
+      if (res.ok) {
+        showToast('API key revoked.', 'success');
+        fetchKeys();
+      }
     } catch (e) {
       console.error(e);
+      showToast('Failed to revoke API key.', 'error');
+    } finally {
+      setConfirmRevokeId(null);
     }
   };
 
@@ -147,7 +153,15 @@ export default function ApiKeysIsland() {
                       {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
                     </td>
                     <td style={{ padding: '12px 8px', textAlign: 'right' }}>
-                      <button onClick={() => deleteKey(key.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'var(--error)', borderColor: 'var(--error-soft)' }}>Revoke</button>
+                      {confirmRevokeId === key.id ? (
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--mute)' }}>Are you sure?</span>
+                          <button onClick={() => deleteKey(key.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: '#fff', background: 'var(--error)', borderColor: 'var(--error)' }}>Yes, Revoke</button>
+                          <button onClick={() => setConfirmRevokeId(null)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Cancel</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfirmRevokeId(key.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'var(--error)', borderColor: 'var(--error-soft)' }}>Revoke</button>
+                      )}
                     </td>
                   </tr>
                 ))}

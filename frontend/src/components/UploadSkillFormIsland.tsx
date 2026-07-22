@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { showToast } from '../lib/toast';
+
 const CATEGORIES = [
   { value: 'development', label: 'Development' },
   { value: 'copywriting', label: 'Copywriting' },
@@ -78,8 +80,8 @@ export default function UploadSkillFormIsland() {
   };
 
   const handleAppeal = async () => {
-    if (!appealMsg) {
-      alert('Please enter a message.');
+    if (!appealMsg.trim()) {
+      showToast('Please enter a message.', 'error');
       return;
     }
     try {
@@ -95,21 +97,21 @@ export default function UploadSkillFormIsland() {
         body: JSON.stringify({ message: appealMsg })
       });
       if (res.ok) {
-        alert("Appeal submitted successfully. The admin will review it.");
+        showToast("Appeal submitted successfully. The admin will review it.", "success");
         setAppealMsg('');
       } else {
         const errData = await res.json();
-        alert("Failed to submit appeal: " + (errData.detail || "Unknown error"));
+        showToast("Failed to submit appeal: " + (errData.detail || "Unknown error"), "error");
       }
     } catch (e) {
-      alert("Error submitting appeal.");
+      showToast("Error submitting appeal.", "error");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      alert("Please select a .md file to upload.");
+      showToast("Please select a .md file to upload.", "error");
       return;
     }
 

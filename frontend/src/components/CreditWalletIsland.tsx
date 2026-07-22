@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { loadRazorpay } from '../utils/razorpay';
+import { showToast } from '../lib/toast';
+import { supabase } from '../lib/supabase';
+import { loadRazorpay } from '../utils/razorpay';
 
 export default function CreditWalletIsland() {
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [customCredits, setCustomCredits] = useState<number | ''>(1000);
 
   useEffect(() => {
     fetchCredits();
@@ -30,12 +34,16 @@ export default function CreditWalletIsland() {
     }
   };
 
-  const buyCredits = async (amountInr: number) => {
+  const buyCredits = async () => {
+    if (customCredits === '' || customCredits < 100) return;
+    const amountInr = customCredits * 0.10;
+    
     setProcessing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert("Please log in to purchase credits.");
+        showToast("Please log in to purchase credits.", "error");
+        setProcessing(false);
         return;
       }
       
@@ -63,10 +71,10 @@ export default function CreditWalletIsland() {
         });
         
         if (successRes.ok) {
-          alert('Credits added successfully (Mock Payment)!');
+          showToast('Credits added successfully (Mock Payment)!', 'success');
           fetchCredits();
         } else {
-          alert('Error verifying payment.');
+          showToast('Error verifying payment.', 'error');
         }
         setProcessing(false);
         return;
@@ -95,10 +103,10 @@ export default function CreditWalletIsland() {
           });
           
           if (successRes.ok) {
-            alert('Credits added successfully!');
+            showToast('Credits added successfully!', 'success');
             fetchCredits();
           } else {
-            alert('Error verifying payment.');
+            showToast('Error verifying payment.', 'error');
           }
         },
         theme: { color: "#6C3CE1" }
@@ -106,7 +114,7 @@ export default function CreditWalletIsland() {
       
       rzp.open();
     } catch (e: any) {
-      alert("Error initiating checkout: " + e.message);
+      showToast("Error initiating checkout: " + e.message, "error");
     } finally {
       setProcessing(false);
     }
@@ -132,27 +140,37 @@ export default function CreditWalletIsland() {
       {/* Top Up Column */}
       <div>
         <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Top up your wallet</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+        
+        <div className="card" style={{ padding: 'var(--space-xl)', border: '1px solid var(--hairline)' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--mute)', marginBottom: '8px' }}>
+            Number of Credits (Min 100)
+          </label>
+          <input 
+            type="number" 
+            min="100" 
+            value={customCredits} 
+            onChange={(e) => setCustomCredits(e.target.value === '' ? '' : parseInt(e.target.value))}
+            style={{ width: '100%', padding: '12px 16px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--hairline)', background: 'var(--surface)', color: 'var(--ink)', marginBottom: '16px' }}
+          />
           
-          <div className="card" style={{ padding: 'var(--space-lg)', border: '1px solid var(--hairline)', cursor: 'pointer', transition: 'border-color 0.2s', position: 'relative' }} onClick={() => buyCredits(100)}>
-            <div style={{ fontSize: '24px', fontWeight: 700, marginBottom: '4px', color: 'var(--ink)' }}>1,000 Credits</div>
-            <div style={{ fontSize: '16px', color: 'var(--mute)', marginBottom: 'var(--space-lg)' }}>₹100</div>
-            <button disabled={processing} className="btn btn-secondary" style={{ width: '100%' }}>Buy Now</button>
+          <div style={{ fontSize: '22px', fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--space-lg)' }}>
+            Total: ₹{(typeof customCredits === 'number' ? customCredits * 0.10 : 0).toFixed(2)}
           </div>
 
-          <div className="card" style={{ padding: 'var(--space-lg)', border: '2px solid var(--primary)', cursor: 'pointer', position: 'relative' }} onClick={() => buyCredits(499)}>
-            <div style={{ position: 'absolute', top: '-12px', right: '16px', background: 'var(--primary)', color: '#fff', fontSize: '11px', padding: '4px 12px', borderRadius: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Most Popular
+          {(typeof customCredits === 'number' && customCredits < 100) && (
+            <div style={{ color: 'var(--error)', fontSize: '13px', marginBottom: '16px' }}>
+              Minimum 100 credits required.
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 700, marginBottom: '4px', color: 'var(--ink)' }}>
-              5,500 Credits
-            </div>
-            <div style={{ fontSize: '16px', color: 'var(--mute)', marginBottom: 'var(--space-lg)' }}>
-              ₹499 <span style={{ fontSize: '12px', color: 'var(--success)' }}>(500 Bonus)</span>
-            </div>
-            <button disabled={processing} className="btn btn-primary" style={{ width: '100%' }}>Buy Now</button>
-          </div>
-          
+          )}
+
+          <button 
+            disabled={processing || customCredits === '' || customCredits < 100} 
+            onClick={() => buyCredits()} 
+            className="btn btn-primary" 
+            style={{ width: '100%', padding: '14px' }}
+          >
+            {processing ? 'Processing...' : 'Top Up →'}
+          </button>
         </div>
         
         <p style={{ fontSize: '13px', color: 'var(--mute)', marginTop: 'var(--space-lg)', textAlign: 'center' }}>

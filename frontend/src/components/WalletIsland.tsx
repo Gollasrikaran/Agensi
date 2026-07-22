@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'preact/hooks';
 import { supabase } from '../lib/supabase';
+import { showToast } from '../lib/toast';
 export default function WalletIsland() {
     const [balance, setBalance] = useState(0);
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [amount, setAmount] = useState('');
     const [upi, setUpi] = useState('');
-    const [message, setMessage] = useState('');
 
     useEffect(() => {
         fetchWallet();
@@ -35,7 +35,6 @@ export default function WalletIsland() {
 
     const requestPayout = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage('');
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
@@ -54,15 +53,15 @@ export default function WalletIsland() {
             
             const data = await res.json();
             if (res.ok) {
-                setMessage('Payout requested successfully! We will process it shortly.');
+                showToast('Payout request submitted! You will receive payment within 2-3 business days.', 'success');
                 setAmount('');
                 setUpi('');
                 fetchWallet(); // Reload
             } else {
-                setMessage(`Error: ${data.detail}`);
+                showToast(`Error: ${data.detail}`, 'error');
             }
         } catch (e) {
-            setMessage('An error occurred.');
+            showToast('An error occurred.', 'error');
         }
     };
 
@@ -104,10 +103,7 @@ export default function WalletIsland() {
                                 placeholder="e.g. name@okhdfcbank"
                             />
                         </div>
-                        <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 'var(--space-sm)' }}>
-                            Submit Request →
-                        </button>
-                        {message && <div style={{ marginTop: 'var(--space-sm)', fontSize: '14px', color: message.startsWith('Error') ? 'var(--error)' : 'var(--success)' }}>{message}</div>}
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Request Payout</button>
                     </form>
                 </div>
             </div>
