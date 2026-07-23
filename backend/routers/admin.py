@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from auth import get_current_user, supabase
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -225,3 +226,30 @@ def run_payout_sweep(admin_user = Depends(verify_admin)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class ExtractRequest(BaseModel):
+    content: str
+
+@router.post("/fingerprint/extract")
+def extract_fingerprint(req: ExtractRequest, admin_user = Depends(verify_admin)):
+    import uuid
+    text = req.content
+    start = text.find('\u200D')
+    if start == -1: return {"buyer_id": None, "message": "No watermark found"}
+    end = text.find('\u200D', start + 1)
+    if end == -1: return {"buyer_id": None, "message": "Incomplete watermark found"}
+    
+    invisible_str = text[start+1:end]
+    rev_mapping = {'\u200B': '0', '\u200C': '1'}
+    try:
+        binary_str = ''.join(rev_mapping[c] for c in invisible_str)
+        hex_str = hex(int(binary_str, 2))[2:].zfill(32)
+        buyer_id = str(uuid.UUID(hex_str))
+        
+        # Look up buyer
+        buyer_res = supabase.table("users").select("email, username").eq("id", buyer_id).single().execute()
+        buyer_info = buyer_res.data if buyer_res.data else {}
+        
+        return {"buyer_id": buyer_id, "buyer_info": buyer_info, "message": "Watermark successfully decoded"}
+    except Exception as e:
+        return {"buyer_id": None, "message": f"Error decoding watermark: {e}"}

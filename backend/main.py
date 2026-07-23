@@ -80,7 +80,9 @@ def send_admin_block_notification(user_id: str):
     print(f"Body: User {user_id} has exceeded the 3-strike security limit and has been automatically blocked.")
     print("*" * 50)
 
-def handle_security_failure(user_id: str, scan_result: dict, tier: int):
+def handle_security_failure(user_id: str, scan_result: dict, tier: int, message_prefix: str = None):
+    if message_prefix is None:
+        message_prefix = f"Security scan failed at Tier {tier}"
     try:
         user_db = supabase.table("users").select("warnings_count").eq("id", user_id).execute()
         current_warnings = user_db.data[0].get("warnings_count", 0) if user_db.data else 0
@@ -95,9 +97,9 @@ def handle_security_failure(user_id: str, scan_result: dict, tier: int):
         
         if new_warnings >= 3:
             send_admin_block_notification(user_id)
-            raise HTTPException(status_code=403, detail={"message": f"Security scan failed at Tier {tier}. You have exceeded your 3 warnings and are now blocked. Please appeal.", "scan": scan_result})
+            raise HTTPException(status_code=403, detail={"message": f"{message_prefix}. You have exceeded your 3 warnings and are now blocked. Please appeal.", "scan": scan_result})
         else:
-            raise HTTPException(status_code=400, detail={"message": f"Security scan failed at Tier {tier}. Warning {new_warnings}/3.", "scan": scan_result})
+            raise HTTPException(status_code=400, detail={"message": f"{message_prefix}. Warning {new_warnings}/3.", "scan": scan_result})
     except HTTPException:
         raise
     except Exception as e:
@@ -118,6 +120,24 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     except Exception as e:
         # Log so DB/column errors are visible instead of being silently ignored
         print(f"[WARN] Could not check user block status for {seller_id}: {e}")
+
+    # Anti-Re-upload Hashing (Similarity Check)
+    try:
+        import difflib
+        approved_skills = supabase.table("skills").select("id").eq("moderation_status", "approved").execute()
+        approved_ids = [s["id"] for s in approved_skills.data]
+        if approved_ids:
+            # We fetch in batches or all at once. Assuming reasonable size for now.
+            versions = supabase.table("skill_versions").select("skill_id, md_content").in_("skill_id", approved_ids).execute()
+            for v in versions.data:
+                ratio = difflib.SequenceMatcher(None, req.content, v["md_content"]).ratio()
+                if ratio >= 0.90:
+                    scan_res = {"issues": [{"rule": "plagiarism", "description": "This skill is 90%+ identical to an existing skill on the platform."}]}
+                    handle_security_failure(seller_id, scan_res, 0, "Plagiarism detected")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[WARN] Plagiarism check failed: {e}")
 
     # Tier 1 synchronous scan
     passed_tier1, scan_result_tier1 = scan_skill(req.content)
@@ -371,9 +391,23 @@ def download_skill(skill_id: str, user = Depends(get_current_user)):
         if not version.data:
             raise HTTPException(status_code=404, detail="Skill content not found")
 
+        raw_content = version.data[0]["md_content"]
+        
+        # 1. Digital Fingerprinting (Watermark)
+        clean_id = buyer_id.replace('-', '')
+        binary_str = bin(int(clean_id, 16))[2:].zfill(128)
+        mapping = {'0': '\u200B', '1': '\u200C'}
+        watermark = '\u200D' + ''.join(mapping[b] for b in binary_str) + '\u200D'
+        
+        # 2. Single-User License Agreement
+        eula = f"""\n\n{"-"*50}\n**Bodhic AI Single-User License Agreement**\nThis file is uniquely licensed to the buyer. Redistribution is strictly prohibited.\nYour unique cryptographic identifier is permanently embedded in this file."""
+        
+        # Inject watermark at the end of the content before EULA
+        final_content = raw_content + watermark + eula
+
         return {
             "title":      skill_res.data["title"],
-            "content":    version.data[0]["md_content"],
+            "content":    final_content,
             "version":    version.data[0]["version_number"],
         }
     except HTTPException:

@@ -9,6 +9,9 @@ export default function SellerDashboardIsland() {
   const [upiId, setUpiId] = useState('');
   const [savedUpi, setSavedUpi] = useState<string | null>(null);
   const [savingUpi, setSavingUpi] = useState(false);
+  const [dmcaSkill, setDmcaSkill] = useState<{id: string, title: string} | null>(null);
+  const [dmcaUrl, setDmcaUrl] = useState('');
+  const [dmcaMessage, setDmcaMessage] = useState('');
 
   useEffect(() => {
     fetchListedSkills();
@@ -65,6 +68,38 @@ export default function SellerDashboardIsland() {
       } finally {
           setSavingUpi(false);
       }
+  };
+
+  const submitDmca = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDmcaMessage('');
+    if (!dmcaSkill) return;
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    
+    try {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/dmca`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ skill_id: dmcaSkill.id, infringing_url: dmcaUrl })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Failed to submit DMCA request');
+      
+      setDmcaMessage('Request submitted successfully. Our team will review this shortly.');
+      setTimeout(() => {
+        setDmcaSkill(null);
+        setDmcaUrl('');
+        setDmcaMessage('');
+      }, 3000);
+    } catch (err: any) {
+      setDmcaMessage(err.message);
+    }
   };
 
   const fetchListedSkills = async () => {
@@ -154,6 +189,7 @@ export default function SellerDashboardIsland() {
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Moderation Status</th>
                 <th style={{ padding: '0.5rem' }}>Listed On</th>
+                <th style={{ padding: '0.5rem' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -174,6 +210,24 @@ export default function SellerDashboardIsland() {
                   </td>
                   <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
                     {new Date(skill.created_at).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '0.5rem' }}>
+                    {skill.moderation_status === 'approved' && (
+                        <button 
+                            onClick={() => setDmcaSkill({id: skill.id, title: skill.title})}
+                            style={{
+                                background: 'transparent',
+                                border: '1px solid var(--error)',
+                                color: 'var(--error)',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Report Stolen Skill
+                        </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -218,6 +272,48 @@ export default function SellerDashboardIsland() {
 
         <a href="/dashboard/wallet" className="btn btn-secondary" style={{ textDecoration: 'none', marginTop: '1.5rem', display: 'inline-block' }}>View Full Payout History</a>
       </div>
+      {dmcaSkill && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', position: 'relative' }}>
+            <button 
+              onClick={() => { setDmcaSkill(null); setDmcaMessage(''); }}
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
+            <h2 style={{ fontSize: '20px', marginBottom: '8px' }}>Report Stolen Skill (DMCA)</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
+              Did you find "{dmcaSkill.title}" being distributed on another platform without permission? Submit the infringing URL below and our team will issue an automated legal takedown notice.
+            </p>
+            
+            <form onSubmit={submitDmca} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Infringing URL</label>
+                <input 
+                  type="url" 
+                  value={dmcaUrl} 
+                  onChange={(e) => setDmcaUrl(e.target.value)} 
+                  required 
+                  placeholder="https://example.com/stolen-skill"
+                  style={{ width: '100%', padding: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px' }}
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="btn-primary" 
+                style={{ background: 'var(--error)', width: '100%', border: 'none' }}
+              >
+                Submit DMCA Takedown Request
+              </button>
+              {dmcaMessage && (
+                <div style={{ marginTop: '1rem', padding: '1rem', background: dmcaMessage.includes('success') ? 'var(--success-soft)' : 'var(--error-soft)', color: dmcaMessage.includes('success') ? 'var(--success)' : 'var(--error)', borderRadius: '8px', fontSize: '14px' }}>
+                  {dmcaMessage}
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

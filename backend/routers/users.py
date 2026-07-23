@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from auth import get_current_user, supabase
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -333,5 +334,28 @@ def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_curr
         }).execute()
         
         return {"message": "Credits added successfully", "new_balance": new_balance}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+class DMCARequest(BaseModel):
+    skill_id: str
+    infringing_url: str
+
+@router.post("/me/dmca")
+def report_dmca(req: DMCARequest, user = Depends(get_current_user)):
+    try:
+        # Verify the user actually owns this skill
+        res = supabase.table("skills").select("id").eq("id", req.skill_id).eq("seller_id", user.id).execute()
+        if not res.data:
+            raise HTTPException(status_code=403, detail="You do not own this skill.")
+        
+        supabase.table("dmca_requests").insert({
+            "seller_id": user.id,
+            "skill_id": req.skill_id,
+            "infringing_url": req.infringing_url
+        }).execute()
+        
+        return {"message": "DMCA Request submitted successfully"}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
