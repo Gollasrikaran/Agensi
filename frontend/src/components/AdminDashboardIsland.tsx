@@ -155,7 +155,9 @@ export default function AdminDashboardIsland() {
   const generateUpiLink = (upiId: string, amount: number) => {
     // We use a generic Payee Name because user usernames might contain special characters 
     // that some UPI apps reject in the pn parameter.
-    return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Bodhic AI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
+    // CRITICAL: Do NOT encodeURIComponent the upiId! UPI apps expect the raw '@' symbol (pa=name@bank).
+    // If encoded to '%40', the bank network will fail to find the account.
+    return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("Bodhic AI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
   };
 
   const fetchUserSkills = async (userId: string) => {
