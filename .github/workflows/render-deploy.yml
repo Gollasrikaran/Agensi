@@ -1,0 +1,24 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches:
+      - main
+    # Only trigger if there are changes in the backend directory
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    name: Trigger Render Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy hook
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+            echo "Error: RENDER_DEPLOY_HOOK secret is not set."
+            exit 1
+          fi
+          echo "Triggering deployment..."
+          curl -X POST -q "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          echo "Deployment triggered."
