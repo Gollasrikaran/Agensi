@@ -26,7 +26,16 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
         # Recent activities
         recent_skills = supabase.table("skills").select("*").order("created_at", desc=True).limit(5).execute().data
         recent_purchases = supabase.table("purchases").select("*").order("created_at", desc=True).limit(5).execute().data
-        pending_payouts = supabase.table("payouts").select("*").eq("status", "pending").order("created_at", desc=True).execute().data
+        
+        pending_payouts = supabase.table("payouts").select("*").eq("status", "pending").order("created_at", desc=True).execute().data or []
+        
+        # Enrich pending payouts with seller username and upi_id
+        for payout in pending_payouts:
+            user_res = supabase.table("users").select("username, upi_id").eq("id", payout["seller_id"]).execute()
+            if user_res.data:
+                payout["seller_username"] = user_res.data[0].get("username", "Unknown")
+                payout["upi_id"] = user_res.data[0].get("upi_id", "Not set")
+
 
         return {
             "stats": {
