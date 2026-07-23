@@ -400,7 +400,7 @@ def download_skill(skill_id: str, user = Depends(get_current_user)):
         watermark = '\u200D' + ''.join(mapping[b] for b in binary_str) + '\u200D'
         
         # 2. Single-User License Agreement
-        eula = f"""\n\n{"-"*50}\n**Bodhic AI Single-User License Agreement**\nThis file is uniquely licensed to the buyer. Redistribution is strictly prohibited.\nYour unique cryptographic identifier is permanently embedded in this file."""
+        eula = f"""\n\n{"-"*50}\n**Bodhic AI Single-User License Agreement**\nThis file is uniquely licensed to the buyer. Redistribution is strictly prohibited.\nYour unique cryptographic identifier is permanently embedded in this file.\n\n**Violation Clause:** If you are found distributing this skill on any other platform, your account will be permanently banned. Any pending earnings or funds in your Bodhic AI wallet will be immediately forfeited and become the property of Bodhic AI."""
         
         # Inject watermark at the end of the content before EULA
         final_content = raw_content + watermark + eula
