@@ -152,8 +152,10 @@ export default function AdminDashboardIsland() {
     }
   };
 
-  const generateUpiLink = (upiId: string, amount: number, name: string) => {
-    return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR`;
+  const generateUpiLink = (upiId: string, amount: number) => {
+    // We use a generic Payee Name because user usernames might contain special characters 
+    // that some UPI apps reject in the pn parameter.
+    return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Bodhic AI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
   };
 
   const fetchUserSkills = async (userId: string) => {
@@ -289,7 +291,7 @@ export default function AdminDashboardIsland() {
             </thead>
             <tbody>
               {data.pending_payouts?.map((payout: any) => {
-                const upiLink = generateUpiLink(payout.upi_id || '', parseFloat(payout.amount), payout.seller_username || 'Seller');
+                const upiLink = generateUpiLink(payout.upi_id || '', parseFloat(payout.amount));
                 return (
                   <tr key={payout.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                     <td style={{ padding: '0.5rem', fontSize: '0.85rem' }}>
