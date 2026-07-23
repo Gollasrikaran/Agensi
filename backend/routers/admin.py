@@ -23,10 +23,10 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
         
         total_sales_volume = sum(p["amount"] for p in purchases_res.data) if purchases_res.data else 0
 
-        # Recent activities (mocked complex joins by just fetching raw tables for simplicity)
+        # Recent activities
         recent_skills = supabase.table("skills").select("*").order("created_at", desc=True).limit(5).execute().data
         recent_purchases = supabase.table("purchases").select("*").order("created_at", desc=True).limit(5).execute().data
-        pending_payouts = supabase.table("payout_requests").select("*").eq("status", "pending").order("created_at", desc=True).execute().data
+        pending_payouts = supabase.table("payouts").select("*").eq("status", "pending").order("created_at", desc=True).execute().data
 
         return {
             "stats": {
@@ -38,16 +38,6 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
             "recent_purchases": recent_purchases,
             "pending_payouts": pending_payouts
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/payouts/{payout_id}/complete")
-def complete_payout(payout_id: str, admin_user = Depends(verify_admin)):
-    try:
-        res = supabase.table("payout_requests").update({"status": "completed"}).eq("id", payout_id).execute()
-        if not res.data:
-            raise HTTPException(status_code=404, detail="Payout request not found")
-        return {"message": "Payout marked as completed successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -112,25 +102,102 @@ def get_user_skills(user_id: str, admin_user = Depends(verify_admin)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- PAYOUT ENDPOINTS ---
+
 @router.get("/payouts")
 def get_payouts(admin_user = Depends(verify_admin)):
     try:
-        res = supabase.table("payout_requests").select("*, users(email)").order("created_at", desc=False).execute()
-        return res.data
+        res = supabase.table("payouts").select("*").order("created_at", desc=False).execute()
+        # Enrich with seller UPI from users table
+        payouts = res.data or []
+        for payout in payouts:
+            user_res = supabase.table("users").select("username, upi_id").eq("id", payout["seller_id"]).execute()
+            if user_res.data:
+                payout["seller_username"] = user_res.data[0].get("username", "Unknown")
+                payout["upi_id"] = user_res.data[0].get("upi_id", "Not set")
+        return payouts
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/payouts/{payout_id}/complete")
 def complete_payout(payout_id: str, admin_user = Depends(verify_admin)):
     try:
-        req = supabase.table("payout_requests").select("status").eq("id", payout_id).single().execute()
+        req = supabase.table("payouts").select("status").eq("id", payout_id).single().execute()
         if not req.data:
-            raise HTTPException(status_code=404, detail="Payout request not found")
+            raise HTTPException(status_code=404, detail="Payout not found")
         if req.data["status"] != "pending":
             raise HTTPException(status_code=400, detail="Payout is not pending")
             
-        res = supabase.table("payout_requests").update({"status": "completed"}).eq("id", payout_id).execute()
+        res = supabase.table("payouts").update({"status": "completed"}).eq("id", payout_id).execute()
         return {"message": "Payout marked as completed", "payout": res.data[0]}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- CRON SWEEP ENDPOINT ---
+
+@router.post("/cron/sweep")
+def run_payout_sweep(admin_user = Depends(verify_admin)):
+    """
+    Automated weekly sweep: calculates each seller's available balance
+    and creates ONE consolidated payout for sellers with balance >= 100.
+    """
+    try:
+        # 1. Get all sellers who have skills with completed purchases
+        all_skills = supabase.table("skills").select("id, seller_id").execute()
+        if not all_skills.data:
+            return {"message": "No sellers found", "payouts_created": 0}
+        
+        # Group skill IDs by seller
+        seller_skills = {}
+        for skill in all_skills.data:
+            sid = skill["seller_id"]
+            if sid not in seller_skills:
+                seller_skills[sid] = []
+            seller_skills[sid].append(skill["id"])
+        
+        payouts_created = 0
+        sweep_results = []
+        
+        for seller_id, skill_ids in seller_skills.items():
+            # Calculate total earnings (80% of purchases)
+            purchases_res = supabase.table("purchases").select("amount").in_("skill_id", skill_ids).eq("payment_status", "completed").execute()
+            total_earnings = 0.0
+            if purchases_res.data:
+                total_earnings = sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
+            
+            # Calculate total already withdrawn
+            payouts_res = supabase.table("payouts").select("amount").eq("seller_id", seller_id).execute()
+            total_withdrawn = 0.0
+            if payouts_res.data:
+                total_withdrawn = sum(float(p["amount"]) for p in payouts_res.data)
+            
+            available = round(total_earnings - total_withdrawn, 2)
+            
+            # Only create payout if balance >= 100 and seller has UPI ID
+            if available >= 100:
+                user_res = supabase.table("users").select("upi_id, username").eq("id", seller_id).execute()
+                upi_id = user_res.data[0].get("upi_id") if user_res.data else None
+                username = user_res.data[0].get("username", "Unknown") if user_res.data else "Unknown"
+                
+                if upi_id:
+                    supabase.table("payouts").insert({
+                        "seller_id": seller_id,
+                        "amount": available,
+                        "currency": "INR",
+                        "provider": "UPI",
+                        "status": "pending"
+                    }).execute()
+                    payouts_created += 1
+                    sweep_results.append({"seller": username, "amount": available, "upi": upi_id})
+                else:
+                    sweep_results.append({"seller": username, "amount": available, "upi": "NOT SET - SKIPPED"})
+        
+        return {
+            "message": f"Sweep complete. {payouts_created} payouts created.",
+            "payouts_created": payouts_created,
+            "details": sweep_results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

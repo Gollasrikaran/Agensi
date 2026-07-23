@@ -84,40 +84,46 @@ class PayoutRequest(BaseModel):
 @router.get("/me/wallet")
 def get_my_wallet(user = Depends(get_current_user)):
     try:
-        wallet = supabase.table("seller_wallets").select("balance_inr").eq("user_id", user.id).execute()
-        balance = wallet.data[0]["balance_inr"] if wallet.data else 0.0
+        # 1. Calculate total earnings: 80% of all purchases for seller's skills
+        skills_res = supabase.table("skills").select("id").eq("seller_id", user.id).execute()
+        total_earnings = 0.0
+        if skills_res.data:
+            skill_ids = [s["id"] for s in skills_res.data]
+            purchases_res = supabase.table("purchases").select("amount").in_("skill_id", skill_ids).eq("payment_status", "completed").execute()
+            if purchases_res.data:
+                total_earnings = sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
         
-        history = supabase.table("payout_requests").select("*").eq("seller_id", user.id).order("created_at", desc=True).execute()
-        return {"balance_inr": balance, "history": history.data}
+        # 2. Calculate total withdrawn from payouts table
+        payouts_res = supabase.table("payouts").select("amount").eq("seller_id", user.id).execute()
+        total_withdrawn = 0.0
+        if payouts_res.data:
+            total_withdrawn = sum(float(p["amount"]) for p in payouts_res.data)
+        
+        # 3. Dynamic balance
+        balance = round(total_earnings - total_withdrawn, 2)
+        
+        # 4. Payout history
+        history = supabase.table("payouts").select("*").eq("seller_id", user.id).order("created_at", desc=True).execute()
+        
+        # 5. Get saved UPI ID
+        user_data = supabase.table("users").select("upi_id").eq("id", user.id).execute()
+        upi_id = user_data.data[0].get("upi_id") if user_data.data else None
+        
+        return {"balance_inr": balance, "total_earnings": round(total_earnings, 2), "total_withdrawn": round(total_withdrawn, 2), "history": history.data, "upi_id": upi_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/me/payout")
-def request_payout(req: PayoutRequest, user = Depends(get_current_user)):
+class UpiSaveRequest(BaseModel):
+    upi_id: str
+
+@router.post("/me/upi")
+def save_upi_id(req: UpiSaveRequest, user = Depends(get_current_user)):
     try:
-        # Check balance
-        wallet = supabase.table("seller_wallets").select("balance_inr").eq("user_id", user.id).execute()
-        balance = float(wallet.data[0]["balance_inr"]) if wallet.data else 0.0
+        if not req.upi_id or "@" not in req.upi_id:
+            raise HTTPException(status_code=400, detail="Invalid UPI ID format")
         
-        if req.amount_inr > balance:
-            raise HTTPException(status_code=400, detail="Insufficient balance")
-            
-        if req.amount_inr < 100:
-            raise HTTPException(status_code=400, detail="Minimum payout is ₹100")
-            
-        # Deduct balance
-        new_balance = balance - req.amount_inr
-        supabase.table("seller_wallets").update({"balance_inr": new_balance}).eq("user_id", user.id).execute()
-        
-        # Create request
-        supabase.table("payout_requests").insert({
-            "seller_id": user.id,
-            "amount_inr": req.amount_inr,
-            "upi_id": req.upi_id,
-            "status": "pending"
-        }).execute()
-        
-        return {"message": "Payout requested successfully", "new_balance": new_balance}
+        supabase.table("users").update({"upi_id": req.upi_id}).eq("id", user.id).execute()
+        return {"message": "UPI ID saved successfully", "upi_id": req.upi_id}
     except HTTPException:
         raise
     except Exception as e:

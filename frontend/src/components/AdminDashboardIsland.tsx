@@ -12,6 +12,8 @@ export default function AdminDashboardIsland() {
   const [previewSkill, setPreviewSkill] = useState<any | null>(null);
   const [confirmSkillId, setConfirmSkillId] = useState<string | null>(null);
   const [confirmSkillAction, setConfirmSkillAction] = useState<'approved' | 'rejected' | null>(null);
+  const [showQrFor, setShowQrFor] = useState<string | null>(null);
+  const [sweepLoading, setSweepLoading] = useState(false);
 
   useEffect(() => {
     fetchAdminData();
@@ -122,6 +124,40 @@ export default function AdminDashboardIsland() {
     } catch (err: any) {
       showToast(err.message, 'error');
     }
+  };
+
+  const runSweep = async () => {
+    try {
+      setSweepLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/cron/sweep`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Failed to run sweep');
+      const result = await res.json();
+      
+      showToast(`Sweep complete! ${result.payouts_created} payouts created.`, 'success');
+      fetchAdminData();
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setSweepLoading(false);
+    }
+  };
+
+  const generateUpiLink = (upiId: string, amount: number, name: string) => {
+    return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR`;
+  };
+
+  const generateQrDataUrl = (text: string): string => {
+    // Simple QR code using a public API (no npm package needed)
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
   };
 
   const fetchUserSkills = async (userId: string) => {
@@ -236,36 +272,79 @@ export default function AdminDashboardIsland() {
         </div>
 
         <div className="glass-card" style={{ marginBottom: '2rem' }}>
-          <h2>Pending Payouts</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Pending Payouts</h2>
+            <button 
+              onClick={runSweep}
+              disabled={sweepLoading}
+              style={{ padding: '0.4rem 1rem', background: 'var(--accent-gradient)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
+            >
+              {sweepLoading ? 'Running...' : '🔄 Run Weekly Sweep'}
+            </button>
+          </div>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                <th style={{ padding: '0.5rem' }}>Seller ID</th>
+                <th style={{ padding: '0.5rem' }}>Seller</th>
                 <th style={{ padding: '0.5rem' }}>UPI ID</th>
                 <th style={{ padding: '0.5rem' }}>Amount</th>
                 <th style={{ padding: '0.5rem' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {data.pending_payouts?.map((payout: any) => (
-                <tr key={payout.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  <td style={{ padding: '0.5rem', fontSize: '0.8rem' }}>{payout.seller_id}</td>
-                  <td style={{ padding: '0.5rem', fontFamily: 'var(--font-mono)' }}>{payout.upi_id}</td>
-                  <td style={{ padding: '0.5rem', fontWeight: 600 }}>₹{payout.amount_inr.toFixed(2)}</td>
-                  <td style={{ padding: '0.5rem' }}>
-                    <button 
-                      onClick={() => completePayout(payout.id)}
-                      style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      Mark as Paid
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {data.pending_payouts?.map((payout: any) => {
+                const upiLink = generateUpiLink(payout.upi_id || '', parseFloat(payout.amount), payout.seller_username || 'Seller');
+                return (
+                  <tr key={payout.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                    <td style={{ padding: '0.5rem', fontSize: '0.85rem' }}>
+                      <div style={{ fontWeight: 600 }}>{payout.seller_username || 'Unknown'}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--mute)' }}>{payout.seller_id.slice(0, 8)}...</div>
+                    </td>
+                    <td style={{ padding: '0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>{payout.upi_id || 'Not set'}</td>
+                    <td style={{ padding: '0.5rem', fontWeight: 600 }}>₹{parseFloat(payout.amount).toFixed(2)}</td>
+                    <td style={{ padding: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        {payout.upi_id && (
+                          <>
+                            <button 
+                              onClick={() => setShowQrFor(showQrFor === payout.id ? null : payout.id)}
+                              style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                            >
+                              {showQrFor === payout.id ? 'Hide QR' : '📱 QR Code'}
+                            </button>
+                            <a 
+                              href={upiLink}
+                              style={{ padding: '0.2rem 0.5rem', background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', textDecoration: 'none' }}
+                            >
+                              💸 Pay Now
+                            </a>
+                          </>
+                        )}
+                        <button 
+                          onClick={() => completePayout(payout.id)}
+                          style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          ✓ Mark as Paid
+                        </button>
+                      </div>
+                      {showQrFor === payout.id && payout.upi_id && (
+                        <div style={{ marginTop: '0.5rem', padding: '1rem', background: '#fff', borderRadius: '12px', display: 'inline-block', border: '1px solid var(--hairline)' }}>
+                          <img 
+                            src={generateQrDataUrl(upiLink)} 
+                            alt="UPI QR Code" 
+                            style={{ width: '180px', height: '180px' }} 
+                          />
+                          <div style={{ textAlign: 'center', fontSize: '11px', color: '#666', marginTop: '6px' }}>Scan with GPay / PhonePe</div>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {(!data.pending_payouts || data.pending_payouts.length === 0) && (
                 <tr>
                   <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: 'var(--mute)' }}>
-                    No pending payouts.
+                    No pending payouts. Click "Run Weekly Sweep" to generate payouts for eligible sellers.
                   </td>
                 </tr>
               )}

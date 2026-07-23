@@ -312,15 +312,9 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record purchase: {e}")
 
-    # 5. Credit seller wallet — isolated so a wallet error never blocks the buyer's success
+    # 5. Log activity — isolated so an error never blocks the buyer's success
     try:
-        wallet_res = supabase.table("seller_wallets").select("balance_inr").eq("user_id", seller_id).execute()
-        if wallet_res.data:
-            new_balance = float(wallet_res.data[0]["balance_inr"]) + seller_share
-            supabase.table("seller_wallets").update({"balance_inr": new_balance}).eq("user_id", seller_id).execute()
-        else:
-            supabase.table("seller_wallets").insert({"user_id": seller_id, "balance_inr": seller_share}).execute()
-        print(f"[SALE] '{skill_res.data['title']}' sold. Seller {seller_id} credited ₹{seller_share}.")
+        print(f"[SALE] '{skill_res.data['title']}' sold. Seller {seller_id} earns ₹{seller_share} (80% of ₹{base_price}).")
         
         # Log activity for the seller getting a sale
         supabase.table("user_activity").insert({
@@ -335,8 +329,8 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
         }).execute()
         
     except Exception as e:
-        # Wallet credit failed — log it but still return success to buyer since purchase is recorded
-        print(f"[ERROR] Wallet credit failed for seller {seller_id}: {e}")
+        # Activity logging failed — log it but still return success to buyer since purchase is recorded
+        print(f"[ERROR] Activity logging failed for seller {seller_id}: {e}")
 
     return {"message": "Purchase recorded successfully", "credited": seller_share, "skill_id": req.skill_id}
 
@@ -483,20 +477,27 @@ def get_skill_requests():
         raise HTTPException(status_code=500, detail=str(e))
 
 class DisputeRequest(BaseModel):
-    skill_id: str
+    purchase_id: str
     reason: str
 
 @app.post("/api/disputes")
 def raise_dispute(req: DisputeRequest, user = Depends(get_current_user)):
     try:
+        # Verify the purchase belongs to this buyer
+        purchase = supabase.table("purchases").select("id, skill_id, amount").eq("id", req.purchase_id).eq("buyer_id", user.id).execute()
+        if not purchase.data:
+            raise HTTPException(status_code=404, detail="Purchase not found or does not belong to you")
+        
         res = supabase.table("disputes").insert({
             "buyer_id": user.id,
-            "skill_id": req.skill_id,
+            "purchase_id": req.purchase_id,
             "reason": req.reason,
             "status": "open"
         }).execute()
         
         dispute_id = res.data[0].get("id", "UNKNOWN") if res.data else "UNKNOWN"
+        purchase_amount = purchase.data[0].get("amount", "N/A")
+        skill_id = purchase.data[0].get("skill_id", "N/A")
         
         # Send email
         try:
@@ -516,11 +517,11 @@ def raise_dispute(req: DisputeRequest, user = Depends(get_current_user)):
                 msg["From"] = smtp_user
                 recipients = ["support@bodhicai.tech", "srikaran@bodhicai.tech", "karteek@bodhicai.tech"]
                 msg["To"] = ", ".join(recipients)
-                msg["Subject"] = f"[Dispute #{dispute_id}] New dispute raised for skill {req.skill_id}"
+                msg["Subject"] = f"[Dispute #{dispute_id}] Purchase {req.purchase_id[:8]}... — ₹{purchase_amount}"
                 
                 timestamp = datetime.datetime.now().isoformat()
                 
-                body = f"New Dispute Raised:\nBuyer ID: {user.id}\nSkill ID: {req.skill_id}\nTimestamp: {timestamp}\n\nReason:\n{req.reason}\n"
+                body = f"New Dispute Raised:\nDispute ID: {dispute_id}\nPurchase ID: {req.purchase_id}\nSkill ID: {skill_id}\nAmount: ₹{purchase_amount}\nBuyer ID: {user.id}\nTimestamp: {timestamp}\n\nReason:\n{req.reason}\n"
                 msg.attach(MIMEText(body, "plain"))
                 
                 with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
@@ -529,6 +530,9 @@ def raise_dispute(req: DisputeRequest, user = Depends(get_current_user)):
         except Exception as e:
             print(f"[ERROR] Failed to send dispute email: {e}")
             
-        return {"message": "Dispute raised successfully"}
+        return {"message": "Dispute raised successfully", "dispute_id": dispute_id}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
