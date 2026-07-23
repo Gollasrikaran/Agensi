@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { QRCodeSVG } from 'qrcode.react';
 import { showToast } from '../lib/toast';
 
 export default function AdminDashboardIsland() {
@@ -153,11 +154,6 @@ export default function AdminDashboardIsland() {
 
   const generateUpiLink = (upiId: string, amount: number, name: string) => {
     return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amount.toFixed(2)}&cu=INR`;
-  };
-
-  const generateQrDataUrl = (text: string): string => {
-    // Simple QR code using a public API (no npm package needed)
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
   };
 
   const fetchUserSkills = async (userId: string) => {
@@ -329,10 +325,11 @@ export default function AdminDashboardIsland() {
                       </div>
                       {showQrFor === payout.id && payout.upi_id && (
                         <div style={{ marginTop: '0.5rem', padding: '1rem', background: '#fff', borderRadius: '12px', display: 'inline-block', border: '1px solid var(--hairline)' }}>
-                          <img 
-                            src={generateQrDataUrl(upiLink)} 
-                            alt="UPI QR Code" 
-                            style={{ width: '180px', height: '180px' }} 
+                          <QRCodeSVG 
+                            value={upiLink} 
+                            size={180}
+                            level="M"
+                            includeMargin={false}
                           />
                           <div style={{ textAlign: 'center', fontSize: '11px', color: '#666', marginTop: '6px' }}>Scan with GPay / PhonePe</div>
                         </div>
