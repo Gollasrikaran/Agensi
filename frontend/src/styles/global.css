@@ -4,41 +4,37 @@
    Deep violet wisdom + electric cyan energy.
    ═══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 @import './design-tokens.css';
 
 /* ─── LIGHT MODE ─── */
 :root {
   /* Brand */
-  --primary: #6C3CE1;
-  --primary-hover: #5B2BCF;
-  --primary-soft: rgba(108, 60, 225, 0.08);
-  --primary-glow: rgba(108, 60, 225, 0.25);
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-soft: rgba(79, 70, 229, 0.08);
+  --primary-glow: rgba(79, 70, 229, 0.25);
   --on-primary: #ffffff;
 
   /* Accent */
-  --accent: #00D4FF;
-  --accent-soft: rgba(0, 212, 255, 0.1);
-  --accent-deep: #00A8CC;
-
-  /* Warm Accent */
-  --gold: #FFB547;
-  --gold-soft: rgba(255, 181, 71, 0.1);
+  --accent: #0EA5E9;
+  --accent-soft: rgba(14, 165, 233, 0.1);
+  --accent-deep: #0284C7;
 
   /* Surfaces */
   --canvas: #ffffff;
-  --canvas-soft: #F8F7FC;
-  --canvas-soft-2: #F0EFF7;
+  --canvas-soft: #F8FAFC;
+  --canvas-soft-2: #F1F5F9;
   --canvas-elevated: #ffffff;
 
   /* Text */
-  --ink: #0F0D23;
-  --body: #5A5678;
-  --mute: #9994B8;
+  --ink: #0F172A;
+  --body: #475569;
+  --mute: #64748B;
 
   /* Borders */
-  --hairline: #E8E5F0;
-  --hairline-strong: #D0CBE0;
+  --hairline: #E2E8F0;
+  --hairline-strong: #CBD5E1;
 
   /* Semantic */
   --link: #6C3CE1;
@@ -59,7 +55,19 @@
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Type Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
 
   /* Spacing */
   --space-xxs: 4px;
@@ -82,12 +90,12 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(15, 13, 35, 0.04);
-  --shadow-sm: 0 1px 3px rgba(15, 13, 35, 0.06), 0 1px 2px rgba(15, 13, 35, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(15, 13, 35, 0.06), 0 2px 4px -2px rgba(15, 13, 35, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 13, 35, 0.06), 0 4px 6px -4px rgba(15, 13, 35, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(15, 13, 35, 0.08), 0 8px 10px -6px rgba(15, 13, 35, 0.04);
-  --shadow-glow: 0 0 20px rgba(108, 60, 225, 0.15);
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
 
   /* Gradients */
   --grad-brand: linear-gradient(135deg, #6C3CE1, #00D4FF);
@@ -95,7 +103,7 @@
   --grad-hero: linear-gradient(135deg, #6C3CE1 0%, #9B59E8 25%, #00D4FF 50%, #00E5A0 75%, #FFB547 100%);
 
   /* Navbar glass */
-  --nav-bg: rgba(255, 255, 255, 0.75);
+  --nav-bg: rgba(255, 255, 255, 0.85);
 
   /* Transition */
   --transition-colors: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -104,30 +112,27 @@
 /* ─── DARK MODE — system preference ─── */
 @media (prefers-color-scheme: dark) {
   :root:not(.light-mode) {
-    --primary: #8B5CF6;
-    --primary-hover: #A78BFA;
-    --primary-soft: rgba(139, 92, 246, 0.12);
-    --primary-glow: rgba(139, 92, 246, 0.3);
-    --on-primary: #ffffff;
+    --primary: #818CF8;
+    --primary-hover: #A5B4FC;
+    --primary-soft: rgba(129, 140, 248, 0.12);
+    --primary-glow: rgba(129, 140, 248, 0.3);
+    --on-primary: #0F172A;
 
-    --accent: #22D3EE;
-    --accent-soft: rgba(34, 211, 238, 0.1);
-    --accent-deep: #67E8F9;
+    --accent: #38BDF8;
+    --accent-soft: rgba(56, 189, 248, 0.1);
+    --accent-deep: #7DD3FC;
 
-    --gold: #FBBF24;
-    --gold-soft: rgba(251, 191, 36, 0.1);
+    --canvas: #050505;
+    --canvas-soft: #0A0A0A;
+    --canvas-soft-2: #121212;
+    --canvas-elevated: #171717;
 
-    --canvas: #0B0A1A;
-    --canvas-soft: #100F24;
-    --canvas-soft-2: #1A1833;
-    --canvas-elevated: #1E1C38;
+    --ink: #F8FAFC;
+    --body: #94A3B8;
+    --mute: #64748B;
 
-    --ink: #F0EEFF;
-    --body: #A8A3C7;
-    --mute: #6B6490;
-
-    --hairline: #2A2745;
-    --hairline-strong: #3D3960;
+    --hairline: rgba(255, 255, 255, 0.08);
+    --hairline-strong: rgba(255, 255, 255, 0.15);
 
     --link: #A78BFA;
     --success: #34D399;
@@ -155,36 +160,33 @@
     --grad-brand-warm: linear-gradient(135deg, #8B5CF6, #F472B6, #FBBF24);
     --grad-hero: linear-gradient(135deg, #8B5CF6 0%, #C084FC 25%, #22D3EE 50%, #34D399 75%, #FBBF24 100%);
 
-    --nav-bg: rgba(11, 10, 26, 0.8);
+    --nav-bg: rgba(5, 5, 5, 0.85);
   }
 }
 
 /* ─── DARK MODE — explicit toggle ─── */
 :root.dark-mode {
-  --primary: #8B5CF6;
-  --primary-hover: #A78BFA;
-  --primary-soft: rgba(139, 92, 246, 0.12);
-  --primary-glow: rgba(139, 92, 246, 0.3);
-  --on-primary: #ffffff;
+  --primary: #818CF8;
+  --primary-hover: #A5B4FC;
+  --primary-soft: rgba(129, 140, 248, 0.12);
+  --primary-glow: rgba(129, 140, 248, 0.3);
+  --on-primary: #0F172A;
 
-  --accent: #22D3EE;
-  --accent-soft: rgba(34, 211, 238, 0.1);
-  --accent-deep: #67E8F9;
+  --accent: #38BDF8;
+  --accent-soft: rgba(56, 189, 248, 0.1);
+  --accent-deep: #7DD3FC;
 
-  --gold: #FBBF24;
-  --gold-soft: rgba(251, 191, 36, 0.1);
+  --canvas: #050505;
+  --canvas-soft: #0A0A0A;
+  --canvas-soft-2: #121212;
+  --canvas-elevated: #171717;
 
-  --canvas: #0B0A1A;
-  --canvas-soft: #100F24;
-  --canvas-soft-2: #1A1833;
-  --canvas-elevated: #1E1C38;
+  --ink: #F8FAFC;
+  --body: #94A3B8;
+  --mute: #64748B;
 
-  --ink: #F0EEFF;
-  --body: #A8A3C7;
-  --mute: #6B6490;
-
-  --hairline: #2A2745;
-  --hairline-strong: #3D3960;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.15);
 
   --link: #A78BFA;
   --success: #34D399;
@@ -212,7 +214,7 @@
   --grad-brand-warm: linear-gradient(135deg, #8B5CF6, #F472B6, #FBBF24);
   --grad-hero: linear-gradient(135deg, #8B5CF6 0%, #C084FC 25%, #22D3EE 50%, #34D399 75%, #FBBF24 100%);
 
-  --nav-bg: rgba(11, 10, 26, 0.8);
+  --nav-bg: rgba(5, 5, 5, 0.85);
 }
 
 /* ═══════ RESET ═══════ */
@@ -231,7 +233,7 @@ body {
   background: var(--canvas-soft);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 400;
   line-height: 1.6;
   min-height: 100vh;
@@ -244,16 +246,17 @@ body {
 
 /* ═══════ TYPOGRAPHY ═══════ */
 h1, h2, h3, h4 {
+  font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.15;
   color: var(--ink);
   margin-bottom: var(--space-md);
   transition: color 0.3s ease;
 }
-h1 { font-size: 56px; letter-spacing: -2.5px; line-height: 1.05; }
-h2 { font-size: 36px; letter-spacing: -1.5px; line-height: 1.15; }
-h3 { font-size: 24px; letter-spacing: -0.8px; line-height: 1.25; }
-h4 { font-size: 20px; letter-spacing: -0.5px; line-height: 1.3; }
+h1 { font-size: var(--text-5xl); letter-spacing: -2px; }
+h2 { font-size: var(--text-4xl); letter-spacing: -1.5px; }
+h3 { font-size: var(--text-2xl); letter-spacing: -1px; }
+h4 { font-size: var(--text-xl); letter-spacing: -0.5px; }
 
 p {
   color: var(--body);
@@ -489,7 +492,7 @@ main {
 
 /* ═══════ CARDS ═══════ */
 .card, .glass-card {
-  background: var(--canvas);
+  background: var(--canvas-elevated);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
@@ -503,7 +506,7 @@ main {
 }
 
 .template-card {
-  background: var(--canvas);
+  background: var(--canvas-elevated);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
   padding: var(--space-lg);

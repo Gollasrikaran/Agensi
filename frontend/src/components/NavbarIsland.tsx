@@ -77,10 +77,10 @@ export default function NavbarIsland() {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: isScrolled ? 'var(--bg-glass)' : 'transparent',
-    backdropFilter: isScrolled ? 'var(--glass-blur)' : 'none',
-    borderBottom: isScrolled ? 'var(--glass-border)' : '1px solid transparent',
-    transition: 'var(--transition-smooth)',
+    background: isScrolled ? 'var(--nav-bg)' : 'transparent',
+    backdropFilter: isScrolled ? 'saturate(180%) blur(12px)' : 'none',
+    borderBottom: isScrolled ? '1px solid var(--hairline)' : '1px solid transparent',
+    transition: 'var(--transition-colors)',
   };
 
   return (
@@ -98,25 +98,25 @@ export default function NavbarIsland() {
             justifyContent: 'center',
             color: 'white',
             fontWeight: 'bold',
-            boxShadow: 'var(--accent-glow)'
+            boxShadow: 'var(--shadow-glow)'
           }}>
             B
           </div>
-          <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Bodhic<span style={{ color: 'var(--accent-primary)' }}>AI</span>
+          <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--ink)', letterSpacing: '-0.5px' }}>
+            Bodhic<span style={{ color: 'var(--primary)' }}>AI</span>
           </span>
         </a>
       </div>
       
       {/* Center: Links */}
       <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '14px' }}>
-        <a href="/browse" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Browse</a>
-        <a href="/requests" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Request</a>
-        <a href="/sell" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Sell a Skill</a>
-        <a href="/mcp" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>MCP</a>
-        <a href="/dashboard/buyer" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Dashboard</a>
+        <a href="/browse" style={{ color: 'var(--body)', textDecoration: 'none' }}>Browse</a>
+        <a href="/requests" style={{ color: 'var(--body)', textDecoration: 'none' }}>Request</a>
+        <a href="/sell" style={{ color: 'var(--body)', textDecoration: 'none' }}>Sell a Skill</a>
+        <a href="/mcp" style={{ color: 'var(--body)', textDecoration: 'none' }}>MCP</a>
+        <a href="/dashboard/buyer" style={{ color: 'var(--body)', textDecoration: 'none' }}>Dashboard</a>
         {isAdmin && (
-          <a href="/admin" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: '600' }}>Control Panel</a>
+          <a href="/admin" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>Control Panel</a>
         )}
       </nav>
 
@@ -125,7 +125,7 @@ export default function NavbarIsland() {
         
         {/* Search Input */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '12px', color: 'var(--mute)' }}>🔍</span>
           <input 
             type="text" 
             placeholder="Search skills..." 
@@ -135,11 +135,11 @@ export default function NavbarIsland() {
               }
             }}
             style={{
-              background: 'var(--bg-tertiary)',
-              border: 'var(--glass-border)',
-              borderRadius: 'var(--border-radius-pill)',
+              background: 'var(--canvas-soft-2)',
+              border: '1px solid var(--hairline)',
+              borderRadius: 'var(--radius-pill)',
               padding: '8px 12px 8px 36px',
-              color: 'var(--text-primary)',
+              color: 'var(--ink)',
               outline: 'none',
               width: '200px',
               fontSize: '13px'
@@ -148,12 +148,12 @@ export default function NavbarIsland() {
           <div style={{ 
             position: 'absolute', 
             right: '12px', 
-            background: 'var(--bg-secondary)', 
-            border: 'var(--glass-border)',
+            background: 'var(--canvas-soft)', 
+            border: '1px solid var(--hairline)',
             padding: '2px 6px', 
             borderRadius: '4px',
             fontSize: '10px',
-            color: 'var(--text-muted)'
+            color: 'var(--mute)'
           }}>
             ⌘K
           </div>
@@ -163,7 +163,7 @@ export default function NavbarIsland() {
 
         {session ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ color: 'var(--text-muted)', cursor: 'pointer' }}>🔔</span>
+            <span style={{ color: 'var(--mute)', cursor: 'pointer' }}>🔔</span>
             <div style={{ position: 'relative', cursor: 'pointer' }}>
               <a href="/dashboard/profile">
                 <img 
@@ -173,8 +173,8 @@ export default function NavbarIsland() {
                     width: '36px', 
                     height: '36px', 
                     borderRadius: '50%',
-                    border: '2px solid var(--ring-standard)', // Defaulting to standard ring for now
-                    background: 'var(--bg-tertiary)'
+                    border: '2px solid var(--hairline-strong)', // Defaulting to standard ring for now
+                    background: 'var(--canvas-soft-2)'
                   }} 
                 />
               </a>
@@ -183,10 +183,10 @@ export default function NavbarIsland() {
               onClick={handleLogout} 
               style={{
                 background: 'transparent', 
-                border: 'var(--glass-border)', 
-                color: 'var(--text-secondary)',
+                border: '1px solid var(--hairline)', 
+                color: 'var(--body)',
                 padding: '8px 16px',
-                borderRadius: 'var(--border-radius-pill)',
+                borderRadius: 'var(--radius-pill)',
                 cursor: 'pointer',
                 fontSize: '13px',
                 fontWeight: '600'
@@ -197,16 +197,16 @@ export default function NavbarIsland() {
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <a href="/login" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>Log in</a>
+            <a href="/login" style={{ color: 'var(--body)', textDecoration: 'none', fontWeight: '500', fontSize: '14px' }}>Log in</a>
             <a href="/signup" style={{
               background: 'var(--accent-gradient)',
               color: '#fff',
               textDecoration: 'none',
               padding: '8px 16px',
-              borderRadius: 'var(--border-radius-pill)',
+              borderRadius: 'var(--radius-pill)',
               fontWeight: '600',
               fontSize: '14px',
-              boxShadow: 'var(--accent-glow)'
+              boxShadow: 'var(--shadow-glow)'
             }}>
               Get Started
             </a>

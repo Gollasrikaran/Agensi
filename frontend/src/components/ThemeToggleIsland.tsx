@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 export default function ThemeToggleIsland() {
   const [isDark, setIsDark] = useState(true);
@@ -56,7 +57,7 @@ export default function ThemeToggleIsland() {
         transition: 'all 0.15s ease',
       }}
     >
-      {isDark ? '☀️' : '🌙'}
+      {isDark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
     </button>
   );
 }
