@@ -220,7 +220,13 @@ export default function UploadSkillFormIsland() {
         {/* Step 1: File Upload */}
         <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
           <h3 style={{ fontSize: '20px', marginBottom: '8px', color: 'var(--ink)' }}>1. Skill Content</h3>
-          <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: '24px' }}>Upload your agent code (.zip) or instructions (.md). We will automatically scan it for security vulnerabilities.</p>
+          <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: '24px' }}>
+            Upload your agent code (.zip) or instructions (.md). We will automatically scan it for security vulnerabilities.
+            <br/><br/>
+            <a href="/guides/example-skill-template" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+              📄 View Example Skill Template &rarr;
+            </a>
+          </p>
           
           <div style={{ 
             border: '2px dashed var(--hairline-strong)', 
