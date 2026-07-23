@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from auth import supabase
+from fastapi import APIRouter, HTTPException, Depends
+from auth import supabase, get_current_user
 
 router = APIRouter(prefix="/api/public", tags=["public"])
 
@@ -98,29 +98,40 @@ class VoteRequest(BaseModel):
     type: str # "upvote" or "downvote"
 
 @router.post("/skills/{skill_id}/vote")
-def vote_skill(skill_id: str, req: VoteRequest):
+def vote_skill(skill_id: str, req: VoteRequest, current_user = Depends(get_current_user)):
     try:
-        # In a real app we'd get current_user and prevent multiple votes. 
-        # For pilot, we just increment the counter.
-        skill_res = supabase.table("skills").select("upvotes, downvotes").eq("id", skill_id).single().execute()
+        if req.type != "upvote":
+            raise HTTPException(status_code=400, detail="Only upvotes are supported currently")
+            
+        # Check if already upvoted
+        existing_vote = supabase.table("skill_upvotes").select("id").eq("skill_id", skill_id).eq("user_id", current_user.id).execute()
+        
+        skill_res = supabase.table("skills").select("upvotes, seller_id").eq("id", skill_id).single().execute()
         if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
             
-        skill = skill_res.data
-        upvotes = skill.get("upvotes") or 0
-        downvotes = skill.get("downvotes") or 0
+        upvotes = skill_res.data.get("upvotes") or 0
         
-        if req.type == "upvote":
+        if existing_vote.data:
+            # Toggle off (Remove upvote)
+            supabase.table("skill_upvotes").delete().eq("skill_id", skill_id).eq("user_id", current_user.id).execute()
+            upvotes = max(0, upvotes - 1)
+            supabase.table("skills").update({"upvotes": upvotes}).eq("id", skill_id).execute()
+            # Try to remove activity log (optional, but good practice)
+            supabase.table("activity_logs").delete().eq("skill_id", skill_id).eq("user_id", skill_res.data["seller_id"]).eq("activity_type", "upvote").execute()
+        else:
+            # Toggle on (Add upvote)
+            supabase.table("skill_upvotes").insert({"skill_id": skill_id, "user_id": current_user.id}).execute()
             upvotes += 1
-        elif req.type == "downvote":
-            downvotes += 1
-            
-        supabase.table("skills").update({
-            "upvotes": upvotes,
-            "downvotes": downvotes
-        }).eq("id", skill_id).execute()
+            supabase.table("skills").update({"upvotes": upvotes}).eq("id", skill_id).execute()
+            # Log activity for seller
+            supabase.table("activity_logs").insert({
+                "user_id": skill_res.data["seller_id"],
+                "activity_type": "upvote",
+                "skill_id": skill_id
+            }).execute()
         
-        return {"status": "success", "upvotes": upvotes, "downvotes": downvotes}
+        return {"status": "success", "upvotes": upvotes}
     except Exception as e:
         if isinstance(e, HTTPException): raise
         raise HTTPException(status_code=500, detail=str(e))

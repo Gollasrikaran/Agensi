@@ -312,6 +312,14 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record purchase: {e}")
 
+    # Increment purchase_count (downloads) for the skill
+    try:
+        current_skill_res = supabase.table("skills").select("purchase_count").eq("id", req.skill_id).single().execute()
+        current_count = current_skill_res.data.get("purchase_count") or 0
+        supabase.table("skills").update({"purchase_count": current_count + 1}).eq("id", req.skill_id).execute()
+    except Exception as e:
+        print(f"[WARN] Failed to increment purchase_count: {e}")
+
     # 5. Log activity — isolated so an error never blocks the buyer's success
     try:
         print(f"[SALE] '{skill_res.data['title']}' sold. Seller {seller_id} earns ₹{seller_share} (80% of ₹{base_price}).")
@@ -418,8 +426,11 @@ def get_leaderboard():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/skills/{skill_id}/upvote")
-def upvote_skill(skill_id: str):
+def upvote_skill(skill_id: str, current_user = Depends(get_current_user)):
     try:
+        # Check if already upvoted
+        existing = supabase.table("skill_upvotes").select("id").eq("skill_id", skill_id).eq("user_id", current_user.id).execute()
+        
         # Fetch current upvotes and seller id
         res = supabase.table("skills").select("upvotes, seller_id").eq("id", skill_id).single().execute()
         if not res.data:
@@ -427,26 +438,38 @@ def upvote_skill(skill_id: str):
         
         current_upvotes = res.data.get("upvotes") or 0
         seller_id = res.data.get("seller_id")
-        new_upvotes = current_upvotes + 1
         
-        # Update
-        supabase.table("skills").update({"upvotes": new_upvotes}).eq("id", skill_id).execute()
-        
-        # Log activity for receiving an upvote
-        if seller_id:
-            supabase.table("user_activity").insert({
-                "user_id": seller_id,
-                "activity_type": "upvote"
-            }).execute()
+        if existing.data:
+            # Remove upvote
+            supabase.table("skill_upvotes").delete().eq("skill_id", skill_id).eq("user_id", current_user.id).execute()
+            new_upvotes = max(0, current_upvotes - 1)
+            supabase.table("skills").update({"upvotes": new_upvotes}).eq("id", skill_id).execute()
+            return {"message": "Upvote removed", "upvotes": new_upvotes, "upvoted": False}
+        else:
+            # Add upvote
+            supabase.table("skill_upvotes").insert({"skill_id": skill_id, "user_id": current_user.id}).execute()
+            new_upvotes = current_upvotes + 1
+            supabase.table("skills").update({"upvotes": new_upvotes}).eq("id", skill_id).execute()
             
-        return {"message": "Upvoted", "upvotes": new_upvotes}
+            # Log activity for seller (only when adding)
+            if seller_id:
+                supabase.table("user_activity").insert({
+                    "user_id": seller_id,
+                    "activity_type": "upvote"
+                }).execute()
+            return {"message": "Upvoted", "upvotes": new_upvotes, "upvoted": True}
+            
     except Exception as e:
+        if isinstance(e, HTTPException): raise
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/skills/{skill_id}/upvote/status")
-def get_upvote_status(skill_id: str):
-    # Mocking this for now as we don't track who upvoted what yet.
-    return {"has_upvoted": False}
+def get_upvote_status(skill_id: str, current_user = Depends(get_current_user)):
+    try:
+        existing = supabase.table("skill_upvotes").select("id").eq("skill_id", skill_id).eq("user_id", current_user.id).execute()
+        return {"upvoted": len(existing.data) > 0 if existing.data else False}
+    except:
+        return {"upvoted": False}
 
 class SkillRequestModel(BaseModel):
     title: str

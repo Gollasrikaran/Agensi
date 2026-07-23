@@ -172,7 +172,7 @@ export default function SkillPulseGraph({ username }: { username: string }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         
         <div style={{ display: 'flex', gap: '8px' }}>
-          {(['all', 'upload', 'sale', 'upvote', 'review', 'bounty'] as ActivityType[]).map(t => (
+          {(['all', 'upload', 'sale', 'upvote', 'review'] as ActivityType[]).map(t => (
             <button
               key={t}
               onClick={() => setFilter(t)}

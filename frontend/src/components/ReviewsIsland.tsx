@@ -14,6 +14,7 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     async function fetchReviews() {
@@ -35,9 +36,11 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
   if (error) return <div style={{ padding: '20px', color: 'var(--error)' }}>Failed to load reviews.</div>;
   if (reviews.length === 0) return <div style={{ padding: '20px', color: 'var(--mute)' }}>No reviews yet. Be the first to review!</div>;
 
+  const displayedReviews = showAll ? reviews : reviews.slice(0, 5);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-      {reviews.map((review, i) => (
+      {displayedReviews.map((review, i) => (
         <div key={i} className="card" style={{ padding: 'var(--space-md)', background: 'var(--canvas)', border: '1px solid var(--hairline)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -67,6 +70,28 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
           )}
         </div>
       ))}
+      
+      {reviews.length > 5 && (
+        <button 
+          onClick={() => setShowAll(!showAll)}
+          style={{
+            marginTop: '8px',
+            padding: '8px 16px',
+            background: 'transparent',
+            border: '1px solid var(--hairline-strong)',
+            color: 'var(--primary)',
+            borderRadius: 'var(--border-radius-pill)',
+            cursor: 'pointer',
+            alignSelf: 'center',
+            fontSize: '14px',
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          {showAll ? 'Show Less' : `View All ${reviews.length} Reviews`}
+        </button>
+      )}
     </div>
   );
 }
