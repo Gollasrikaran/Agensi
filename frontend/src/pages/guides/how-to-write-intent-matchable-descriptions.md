@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Writing Intent-Matchable Descriptions"
 description: "Make sure your skills get triggered correctly by writing precise trigger conditions."
 ---

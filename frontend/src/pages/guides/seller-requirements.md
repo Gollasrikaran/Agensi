@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Bodhic AI Seller Requirements & Guidelines"
 description: "Mandatory reading for all sellers. Learn the strict structure and security rules required to list a skill on Bodhic AI."
 ---

@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Understanding YAML Frontmatter for LLMs"
 description: "Master metadata structures so agent orchestration frameworks can parse your skills."
 ---

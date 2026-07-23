@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "How to Build Custom Skills for AI Agents"
 description: "A step-by-step tutorial on drafting actionable, model-agnostic instructions for autonomous agents."
 ---

@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Structuring AI Agent Skills for Enterprise Workflows"
 description: "Scale your agent components for production-grade, multi-step enterprise operations."
 ---

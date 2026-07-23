@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "What is Prompt Injection in AI Agents?"
 description: "Learn how downstream agents can be hijacked and how to secure your skills against it."
 ---

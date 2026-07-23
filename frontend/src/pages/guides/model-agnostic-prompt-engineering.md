@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Model-Agnostic Prompt Engineering"
 description: "Write instructions that work flawlessly across GPT-4, Claude 3.5, and Gemini."
 ---

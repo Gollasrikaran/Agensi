@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "How to Debug Agent Hallucinations"
 description: "Techniques for grounding agents and reducing hallucinated API calls."
 ---

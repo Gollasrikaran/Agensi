@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "The Anatomy of a Perfect System Prompt"
 description: "Understand how LLMs parse system prompts and how to maximize adherence."
 ---

@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Preventing Data Exfiltration in AI Workflows"
 description: "Ensure your agents don't leak sensitive API keys or user data to external endpoints."
 ---

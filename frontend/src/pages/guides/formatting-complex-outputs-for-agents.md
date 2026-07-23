@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/GuideLayout.astro
+layout: ../../layouts/GuideLayout.astro
 title: "Formatting Complex Outputs for Agents"
 description: "Force agents to return strict, parseable JSON and Markdown without conversational filler."
 ---
