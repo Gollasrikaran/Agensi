@@ -113,6 +113,7 @@ export default function NavbarIsland() {
         <a href="/browse" style={{ color: 'var(--body)', textDecoration: 'none' }}>Browse</a>
         <a href="/requests" style={{ color: 'var(--body)', textDecoration: 'none' }}>Request</a>
         <a href="/sell" style={{ color: 'var(--body)', textDecoration: 'none' }}>Sell a Skill</a>
+        <a href="/guides" style={{ color: 'var(--body)', textDecoration: 'none' }}>Guides</a>
         <a href="/mcp" style={{ color: 'var(--body)', textDecoration: 'none' }}>MCP</a>
         <a href="/dashboard/buyer" style={{ color: 'var(--body)', textDecoration: 'none' }}>Dashboard</a>
         {isAdmin && (

@@ -1,0 +1,167 @@
+---
+import Layout from './Layout.astro';
+const { frontmatter } = Astro.props;
+---
+
+<Layout title={`${frontmatter.title} | Bodhic AI Guides`} description={frontmatter.description}>
+  <div class="guide-container">
+    <article class="glass-card guide-article">
+      <header class="guide-header">
+        <h1>{frontmatter.title}</h1>
+        {frontmatter.description && <p class="guide-description">{frontmatter.description}</p>}
+        {frontmatter.date && <p class="guide-date">Last Updated: {frontmatter.date}</p>}
+      </header>
+      <div class="guide-content">
+        <slot />
+      </div>
+    </article>
+    
+    <div class="guide-sidebar">
+      <div class="glass-card">
+        <h3>More Guides</h3>
+        <ul>
+          <li><a href="/guides/seller-requirements">Seller Requirements (Mandatory)</a></li>
+          <li><a href="/guides/what-is-prompt-injection-in-ai-agents">What is Prompt Injection?</a></li>
+          <li><a href="/guides/how-to-build-custom-skills-for-ai-agents">Building Custom Skills</a></li>
+          <li><a href="/guides">View All Guides &rarr;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .guide-container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+  }
+  
+  @media (max-width: 900px) {
+    .guide-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .guide-article {
+    padding: 3rem;
+  }
+
+  .guide-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2rem;
+  }
+
+  .guide-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: var(--text-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .guide-description {
+    font-size: 1.2rem;
+    color: var(--mute);
+    line-height: 1.6;
+  }
+
+  .guide-date {
+    font-size: 0.9rem;
+    color: var(--mute);
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+  }
+
+  .guide-content :global(h2) {
+    font-size: 1.8rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+  
+  .guide-content :global(h3) {
+    font-size: 1.4rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .guide-content :global(p) {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .guide-content :global(ul), .guide-content :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .guide-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-content :global(pre) {
+    background: #000;
+    padding: 1.5rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--hairline);
+  }
+
+  .guide-content :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--accent-light);
+  }
+
+  .guide-content :global(blockquote) {
+    border-left: 4px solid var(--accent);
+    padding-left: 1.5rem;
+    margin-left: 0;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    color: var(--mute);
+    background: var(--surface-2);
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .guide-sidebar {
+    position: sticky;
+    top: 6rem;
+    height: max-content;
+  }
+
+  .guide-sidebar h3 {
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+
+  .guide-sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .guide-sidebar li {
+    margin-bottom: 0.8rem;
+  }
+
+  .guide-sidebar a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .guide-sidebar a:hover {
+    color: var(--accent);
+    padding-left: 5px;
+  }
+</style>

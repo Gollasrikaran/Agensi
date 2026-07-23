@@ -26,6 +26,7 @@ export default function UploadSkillFormIsland() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [pricingModel, setPricingModel] = useState<'free' | 'paid'>('free');
   const [file, setFile] = useState<File | null>(null);
+  const [agreedToGuidelines, setAgreedToGuidelines] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; content: React.ReactNode } | null>(null);
@@ -112,6 +113,11 @@ export default function UploadSkillFormIsland() {
     e.preventDefault();
     if (!file) {
       showToast("Please select a .md file to upload.", "error");
+      return;
+    }
+    
+    if (!agreedToGuidelines) {
+      showToast("You must read and agree to the Seller Guidelines before uploading.", "error");
       return;
     }
 
@@ -375,6 +381,19 @@ export default function UploadSkillFormIsland() {
               </div>
             </div>
           )}
+        </div>
+        
+        <div style={{ marginBottom: '24px', padding: '16px', background: 'rgba(255,60,60,0.05)', border: '1px solid var(--error-soft)', borderRadius: '8px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <input 
+            type="checkbox" 
+            id="guidelines_check"
+            checked={agreedToGuidelines}
+            onChange={(e) => setAgreedToGuidelines(e.target.checked)}
+            style={{ marginTop: '4px', cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--error)' }}
+          />
+          <label htmlFor="guidelines_check" style={{ fontSize: '14px', color: 'var(--ink)', cursor: 'pointer', lineHeight: 1.5 }}>
+            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Bodhic AI Seller Requirements</a> and verify that this skill contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
+          </label>
         </div>
 
         <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', padding: '16px', fontSize: '18px', fontWeight: 600 }} disabled={loading}>

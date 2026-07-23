@@ -1,0 +1,163 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Bodhic AI Guides | Learn Prompt Engineering & Skill Development">
+  <div class="guides-index-container">
+    <div class="hero-section">
+      <h1 class="gradient-text">Bodhic AI Guides</h1>
+      <p class="hero-subtitle">Master prompt engineering, build powerful AI agent skills, and learn how to protect your workflows from prompt injection.</p>
+    </div>
+
+    <div class="guides-grid">
+      <!-- Mandatory Section -->
+      <a href="/guides/seller-requirements" class="glass-card guide-card mandatory">
+        <div class="badge error">MANDATORY FOR SELLERS</div>
+        <h2>Bodhic AI Seller Requirements & Guidelines</h2>
+        <p>Read our strict structure and security rules. You must read this before uploading a skill.</p>
+      </a>
+
+      <a href="/guides/how-to-build-custom-skills-for-ai-agents" class="glass-card guide-card">
+        <h2>How to Build Custom Skills for AI Agents</h2>
+        <p>A step-by-step tutorial on drafting actionable, model-agnostic instructions.</p>
+      </a>
+
+      <a href="/guides/what-is-prompt-injection-in-ai-agents" class="glass-card guide-card">
+        <h2>What is Prompt Injection?</h2>
+        <p>Learn how downstream agents can be hijacked and how to secure your skills against it.</p>
+      </a>
+
+      <a href="/guides/best-practices-for-structuring-ai-agent-instructions" class="glass-card guide-card">
+        <h2>Best Practices for Structuring Instructions</h2>
+        <p>Separate marketing fluff from executable instructions for maximum reliability.</p>
+      </a>
+
+      <a href="/guides/the-anatomy-of-a-perfect-system-prompt" class="glass-card guide-card">
+        <h2>The Anatomy of a Perfect System Prompt</h2>
+        <p>Understand how LLMs parse system prompts and how to maximize adherence.</p>
+      </a>
+
+      <a href="/guides/how-to-write-intent-matchable-descriptions" class="glass-card guide-card">
+        <h2>Writing Intent-Matchable Descriptions</h2>
+        <p>Make sure your skills get triggered correctly by writing precise trigger conditions.</p>
+      </a>
+
+      <a href="/guides/preventing-data-exfiltration-in-ai-workflows" class="glass-card guide-card">
+        <h2>Preventing Data Exfiltration</h2>
+        <p>Ensure your agents don't leak sensitive API keys or user data to external endpoints.</p>
+      </a>
+
+      <a href="/guides/model-agnostic-prompt-engineering" class="glass-card guide-card">
+        <h2>Model-Agnostic Prompt Engineering</h2>
+        <p>Write instructions that work flawlessly across GPT-4, Claude 3.5, and Gemini.</p>
+      </a>
+
+      <a href="/guides/understanding-yaml-frontmatter-for-llms" class="glass-card guide-card">
+        <h2>Understanding YAML Frontmatter</h2>
+        <p>Master metadata structures so agent orchestration frameworks can parse your skills.</p>
+      </a>
+
+      <a href="/guides/how-to-debug-agent-hallucinations" class="glass-card guide-card">
+        <h2>How to Debug Agent Hallucinations</h2>
+        <p>Techniques for grounding agents and reducing hallucinated API calls.</p>
+      </a>
+
+      <a href="/guides/formatting-complex-outputs-for-agents" class="glass-card guide-card">
+        <h2>Formatting Complex Outputs (JSON)</h2>
+        <p>Force agents to return strict, parseable JSON and Markdown without conversational filler.</p>
+      </a>
+
+      <a href="/guides/structuring-ai-skills-for-enterprise" class="glass-card guide-card">
+        <h2>AI Skills for Enterprise Workflows</h2>
+        <p>Scale your agent components for production-grade, multi-step enterprise operations.</p>
+      </a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .guides-index-container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+  }
+
+  .hero-section {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .hero-section h1 {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--mute);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .guide-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .guide-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-color: var(--accent);
+  }
+
+  .guide-card.mandatory {
+    border: 1px solid var(--error);
+    background: rgba(255, 60, 60, 0.05);
+  }
+
+  .guide-card.mandatory:hover {
+    box-shadow: 0 10px 30px rgba(255, 60, 60, 0.15);
+  }
+
+  .guide-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  .guide-card p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--surface-3);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-bottom-left-radius: 8px;
+    letter-spacing: 1px;
+  }
+
+  .badge.error {
+    background: var(--error);
+    color: #fff;
+  }
+</style>
