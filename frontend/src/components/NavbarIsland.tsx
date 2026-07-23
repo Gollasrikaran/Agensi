@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import ThemeToggleIsland from './ThemeToggleIsland';
 
 export default function NavbarIsland() {
   const [session, setSession] = useState<any>(null);
@@ -167,8 +166,6 @@ export default function NavbarIsland() {
             ⌘K
           </div>
         </div>
-
-        <ThemeToggleIsland />
 
         {session ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
