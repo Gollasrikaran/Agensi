@@ -121,6 +121,10 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         # Log so DB/column errors are visible instead of being silently ignored
         print(f"[WARN] Could not check user block status for {seller_id}: {e}")
 
+    # Prevent uploading the example template
+    if "CodeReviewerAgent" in req.title or "You are an expert, highly critical software engineer conducting a code review" in req.content:
+        raise HTTPException(status_code=400, detail={"message": "You cannot upload the example template. Please write your own skill."})
+
     # Anti-Re-upload Hashing (Similarity Check)
     try:
         import difflib

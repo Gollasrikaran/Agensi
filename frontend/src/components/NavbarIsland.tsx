@@ -7,7 +7,8 @@ export default function NavbarIsland() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<{username: string, avatar_url: string | null} | null>(null);
+  const [currentPath, setCurrentPath] = useState('/');
 
   useEffect(() => {
     // Handle scroll for glassmorphism effect
@@ -15,6 +16,11 @@ export default function NavbarIsland() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
+    
+    // Set current path
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+    }
     
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -110,12 +116,12 @@ export default function NavbarIsland() {
       
       {/* Center: Links */}
       <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '14px' }}>
-        <a href="/browse" style={{ color: 'var(--body)', textDecoration: 'none' }}>Browse</a>
-        <a href="/requests" style={{ color: 'var(--body)', textDecoration: 'none' }}>Request</a>
-        <a href="/sell" style={{ color: 'var(--body)', textDecoration: 'none' }}>Sell a Skill</a>
-        <a href="/guides" style={{ color: 'var(--body)', textDecoration: 'none' }}>Guides</a>
-        <a href="/mcp" style={{ color: 'var(--body)', textDecoration: 'none' }}>MCP</a>
-        <a href="/dashboard/buyer" style={{ color: 'var(--body)', textDecoration: 'none' }}>Dashboard</a>
+        <a href="/browse" style={{ color: currentPath.startsWith('/browse') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/browse') ? '600' : '500' }}>Browse</a>
+        <a href="/requests" style={{ color: currentPath.startsWith('/requests') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/requests') ? '600' : '500' }}>Request</a>
+        <a href="/sell" style={{ color: currentPath.startsWith('/sell') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/sell') ? '600' : '500' }}>Sell a Skill</a>
+        <a href="/guides" style={{ color: currentPath.startsWith('/guides') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/guides') ? '600' : '500' }}>Guides</a>
+        <a href="/mcp" style={{ color: currentPath.startsWith('/mcp') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/mcp') ? '600' : '500' }}>MCP</a>
+        <a href="/dashboard/buyer" style={{ color: currentPath.startsWith('/dashboard') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/dashboard') ? '600' : '500' }}>Dashboard</a>
         {isAdmin && (
           <a href="/admin" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>Control Panel</a>
         )}

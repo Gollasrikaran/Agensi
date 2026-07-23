@@ -54,10 +54,15 @@ const jsonLd = skill ? JSON.stringify({
 				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm);">
 					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
 					{skill.moderation_status === 'approved' ? (
-						<span class="badge success">🛡️ Verified Safe</span>
+						<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
+							🛡️ Passed OWASP Security Scan
+						</span>
 					) : (
 						<span class="badge warning">⏳ Pending Review</span>
 					)}
+					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px var(--primary-soft);">
+						🔌 MCP Ready
+					</span>
 				</div>
 				<h1 style="font-size: 48px; margin-bottom: var(--space-xs);">{skill.title}</h1>
 			</div>
