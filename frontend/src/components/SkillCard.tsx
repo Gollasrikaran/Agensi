@@ -74,7 +74,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
             <a 
               key={index}
-              href={`/?category=${encodeURIComponent(cat.toLowerCase())}`}
+              href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`}
               onClick={(e) => e.stopPropagation()}
               style={{
                 fontSize: '11px',

@@ -8,7 +8,11 @@ try {
     const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills`);
     if (res.ok) {
         const allSkills = await res.json();
-        matchedSkills = allSkills.filter((s: any) => s.category?.toLowerCase().replace(/\s+/g, '-') === slug?.toLowerCase());
+        matchedSkills = allSkills.filter((s: any) => {
+            if (!s.category) return false;
+            const cats = s.category.split(',').map((c: string) => c.trim().toLowerCase().replace(/\s+/g, '-'));
+            return cats.includes(slug?.toLowerCase());
+        });
     }
 } catch (e) {
     console.error("Failed to fetch skills:", e);
