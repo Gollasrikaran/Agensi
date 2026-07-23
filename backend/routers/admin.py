@@ -167,35 +167,50 @@ def run_payout_sweep(admin_user = Depends(verify_admin)):
             if purchases_res.data:
                 total_earnings = sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
             
-            # Calculate total already withdrawn
-            payouts_res = supabase.table("payouts").select("amount").eq("seller_id", seller_id).execute()
-            total_withdrawn = 0.0
-            if payouts_res.data:
-                total_withdrawn = sum(float(p["amount"]) for p in payouts_res.data)
+            # Calculate total ALREADY COMPLETED
+            completed_res = supabase.table("payouts").select("amount").eq("seller_id", seller_id).eq("status", "completed").execute()
+            total_completed = 0.0
+            if completed_res.data:
+                total_completed = sum(float(p["amount"]) for p in completed_res.data)
             
-            available = round(total_earnings - total_withdrawn, 2)
+            # This is the total amount that should currently be pending
+            target_pending = round(total_earnings - total_completed, 2)
             
-            # Only create payout if balance >= 100 and seller has UPI ID
-            if available >= 100:
-                user_res = supabase.table("users").select("upi_id, username").eq("id", seller_id).execute()
-                upi_id = user_res.data[0].get("upi_id") if user_res.data else None
-                username = user_res.data[0].get("username", "Unknown") if user_res.data else "Unknown"
-                
-                if upi_id:
-                    supabase.table("payouts").insert({
-                        "seller_id": seller_id,
-                        "amount": available,
-                        "currency": "INR",
-                        "provider": "UPI",
-                        "status": "pending"
-                    }).execute()
+            # Check if there's already a pending payout for this seller
+            pending_res = supabase.table("payouts").select("id, amount").eq("seller_id", seller_id).eq("status", "pending").execute()
+            
+            user_res = supabase.table("users").select("upi_id, username").eq("id", seller_id).execute()
+            upi_id = user_res.data[0].get("upi_id") if user_res.data else None
+            username = user_res.data[0].get("username", "Unknown") if user_res.data else "Unknown"
+
+            if target_pending > 0:
+                if pending_res.data:
+                    # Update existing pending payout
+                    payout_id = pending_res.data[0]["id"]
+                    supabase.table("payouts").update({
+                        "amount": target_pending
+                    }).eq("id", payout_id).execute()
+                    # We count updates as "created" for the summary message simplicity, or we could track it separately
                     payouts_created += 1
-                    sweep_results.append({"seller": username, "amount": available, "upi": upi_id})
+                    sweep_results.append({"seller": username, "amount": target_pending, "upi": upi_id or "NOT SET", "action": "updated"})
                 else:
-                    sweep_results.append({"seller": username, "amount": available, "upi": "NOT SET - SKIPPED"})
+                    # Only insert a NEW payout if they cross the 100 INR minimum threshold (or you can remove the >= 100 check)
+                    if target_pending >= 100:
+                        if upi_id:
+                            supabase.table("payouts").insert({
+                                "seller_id": seller_id,
+                                "amount": target_pending,
+                                "currency": "INR",
+                                "provider": "UPI",
+                                "status": "pending"
+                            }).execute()
+                            payouts_created += 1
+                            sweep_results.append({"seller": username, "amount": target_pending, "upi": upi_id, "action": "created"})
+                        else:
+                            sweep_results.append({"seller": username, "amount": target_pending, "upi": "NOT SET - SKIPPED", "action": "skipped"})
         
         return {
-            "message": f"Sweep complete. {payouts_created} payouts created.",
+            "message": f"Sweep complete. Processed {payouts_created} payouts.",
             "payouts_created": payouts_created,
             "details": sweep_results
         }
