@@ -172,6 +172,18 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           {skill.title}
         </h3>
 
+        {/* Badges */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          {skill.moderation_status === 'approved' && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px rgba(16, 185, 129, 0.1)' }}>
+              🛡️ Passed OWASP
+            </span>
+          )}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px var(--primary-soft)' }}>
+            🔌 MCP Ready
+          </span>
+        </div>
+
         {/* Description */}
         <p style={{ 
           fontSize: 'var(--text-sm)', 

@@ -83,6 +83,8 @@ export default function NavbarIsland() {
     position: 'sticky',
     top: 0,
     zIndex: 100,
+    width: '100%',
+    boxSizing: 'border-box',
     background: isScrolled ? 'var(--nav-bg)' : 'transparent',
     backdropFilter: isScrolled ? 'saturate(180%) blur(12px)' : 'none',
     borderBottom: isScrolled ? '1px solid var(--hairline)' : '1px solid transparent',
