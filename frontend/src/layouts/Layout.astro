@@ -50,6 +50,28 @@ const {
 		<meta property="twitter:image" content={image} />
 
 		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+		
+		<!-- Route Protection -->
+		<script>
+			import { supabase } from '../lib/supabase';
+			
+			const protectedRoutes = ['/dashboard', '/admin'];
+			const isProtected = protectedRoutes.some(route => window.location.pathname.startsWith(route));
+			
+			if (isProtected) {
+				supabase.auth.getSession().then(({ data: { session } }) => {
+					if (!session) {
+						window.location.replace('/login');
+					}
+				});
+
+				supabase.auth.onAuthStateChange((_event, session) => {
+					if (!session) {
+						window.location.replace('/login');
+					}
+				});
+			}
+		</script>
 
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ70S6EJ3W"></script>
