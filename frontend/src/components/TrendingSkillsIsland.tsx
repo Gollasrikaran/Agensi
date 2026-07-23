@@ -112,20 +112,24 @@ export default function TrendingSkillsIsland() {
   return (
     <div style={{ position: 'relative' }}>
       {/* Navigation Controls */}
-      <div style={{ position: 'absolute', top: '-60px', right: '160px', display: 'flex', gap: '8px' }}>
+      <div style={{ position: 'absolute', top: '-60px', right: '160px', display: 'flex', gap: '8px', zIndex: 10 }}>
         <button 
           onClick={() => scroll('left')}
           className="btn"
-          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-elevated)', border: '1px solid var(--primary-soft)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}
           aria-label="Scroll left"
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--ink)'; }}
         >
           ←
         </button>
         <button 
           onClick={() => scroll('right')}
           className="btn"
-          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-strong)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-elevated)', border: '1px solid var(--primary-soft)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}
           aria-label="Scroll right"
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--ink)'; }}
         >
           →
         </button>
