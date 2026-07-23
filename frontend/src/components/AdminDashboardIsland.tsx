@@ -160,7 +160,27 @@ export default function AdminDashboardIsland() {
     return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("Bodhic AI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
   };
 
-  const fetchUserSkills = async (userId: string) => {
+  const fetchPreview = async (skillId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/skills/${skillId}/preview`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Failed to fetch preview');
+      
+      const data = await res.json();
+      setPreviewSkill({ id: skillId, content: data.content });
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const viewUserSkills = async (userId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -248,6 +268,12 @@ export default function AdminDashboardIsland() {
                           </>
                         ) : (
                           <>
+                            <button 
+                              onClick={() => fetchPreview(skill.id)}
+                              style={{ padding: '0.2rem 0.5rem', background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                              Inspect Skill
+                            </button>
                             <button 
                               onClick={() => { setConfirmSkillId(skill.id); setConfirmSkillAction('approved'); }}
                               style={{ padding: '0.2rem 0.5rem', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid var(--success)', borderRadius: '4px', cursor: 'pointer' }}
@@ -429,7 +455,49 @@ export default function AdminDashboardIsland() {
         </div>
       </div>
 
-      {/* User Upload History Modal */}
+      {/* Admin Preview Modal */}
+      {previewSkill && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '2rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '800px', height: '80vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--hairline-strong)', paddingBottom: '1rem' }}>
+              <h2 style={{ fontSize: '20px', margin: 0 }}>Skill Inspection Preview</h2>
+              <button 
+                onClick={() => setPreviewSkill(null)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '20px' }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div 
+              style={{ flex: 1, overflowY: 'auto', padding: '1rem', background: '#000', borderRadius: '8px', color: '#0f0', fontFamily: 'var(--font-mono)', fontSize: '14px', whiteSpace: 'pre-wrap', userSelect: 'none', WebkitUserSelect: 'none' }}
+              onCopy={(e) => e.preventDefault()}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              {previewSkill.content}
+            </div>
+
+            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <button 
+                    onClick={() => { setConfirmSkillId(previewSkill.id); setConfirmSkillAction('rejected'); setPreviewSkill(null); }}
+                    className="btn-primary"
+                    style={{ background: 'var(--error)' }}
+                >
+                    Reject Skill
+                </button>
+                <button 
+                    onClick={() => { setConfirmSkillId(previewSkill.id); setConfirmSkillAction('approved'); setPreviewSkill(null); }}
+                    className="btn-primary"
+                    style={{ background: 'var(--success)', border: 'none' }}
+                >
+                    Approve Skill
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Viewing User Skills Modal */}
       {viewingUser && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="glass-card" style={{ width: '90%', maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto' }}>

@@ -93,6 +93,20 @@ def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = De
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/skills/{skill_id}/preview")
+def preview_skill_content(skill_id: str, admin_user = Depends(verify_admin)):
+    try:
+        version = supabase.table("skill_versions").select("md_content, version_number").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
+        if not version.data:
+            raise HTTPException(status_code=404, detail="Skill content not found")
+            
+        return {
+            "content": version.data[0]["md_content"],
+            "version": version.data[0]["version_number"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/users/{user_id}/skills")
 def get_user_skills(user_id: str, admin_user = Depends(verify_admin)):
     try:
