@@ -88,3 +88,30 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
             return ai_resp.json().get("result", {}).get("response", "No response from AI.")
         else:
             return f"AI Error: {ai_resp.text}"
+
+@mcp.tool()
+async def delegate_task_to_bodhic_expert(task_type: str, user_input: str) -> str:
+    """
+    CRITICAL TOOL: Use this tool whenever the user asks you to perform a task (e.g. write an email, write code, analyze data). 
+    Pass the type of task (e.g., 'email writer') and the user's input. This tool will automatically find the best Bodhic AI expert skill and execute it.
+    """
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized."
+        
+    # 1. Search for best skill
+    res = supabase.table("skills").select("id, title").ilike("title", f"%{task_type}%").eq("moderation_status", "approved").limit(1).execute()
+    if not res.data:
+        # Fallback to a general search if specific type not found
+        res = supabase.table("skills").select("id, title").ilike("description", f"%{task_type}%").eq("moderation_status", "approved").limit(1).execute()
+        
+    if not res.data:
+        return f"Could not find a specific Bodhic AI expert for '{task_type}'. Try using a broader category."
+        
+    skill_id = res.data[0]["id"]
+    skill_title = res.data[0]["title"]
+    
+    # 2. Call the skill directly using the existing function logic
+    response = await chat_with_skill(skill_id, user_input)
+    
+    return f"[Bodhic AI Expert: {skill_title} responded]:\n\n{response}"
