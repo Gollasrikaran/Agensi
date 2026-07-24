@@ -19,13 +19,15 @@ try {
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title>{skill ? `Chat with ${skill.title}` : "Chat"}</title>
-		<style>
+		<style is:global>
+			@import "../../styles/global.css";
+			
 			body {
 				margin: 0;
 				padding: 0;
-				background-color: #09090b; /* Very dark background */
-				color: #fafafa;
-				font-family: 'Inter', system-ui, sans-serif;
+				background-color: var(--canvas);
+				color: var(--ink);
+				font-family: var(--font-sans);
 				height: 100vh;
 				overflow: hidden;
 			}

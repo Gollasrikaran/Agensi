@@ -61,24 +61,24 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', background: 'radial-gradient(circle at 50% 0%, #1a1a2e 0%, #09090b 100%)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', background: 'var(--canvas)' }}>
       {/* Header */}
-      <header style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(9, 9, 11, 0.8)', backdropFilter: 'blur(12px)', zIndex: 10 }}>
+      <header style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--hairline)', background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <img src="/logo.png" alt="Bodhic Logo" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 0 15px rgba(56, 189, 248, 0.4)' }} />
+          <img src="/logo.png" alt="Bodhic Logo" style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', boxShadow: 'var(--shadow-glow)' }} />
           <div>
-            <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff', letterSpacing: '0.5px' }}>{skillTitle}</h1>
-            <span style={{ fontSize: '12px', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8', display: 'inline-block', boxShadow: '0 0 8px #38bdf8' }}></span>
+            <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--ink)', letterSpacing: '0.5px' }}>{skillTitle}</h1>
+            <span style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', boxShadow: '0 0 8px var(--accent)' }}></span>
               Powered by Bodhic AI
             </span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ padding: '6px 12px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '20px', fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>
+            <div style={{ padding: '6px 12px', background: 'var(--accent-soft)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>
                 -10 Credits / MSG
             </div>
-            <a href={`/skill/${skillId}`} style={{ color: '#a1a1aa', textDecoration: 'none', fontSize: '14px', padding: '8px 12px', borderRadius: '8px', transition: '0.2s' }}>Exit Chat</a>
+            <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', padding: '8px 12px', borderRadius: 'var(--radius-sm)', transition: 'color 0.2s' }}>Exit Chat</a>
         </div>
       </header>
       
@@ -86,30 +86,30 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
       <div style={{ flex: 1, overflowY: 'auto', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '32px', scrollBehavior: 'smooth' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {messages.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#a1a1aa', margin: '100px auto', maxWidth: '400px' }}>
+              <div style={{ textAlign: 'center', color: 'var(--mute)', margin: '100px auto', maxWidth: '400px' }}>
                 <img src="/logo.png" alt="Bodhic" style={{ width: '80px', height: '80px', opacity: 0.5, marginBottom: '24px', filter: 'grayscale(100%) brightness(200%)' }} />
-                <h2 style={{ color: '#fff', fontSize: '24px', marginBottom: '12px', fontWeight: 500 }}>How can I help you?</h2>
-                <p style={{ lineHeight: 1.6 }}>Ask any question or test this skill's capabilities. Each message deducts 10 Bodhic Credits.</p>
+                <h2 style={{ color: 'var(--ink)', fontSize: '24px', marginBottom: '12px', fontWeight: 500 }}>How can I help you?</h2>
+                <p style={{ lineHeight: 1.6, color: 'var(--body)' }}>Ask any question or test this skill's capabilities. Each message deducts 10 Bodhic Credits.</p>
               </div>
             )}
             
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 {msg.role === 'assistant' && (
-                  <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: '8px', boxShadow: '0 0 10px rgba(56, 189, 248, 0.3)' }} />
+                  <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }} />
                 )}
                 
                 <div style={{ 
-                  background: msg.role === 'user' ? 'linear-gradient(135deg, #38bdf8, #2563eb)' : 'rgba(255,255,255,0.05)', 
-                  color: '#fff',
+                  background: msg.role === 'user' ? 'var(--grad-brand)' : 'var(--canvas-elevated)', 
+                  color: msg.role === 'user' ? 'var(--on-primary)' : 'var(--ink)',
                   padding: '16px 20px', 
                   borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '4px 20px 20px 20px', 
                   maxWidth: '85%',
                   whiteSpace: 'pre-wrap',
                   lineHeight: 1.6,
                   fontSize: '15px',
-                  border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                  boxShadow: msg.role === 'user' ? '0 4px 15px rgba(37, 99, 235, 0.3)' : '0 4px 15px rgba(0,0,0,0.2)'
+                  border: msg.role === 'assistant' ? '1px solid var(--hairline)' : 'none',
+                  boxShadow: 'var(--shadow-md)'
                 }}>
                   {msg.content}
                 </div>
@@ -118,8 +118,8 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             
             {loading && (
               <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: '8px', boxShadow: '0 0 10px rgba(56, 189, 248, 0.3)', animation: 'pulse 1.5s infinite' }} />
-                <div style={{ padding: '16px 20px', borderRadius: '4px 20px 20px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#a1a1aa' }}>
+                <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-glow)', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ padding: '16px 20px', borderRadius: '4px 20px 20px 20px', background: 'var(--canvas-elevated)', border: '1px solid var(--hairline)', color: 'var(--mute)' }}>
                   <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both' }}>.</span>
                   <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}>.</span>
                   <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}>.</span>
@@ -131,9 +131,9 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
       </div>
       
       {/* Input Area */}
-      <div style={{ padding: '24px', background: 'linear-gradient(to top, rgba(9,9,11,1) 50%, rgba(9,9,11,0) 100%)', zIndex: 10 }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(to top, var(--canvas) 50%, transparent 100%)', zIndex: 10 }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            {error && <div style={{ padding: '12px 16px', color: '#f87171', fontSize: '14px', background: 'rgba(248, 113, 113, 0.1)', borderRadius: '8px', marginBottom: '16px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>{error}</div>}
+            {error && <div style={{ padding: '12px 16px', color: 'var(--error)', fontSize: '14px', background: 'var(--error-soft)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>{error}</div>}
             
             <form onSubmit={handleSend} style={{ display: 'flex', position: 'relative', alignItems: 'center' }}>
                 <input 
@@ -141,10 +141,10 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                     value={input} 
                     onChange={e => setInput(e.target.value)} 
                     placeholder="Message Bodhic AI..." 
-                    style={{ flex: 1, padding: '18px 60px 18px 24px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+                    style={{ flex: 1, padding: '18px 60px 18px 24px', borderRadius: 'var(--radius-pill)', border: '1.5px solid var(--hairline)', background: 'var(--canvas-soft-2)', color: 'var(--ink)', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'var(--shadow-md)' }}
                     disabled={loading}
-                    onFocus={(e) => e.target.style.borderColor = '#38bdf8'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--hairline)'}
                 />
                 <button 
                     type="submit" 
@@ -153,17 +153,17 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                         position: 'absolute', right: '8px', 
                         width: '44px', height: '44px', 
                         borderRadius: '50%', border: 'none', 
-                        background: input.trim() ? '#38bdf8' : 'rgba(255,255,255,0.1)', 
-                        color: input.trim() ? '#000' : '#a1a1aa',
+                        background: input.trim() ? 'var(--primary)' : 'var(--canvas-elevated)', 
+                        color: input.trim() ? 'var(--on-primary)' : 'var(--mute)',
                         cursor: input.trim() ? 'pointer' : 'default',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: '0.2s'
+                        transition: 'all 0.2s'
                     }}
                 >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </form>
-            <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '11px', color: '#71717a' }}>
+            <div style={{ textAlign: 'center', margin: '12px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
                 AI can make mistakes. Consider verifying important information.
             </div>
         </div>
