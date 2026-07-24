@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
+import BodhicLLMChatIsland from '../../components/BodhicLLMChatIsland.tsx';
 
 
 
@@ -103,7 +104,10 @@ const jsonLd = skill ? JSON.stringify({
 			</div>
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
-			<McpTestIsland client:load skillId={skill.id} />
+			<div style="display: flex; gap: var(--space-sm); margin-top: var(--space-md);">
+				<div style="flex: 1;"><BodhicLLMChatIsland client:load skillId={skill.id} /></div>
+				<div style="flex: 1;"><McpTestIsland client:load skillId={skill.id} /></div>
+			</div>
 		</div>
 	)}
 </Layout>

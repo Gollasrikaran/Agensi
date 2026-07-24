@@ -135,6 +135,10 @@ class AgentAuthMiddleware:
                 response = JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
                 return await response(scope, receive, send)
                 
+            if api_key.startswith("eyJ"):
+                # It's a Supabase JWT. Let the normal FastAPI Depends(get_current_user) handle it!
+                return await self.app(scope, receive, send)
+                
             if api_key.startswith("bodhic_oa_"):
                 # Authenticate against oauth_tokens
                 res = supabase.table("oauth_tokens").select("user_id, expires_at").eq("access_token", api_key).execute()
