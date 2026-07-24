@@ -6,9 +6,12 @@ from typing import List, Optional
 from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
-from routers import admin, users, public, avatars, pulse
+from routers import admin, users, public, avatars, pulse, agent_actions
 from routers.mcp import mcp as fastmcp_server
-
+from dependencies import current_agent_user_id
+import hashlib
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 
 app.include_router(admin.router)
@@ -16,6 +19,7 @@ app.include_router(users.router)
 app.include_router(public.router)
 app.include_router(avatars.router)
 app.include_router(pulse.router)
+app.include_router(agent_actions.router)
 
 # Mount the FastMCP Server-Sent Events app
 # Wait, FastMCP does not have `.http_app` exposed directly as ASGI maybe, but we can check.
@@ -30,6 +34,37 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class AgentAuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if path.startswith("/mcp") or path.startswith("/api/agents"):
+            # Exclude config or openapi json if needed, but let's secure everything
+            if path == "/mcp/config.json":
+                return await call_next(request)
+                
+            auth_header = request.headers.get("Authorization")
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return JSONResponse(status_code=401, content={"error": "Missing or invalid Authorization header. Must be Bearer token."})
+                
+            api_key = auth_header.split("Bearer ")[1].strip()
+            key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+            
+            # Authenticate against supabase
+            res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
+            if not res.data:
+                return JSONResponse(status_code=401, content={"error": "Invalid API Key"})
+                
+            user_id = res.data[0]["user_id"]
+            
+            # Update last_used_at (optional, can do async or skip to save time, skipping for now to keep middleware fast)
+            
+            # Set context variable
+            current_agent_user_id.set(user_id)
+            
+        return await call_next(request)
+
+app.add_middleware(AgentAuthMiddleware)
 
 class SkillUploadRequest(BaseModel):
     title: str
@@ -46,6 +81,21 @@ class CheckoutRequest(BaseModel):
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "Marketplace API is running"}
+
+@app.get("/mcp/config.json")
+def get_mcp_config():
+    return {
+        "mcpServers": {
+            "bodhic-ai": {
+                "command": "node", 
+                "args": ["-e", "console.log('Use SSE URL in Cline/Cursor for Bodhic AI')"],
+                "url": "https://bodhicai.onrender.com/mcp/sse",
+                "env": {
+                    "AUTHORIZATION": "Bearer YOUR_API_KEY_HERE"
+                }
+            }
+        }
+    }
 
 @app.get("/api/skills")
 def get_skills(all_status: bool = False):
