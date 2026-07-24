@@ -174,6 +174,10 @@ def submit_review(req: ReviewRequest, user = Depends(get_current_user)):
         if req.rating < 1 or req.rating > 5:
             raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
             
+        skill_res = supabase.table("skills").select("seller_id").eq("id", req.skill_id).single().execute()
+        if skill_res.data and user.id == skill_res.data.get("seller_id"):
+            raise HTTPException(status_code=403, detail="You cannot review your own skill")
+            
         # Verify purchase
         purchase = supabase.table("purchases").select("id").eq("buyer_id", user.id).eq("skill_id", req.skill_id).eq("payment_status", "completed").execute()
         if not purchase.data:
@@ -305,10 +309,26 @@ def checkout_credits(req: CreditTopupRequest, user = Depends(get_current_user)):
 class CreditCheckoutSuccess(BaseModel):
     amount_inr: float
     razorpay_payment_id: str | None = None
+    razorpay_order_id: str | None = None
+    razorpay_signature: str | None = None
     
 @router.post("/me/credits/checkout/success")
 def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_current_user)):
     try:
+        import os, hmac, hashlib
+        
+        # Verify Razorpay signature for live payments
+        razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+        if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
+            msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
+            generated_signature = hmac.new(
+                razorpay_key_secret.encode("utf-8"),
+                msg.encode("utf-8"),
+                hashlib.sha256
+            ).hexdigest()
+            if generated_signature != req.razorpay_signature:
+                raise HTTPException(status_code=400, detail="Invalid payment signature. Credits not added.")
+                
         # 1 INR = 10 Credits
         credits_to_add = int(req.amount_inr * 10)
         

@@ -110,6 +110,9 @@ def vote_skill(skill_id: str, req: VoteRequest, current_user = Depends(get_curre
         if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
             
+        if current_user.id == skill_res.data.get("seller_id"):
+            raise HTTPException(status_code=403, detail="You cannot upvote your own skill.")
+            
         upvotes = skill_res.data.get("upvotes") or 0
         
         if existing_vote.data:

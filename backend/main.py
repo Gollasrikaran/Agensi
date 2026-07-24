@@ -406,15 +406,20 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     return {"message": "Skill uploaded successfully", "skill": inserted_skill}
 
 @app.post("/api/checkout/intent")
-def checkout(req: CheckoutRequest):
+def checkout(req: CheckoutRequest, user = Depends(get_current_user)):
     try:
-        res = supabase.table("skills").select("base_price_inr").eq("id", req.skill_id).single().execute()
+        res = supabase.table("skills").select("base_price_inr, seller_id").eq("id", req.skill_id).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
+            
+        if user.id == res.data.get("seller_id"):
+            raise HTTPException(status_code=403, detail="You cannot purchase your own skill.")
             
         base_price = res.data["base_price_inr"]
         intent = create_payment_intent(req.country_code, base_price)
         return intent
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -466,6 +471,9 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
     base_price = skill_res.data["base_price_inr"]
     seller_id  = skill_res.data["seller_id"]
     buyer_id   = user.id
+
+    if seller_id == buyer_id:
+        raise HTTPException(status_code=403, detail="You cannot purchase your own skill.")
 
     # 3. Prevent duplicate purchases — return 200 (not error) if already bought
     try:
