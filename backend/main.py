@@ -22,33 +22,41 @@ app.include_router(pulse.router)
 app.include_router(agent_actions.router)
 
 import urllib.parse
+import traceback
+import logging
 
 class FastMCPWrapper:
     def __init__(self, app):
         self.app = app
     
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            path = scope["path"]
-            
-            # Case 1: path is /<token>/sse or /<token>/messages
-            parts = path.strip("/").split("/")
-            if len(parts) >= 2 and parts[1] in ["sse", "messages"]:
-                token = parts[0]
-                scope["path"] = "/" + "/".join(parts[1:])
-                scope["root_path"] = scope.get("root_path", "") + f"/{token}"
-                return await self.app(scope, receive, send)
+        try:
+            if scope["type"] == "http":
+                path = scope.get("path", "")
                 
-            # Case 2: path is /sse but token is in query params
-            if path == "/sse":
-                query_string = scope.get("query_string", b"").decode("utf-8")
-                query_params = dict(urllib.parse.parse_qsl(query_string))
-                if "token" in query_params:
-                    token = query_params["token"]
-                    # Rewrite root_path so the returned endpoint uses the path-based token
-                    scope["root_path"] = scope.get("root_path", "") + f"/{token}"
-                    return await self.app(scope, receive, send)
+                # Case 1: path is /<token>/sse or /<token>/messages
+                parts = path.strip("/").split("/")
+                if len(parts) >= 2 and parts[1] in ["sse", "messages"]:
+                    token = parts[0]
+                    new_scope = dict(scope)
+                    new_scope["path"] = "/" + "/".join(parts[1:])
+                    new_scope["root_path"] = new_scope.get("root_path", "") + f"/{token}"
+                    return await self.app(new_scope, receive, send)
                     
+                # Case 2: path is /sse but token is in query params
+                if path == "/sse":
+                    qs = scope.get("query_string", b"")
+                    query_string = qs.decode("utf-8") if isinstance(qs, bytes) else qs
+                    query_params = dict(urllib.parse.parse_qsl(query_string))
+                    if "token" in query_params:
+                        token = query_params["token"]
+                        new_scope = dict(scope)
+                        # Rewrite root_path so the returned endpoint uses the path-based token
+                        new_scope["root_path"] = new_scope.get("root_path", "") + f"/{token}"
+                        return await self.app(new_scope, receive, send)
+        except Exception as e:
+            logging.error(f"FastMCPWrapper error: {e}\n{traceback.format_exc()}")
+            
         return await self.app(scope, receive, send)
 
 app.mount("/mcp", FastMCPWrapper(fastmcp_server.http_app))
