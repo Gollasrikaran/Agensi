@@ -21,7 +21,7 @@ const jsonLd = skill ? JSON.stringify({
 	"@type": "Product",
 	"name": skill.title,
 	"description": skill.description,
-	"image": skill.cover_image_url || "https://bodhic.app/og-image.png",
+	"image": skill.cover_image_url || "https://bodhicai.tech/og-image.png",
 	"offers": {
 		"@type": "Offer",
 		"price": skill.base_price_inr || 0,
@@ -103,13 +103,17 @@ const jsonLd = skill ? JSON.stringify({
 			</div>
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
-			<div style="display: flex; gap: var(--space-sm); margin-top: var(--space-md);">
-				<div style="flex: 1;">
-					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: #09090b; color: #fff; border: 1px solid #27272a; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none;">
-						<span style="font-size: 18px;">✨</span> Test with Bodhic LLM
+			
+			<div style="margin-top: var(--space-xl); padding: var(--space-xl); background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+				<h3 style="font-size: 18px; font-weight: 600; margin-bottom: var(--space-xs); color: var(--ink);">Test Before You Buy</h3>
+				<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-md);">Try out this skill to ensure it meets your needs. Testing costs 10 Bodhic Credits per message.</p>
+				
+				<div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: #09090b; color: #fff; border: 1px solid #27272a; padding: 14px; border-radius: 8px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+						<span style="font-size: 18px;">✨</span> Test with Bodhic LLM Web Chat
 					</a>
+					<McpTestIsland client:load skillId={skill.id} />
 				</div>
-				<div style="flex: 1;"><McpTestIsland client:load skillId={skill.id} /></div>
 			</div>
 		</div>
 	)}

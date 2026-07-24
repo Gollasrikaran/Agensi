@@ -118,7 +118,7 @@ def install_skill(skill_id: str) -> str:
     price = skill.get("base_price_inr", 0)
     
     # Return the checkout link
-    checkout_url = f"https://bodhiai.tech/skill/{skill_id}"
+    checkout_url = f"https://bodhicai.tech/skill/{skill_id}"
     return f"To buy and install '{skill['title']}' for ₹{price}, please complete the secure Razorpay checkout here: {checkout_url}\n\nOnce purchased, the creator will receive 80% of the sale, and you can access the full source code."
 
 @mcp.tool()
@@ -163,7 +163,7 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
         balance = credits_res.data[0]["balance"] if credits_res.data else 0
         
         if balance < 10:
-            return f"You are out of credits ({balance} remaining, 10 required). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhic.app/skill/{skill_id}"
+            return f"You are out of credits ({balance} remaining, 10 required). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhicai.tech/skill/{skill_id}"
         
         # Deduct credits
         supabase.table("user_credits").update({"balance": balance - 10}).eq("user_id", user_id).execute()

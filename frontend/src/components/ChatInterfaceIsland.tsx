@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { API_BASE } from '../lib/config';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -35,7 +36,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         throw new Error("You must be logged in to test this skill.");
       }
 
-      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/agents/web-chat`, {
+      const res = await fetch(`${API_BASE}/api/agents/web-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,14 +45,16 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         body: JSON.stringify({ skill_id: skillId, message: userMessage })
       });
 
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.detail || 'Failed to get response');
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || 'Server returned an error. Please try again.');
       }
-
+      
+      const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (err: any) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message === 'Failed to fetch' ? 'Network error: Could not reach Bodhic AI server. Please check your connection or try again later.' : err.message);
     } finally {
       setLoading(false);
     }

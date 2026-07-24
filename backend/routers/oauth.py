@@ -21,7 +21,7 @@ def get_oauth_server_metadata(request: Request):
     base_url = str(request.base_url).rstrip("/")
     return {
         "issuer": base_url,
-        "authorization_endpoint": "https://bodhiai.tech/oauth/authorize",
+        "authorization_endpoint": "https://bodhicai.tech/oauth/authorize",
         "token_endpoint": f"{base_url}/oauth/token",
         "response_types_supported": ["code"],
         "grant_types_supported": ["authorization_code", "refresh_token"],
