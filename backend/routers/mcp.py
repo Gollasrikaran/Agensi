@@ -67,7 +67,7 @@ def get_my_library() -> str:
     user_id = current_agent_user_id.get()
     if not user_id:
         return "Error: Unauthorized. Missing user context."
-    res = supabase.table("skills").select("id, title, category, moderation_status").eq("creator_id", user_id).execute()
+    res = supabase.table("skills").select("id, title, category, moderation_status").eq("seller_id", user_id).execute()
     return json.dumps(res.data if res.data else [], indent=2)
 
 @mcp.tool()
@@ -84,14 +84,14 @@ def get_skill_details(skill_id: str) -> str:
     """Get detailed information about a specific skill, including its prompt template if you own it."""
     user_id = current_agent_user_id.get()
     # Fetch base info
-    res = supabase.table("skills").select("id, title, description, category, base_price_inr, creator_id, moderation_status").eq("id", skill_id).execute()
+    res = supabase.table("skills").select("id, title, description, category, base_price_inr, seller_id, moderation_status").eq("id", skill_id).execute()
     if not res.data:
         return json.dumps({"error": "Skill not found"})
     skill = res.data[0]
     
     # If authenticated, check if user is creator or buyer
     if user_id:
-        is_owner = (skill["creator_id"] == user_id)
+        is_owner = (skill["seller_id"] == user_id)
         if not is_owner:
             purchase_res = supabase.table("purchases").select("id").eq("buyer_id", user_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
             is_owner = len(purchase_res.data) > 0
@@ -118,7 +118,7 @@ def install_skill(skill_id: str) -> str:
     price = skill.get("base_price_inr", 0)
     
     # Return the checkout link
-    checkout_url = f"https://bodhiai.tech/checkout/{skill_id}"
+    checkout_url = f"https://bodhiai.tech/skill/{skill_id}"
     return f"To buy and install '{skill['title']}' for ₹{price}, please complete the secure Razorpay checkout here: {checkout_url}\n\nOnce purchased, the creator will receive 80% of the sale, and you can access the full source code."
 
 @mcp.tool()
