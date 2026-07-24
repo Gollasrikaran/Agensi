@@ -34,13 +34,24 @@ class FastMCPWrapper:
             if scope["type"] == "http":
                 path = scope.get("path", "")
                 
-                # Case 1: path is /<token>/sse or /<token>/messages
-                parts = path.strip("/").split("/")
-                if len(parts) >= 2 and parts[1] in ["sse", "messages"]:
-                    token = parts[0]
+                # Flexible matching: token is the part before 'sse' or 'messages'
+                path_str = path.strip("/")
+                parts = path_str.split("/")
+                
+                # parts could be ["mcp", "<token>", "sse"] or ["<token>", "sse"]
+                if len(parts) >= 2 and parts[-1] in ["sse", "messages"]:
+                    endpoint = parts[-1]
+                    token = parts[-2]
+                    
                     new_scope = dict(scope)
-                    new_scope["path"] = "/" + "/".join(parts[1:])
-                    new_scope["root_path"] = new_scope.get("root_path", "") + f"/{token}"
+                    # Rewrite path for FastMCP's internal router
+                    new_scope["path"] = f"/{endpoint}"
+                    
+                    # root_path must be updated so FastMCP generates the correct POST URL
+                    # If root_path doesn't already end with the token, append it
+                    if not new_scope.get("root_path", "").endswith(f"/{token}"):
+                        new_scope["root_path"] = new_scope.get("root_path", "").rstrip("/") + f"/{token}"
+                        
                     return await self.app(new_scope, receive, send)
                     
                 # Case 2: path is /sse but token is in query params
@@ -55,11 +66,12 @@ class FastMCPWrapper:
                         new_scope["root_path"] = new_scope.get("root_path", "") + f"/{token}"
                         return await self.app(new_scope, receive, send)
         except Exception as e:
+            import logging, traceback
             logging.error(f"FastMCPWrapper error: {e}\n{traceback.format_exc()}")
             
         return await self.app(scope, receive, send)
 
-app.mount("/mcp", FastMCPWrapper(fastmcp_server.http_app))
+app.mount("/mcp", FastMCPWrapper(fastmcp_server.http_app(transport="sse")))
 
 app.add_middleware(
     CORSMiddleware,
