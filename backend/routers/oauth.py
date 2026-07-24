@@ -62,19 +62,34 @@ def create_authorization_code(req: AuthorizeRequest, user=Depends(get_current_us
     
     return {"code": code, "state": req.state}
 
+import base64
+
 @router.post("/oauth/token")
-def exchange_token(
+async def exchange_token(
+    request: Request,
     grant_type: str = Form(...),
     code: str = Form(None),
     refresh_token: str = Form(None),
-    client_id: str = Form(...),
-    client_secret: str = Form(...),
+    client_id: str = Form(None),
+    client_secret: str = Form(None),
     redirect_uri: str = Form(None)
 ):
     """
     Called by Claude to exchange an authorization code or refresh token for an access token.
     """
-    # 1. Verify Client Secret
+    # 1. Extract Client Credentials (support both Basic Auth and Form POST)
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Basic "):
+        try:
+            decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+            client_id, client_secret = decoded.split(":", 1)
+        except Exception:
+            return JSONResponse(status_code=401, content={"error": "invalid_client"})
+            
+    if not client_id or not client_secret:
+        return JSONResponse(status_code=401, content={"error": "invalid_client", "error_description": "Missing client credentials"})
+
+    # Verify Client Secret
     client_res = supabase.table("oauth_clients").select("client_secret").eq("client_id", client_id).execute()
     if not client_res.data or client_res.data[0]["client_secret"] != client_secret:
         return JSONResponse(status_code=401, content={"error": "invalid_client"})
