@@ -88,7 +88,7 @@ async def chat_with_skill(request: ChatRequest):
     if not cf_account_id or not cf_api_token:
         raise HTTPException(status_code=500, detail="AI Provider not configured on server.")
         
-    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3-8b-instruct"
+    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
     
     # Apply the Anti-Leak Security Wrapper
     base_prompt = skill["prompt_template"] or "You are a helpful AI assistant."
@@ -149,7 +149,7 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
     if not cf_account_id or not cf_api_token:
         raise HTTPException(status_code=500, detail="AI Provider not configured on server.")
         
-    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3-8b-instruct"
+    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
     
     # Apply the Anti-Leak Security Wrapper
     base_prompt = skill["prompt_template"] or "You are a helpful AI assistant."
