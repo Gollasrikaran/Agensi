@@ -39,7 +39,11 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         if path.startswith("/mcp") or path.startswith("/api/agents"):
-            # Exclude config or openapi json if needed, but let's secure everything
+            # Allow CORS preflight requests
+            if request.method == "OPTIONS":
+                return await call_next(request)
+                
+            # Exclude config or openapi json if needed
             if path == "/mcp/config.json":
                 return await call_next(request)
                 
