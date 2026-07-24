@@ -92,8 +92,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class AgentAuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+class AgentAuthMiddleware:
+    def __init__(self, app):
+        self.app = app
+        
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ("http", "websocket"):
+            return await self.app(scope, receive, send)
+            
+        request = Request(scope)
         path = request.url.path
         
         # Check if the token is passed in the path: /mcp/<token>/...
@@ -107,11 +114,11 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
         if path.startswith("/mcp") or path.startswith("/api/agents"):
             # Allow CORS preflight requests
             if request.method == "OPTIONS":
-                return await call_next(request)
+                return await self.app(scope, receive, send)
                 
             # Exclude config or openapi json if needed
             if path == "/mcp/config.json":
-                return await call_next(request)
+                return await self.app(scope, receive, send)
                 
             # Check for Bearer token OR query parameter (for Claude Web UI)
             api_key = None
@@ -125,18 +132,21 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
                 api_key = path_token
                 
             if not api_key:
-                return JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
+                response = JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
+                return await response(scope, receive, send)
                 
             if api_key.startswith("bodhic_oa_"):
                 # Authenticate against oauth_tokens
                 res = supabase.table("oauth_tokens").select("user_id, expires_at").eq("access_token", api_key).execute()
                 if not res.data:
-                    return JSONResponse(status_code=401, content={"error": "Invalid OAuth Token"})
+                    response = JSONResponse(status_code=401, content={"error": "Invalid OAuth Token"})
+                    return await response(scope, receive, send)
                 
                 token_data = res.data[0]
                 from datetime import datetime, timezone
                 if datetime.fromisoformat(token_data["expires_at"]) < datetime.now(timezone.utc):
-                    return JSONResponse(status_code=401, content={"error": "OAuth Token Expired"})
+                    response = JSONResponse(status_code=401, content={"error": "OAuth Token Expired"})
+                    return await response(scope, receive, send)
                 
                 user_id = token_data["user_id"]
             else:
@@ -144,14 +154,15 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
                 key_hash = hashlib.sha256(api_key.encode()).hexdigest()
                 res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
                 if not res.data:
-                    return JSONResponse(status_code=401, content={"error": "Invalid API Key"})
+                    response = JSONResponse(status_code=401, content={"error": "Invalid API Key"})
+                    return await response(scope, receive, send)
                     
                 user_id = res.data[0]["user_id"]
             
             # Set context variable
             current_agent_user_id.set(user_id)
             
-        return await call_next(request)
+        return await self.app(scope, receive, send)
 
 app.add_middleware(AgentAuthMiddleware)
 
