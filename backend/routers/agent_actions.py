@@ -79,7 +79,7 @@ async def chat_with_skill(request: ChatRequest):
         supabase.table("credit_transactions").insert({
             "user_id": user_id,
             "amount": -10,
-            "transaction_type": "api_purchase",
+            "transaction_type": "mcp_purchase",
             "reference_id": skill_id,
             "description": f"Agent Chat with {skill['title']}"
         }).execute()
@@ -144,7 +144,7 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
             supabase.table("credit_transactions").insert({
                 "user_id": user_id,
                 "amount": -10,
-                "transaction_type": "api_purchase",
+                "transaction_type": "mcp_purchase",
                 "reference_id": skill_id,
                 "description": f"Bodhic LLM Chat with {skill['title']}"
             }).execute()
