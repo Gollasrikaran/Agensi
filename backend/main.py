@@ -51,7 +51,11 @@ class FastMCPWrapper:
                     
                     new_scope = dict(scope)
                     # Rewrite path for FastMCP's internal router
-                    new_scope["path"] = f"/{endpoint}"
+                    # Check if original path had a trailing slash or if endpoint is messages (FastMCP expects /messages/ or /messages?)
+                    if endpoint == "messages" or path.endswith("/"):
+                        new_scope["path"] = f"/{endpoint}/"
+                    else:
+                        new_scope["path"] = f"/{endpoint}"
                     
                     # root_path must be updated so FastMCP generates the correct POST URL
                     # If root_path doesn't already end with the token, append it
