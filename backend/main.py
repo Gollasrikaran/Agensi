@@ -84,13 +84,6 @@ class FastMCPWrapper:
 
 app.mount("/mcp", FastMCPWrapper(mcp_app))
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class AgentAuthMiddleware:
     def __init__(self, app):
@@ -169,6 +162,14 @@ class AgentAuthMiddleware:
         return await self.app(scope, receive, send)
 
 app.add_middleware(AgentAuthMiddleware)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class SkillUploadRequest(BaseModel):
     title: str

@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ChatInterfaceIsland from '../../components/ChatInterfaceIsland.tsx';
+
+const { id } = Astro.params;
+
+let skill: any = null;
+try {
+	const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${id}`);
+	if (res.ok) skill = await res.json();
+} catch (e) {
+	console.error(e);
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>{skill ? `Chat with ${skill.title}` : "Chat"}</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background-color: #09090b; /* Very dark background */
+				color: #fafafa;
+				font-family: 'Inter', system-ui, sans-serif;
+				height: 100vh;
+				overflow: hidden;
+			}
+			* {
+				box-sizing: border-box;
+			}
+		</style>
+	</head>
+	<body>
+		<ChatInterfaceIsland client:only="react" skillId={id} skillTitle={skill?.title || "Skill"} />
+	</body>
+</html>

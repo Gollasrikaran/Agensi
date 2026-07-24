@@ -3,7 +3,6 @@ import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
-import BodhicLLMChatIsland from '../../components/BodhicLLMChatIsland.tsx';
 
 
 
@@ -105,7 +104,11 @@ const jsonLd = skill ? JSON.stringify({
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
 			<div style="display: flex; gap: var(--space-sm); margin-top: var(--space-md);">
-				<div style="flex: 1;"><BodhicLLMChatIsland client:load skillId={skill.id} /></div>
+				<div style="flex: 1;">
+					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: #09090b; color: #fff; border: 1px solid #27272a; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none;">
+						<span style="font-size: 18px;">✨</span> Test with Bodhic LLM
+					</a>
+				</div>
 				<div style="flex: 1;"><McpTestIsland client:load skillId={skill.id} /></div>
 			</div>
 		</div>
