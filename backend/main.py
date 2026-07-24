@@ -47,11 +47,18 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
             if path == "/mcp/config.json":
                 return await call_next(request)
                 
+            # Check for Bearer token OR query parameter (for Claude Web UI)
+            api_key = None
             auth_header = request.headers.get("Authorization")
-            if not auth_header or not auth_header.startswith("Bearer "):
-                return JSONResponse(status_code=401, content={"error": "Missing or invalid Authorization header. Must be Bearer token."})
+            
+            if auth_header and auth_header.startswith("Bearer "):
+                api_key = auth_header.split("Bearer ")[1].strip()
+            elif request.query_params.get("token"):
+                api_key = request.query_params.get("token").strip()
                 
-            api_key = auth_header.split("Bearer ")[1].strip()
+            if not api_key:
+                return JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
+                
             key_hash = hashlib.sha256(api_key.encode()).hexdigest()
             
             # Authenticate against supabase
@@ -60,8 +67,6 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(status_code=401, content={"error": "Invalid API Key"})
                 
             user_id = res.data[0]["user_id"]
-            
-            # Update last_used_at (optional, can do async or skip to save time, skipping for now to keep middleware fast)
             
             # Set context variable
             current_agent_user_id.set(user_id)
