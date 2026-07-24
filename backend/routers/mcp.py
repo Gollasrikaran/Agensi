@@ -12,13 +12,46 @@ from fastmcp import FastMCP
 mcp = FastMCP("Bodhic-MCP")
 
 @mcp.tool()
-def search_skills(query: str) -> str:
+def search_skills(query: str, category: str = None) -> str:
     """Search the Bodhic AI marketplace for available skills."""
-    res = supabase.table("skills").select("id, title, description, category, base_price_inr").ilike("title", f"%{query}%").eq("moderation_status", "approved").limit(5).execute()
+    q = supabase.table("skills").select("id, title, description, category, base_price_inr").ilike("title", f"%{query}%").eq("moderation_status", "approved")
+    if category:
+        q = q.eq("category", category)
+    res = q.limit(10).execute()
     return json.dumps(res.data, indent=2)
 
 @mcp.tool()
-def get_credit_balance() -> str:
+def get_creator_profile(username: str) -> str:
+    """Get the public profile of a creator on Bodhic AI."""
+    res = supabase.table("user_profiles").select("username, bio, avatar_url, banner_url, total_sales, total_upvotes").eq("username", username).execute()
+    if not res.data:
+        return json.dumps({"error": "Creator not found"})
+    return json.dumps(res.data[0], indent=2)
+
+@mcp.tool()
+def get_popular_skills(limit: int = 5) -> str:
+    """Get the most popular skills based on sales and upvotes."""
+    res = supabase.table("skills").select("id, title, description, category, base_price_inr, upvotes").eq("moderation_status", "approved").order("upvotes", desc=True).limit(limit).execute()
+    return json.dumps(res.data, indent=2)
+
+@mcp.tool()
+def browse_skill_requests(limit: int = 10) -> str:
+    """Browse outstanding skill requests / bounties."""
+    # Assuming a skill_requests table exists or similar
+    res = supabase.table("skill_requests").select("id, title, description, reward, status").eq("status", "open").order("created_at", desc=True).limit(limit).execute()
+    return json.dumps(res.data if res.data else [], indent=2)
+
+@mcp.tool()
+def list_categories() -> str:
+    """List all available skill categories."""
+    res = supabase.table("categories").select("id, name, slug").execute()
+    # If no categories table exists, fallback to distinct categories from skills
+    if not res.data:
+         res = supabase.rpc("get_distinct_categories").execute()
+    return json.dumps(res.data if res.data else [], indent=2)
+
+@mcp.tool()
+def get_my_credits() -> str:
     """Check your Bodhic Credit balance."""
     user_id = current_agent_user_id.get()
     if not user_id:
@@ -27,6 +60,85 @@ def get_credit_balance() -> str:
     res_credits = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     balance = res_credits.data[0]["balance"] if res_credits.data else 0
     return f"You have {balance} Bodhic Credits remaining."
+
+@mcp.tool()
+def get_my_library() -> str:
+    """List the skills you have created."""
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized. Missing user context."
+    res = supabase.table("skills").select("id, title, category, moderation_status").eq("creator_id", user_id).execute()
+    return json.dumps(res.data if res.data else [], indent=2)
+
+@mcp.tool()
+def get_my_purchases() -> str:
+    """List the skills you have purchased."""
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized. Missing user context."
+    res = supabase.table("purchases").select("skill_id, payment_status, created_at").eq("buyer_id", user_id).eq("payment_status", "completed").execute()
+    return json.dumps(res.data if res.data else [], indent=2)
+
+@mcp.tool()
+def get_skill_details(skill_id: str) -> str:
+    """Get detailed information about a specific skill, including its prompt template if you own it."""
+    user_id = current_agent_user_id.get()
+    # Fetch base info
+    res = supabase.table("skills").select("id, title, description, category, base_price_inr, creator_id, moderation_status").eq("id", skill_id).execute()
+    if not res.data:
+        return json.dumps({"error": "Skill not found"})
+    skill = res.data[0]
+    
+    # If authenticated, check if user is creator or buyer
+    if user_id:
+        is_owner = (skill["creator_id"] == user_id)
+        if not is_owner:
+            purchase_res = supabase.table("purchases").select("id").eq("buyer_id", user_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
+            is_owner = len(purchase_res.data) > 0
+            
+        if is_owner:
+            full_res = supabase.table("skills").select("prompt_template, code_content").eq("id", skill_id).execute()
+            if full_res.data:
+                skill.update(full_res.data[0])
+                
+    return json.dumps(skill, indent=2)
+
+@mcp.tool()
+def install_skill(skill_id: str) -> str:
+    """Get the purchase link to buy and install a skill using Razorpay."""
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized. Missing user context."
+        
+    # Get skill info
+    skill_res = supabase.table("skills").select("title, base_price_inr").eq("id", skill_id).execute()
+    if not skill_res.data:
+        return "Error: Skill not found."
+    skill = skill_res.data[0]
+    price = skill.get("base_price_inr", 0)
+    
+    # Return the checkout link
+    checkout_url = f"https://bodhiai.tech/checkout/{skill_id}"
+    return f"To buy and install '{skill['title']}' for ₹{price}, please complete the secure Razorpay checkout here: {checkout_url}\n\nOnce purchased, the creator will receive 80% of the sale, and you can access the full source code."
+
+@mcp.tool()
+def submit_skill_request(title: str, description: str, reward: int = 100) -> str:
+    """Submit a request/bounty for a new skill to be created by the community."""
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized. Missing user context."
+        
+    res = supabase.table("skill_requests").insert({
+        "user_id": user_id,
+        "title": title,
+        "description": description,
+        "reward": reward,
+        "status": "open"
+    }).execute()
+    
+    if not res.data:
+        return "Error: Could not create skill request."
+    return f"Successfully created skill request '{title}' with a reward of {reward} credits."
 
 @mcp.tool()
 async def chat_with_skill(skill_id: str, message: str) -> str:

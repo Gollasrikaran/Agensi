@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import OAuthAuthorizeIsland from '../../components/OAuthAuthorizeIsland.tsx';
+---
+<Layout 
+	title="Authorize Access — Bodhic AI"
+	description="Authorize Claude or other third-party AI agents to connect to your Bodhic AI account securely via OAuth."
+>
+	<div style="max-width: 600px; margin: var(--space-5xl) auto;">
+		<OAuthAuthorizeIsland client:only="react" />
+	</div>
+</Layout>

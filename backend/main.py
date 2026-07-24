@@ -6,7 +6,7 @@ from typing import List, Optional
 from security_scanner import scan_skill, scan_skill_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
-from routers import admin, users, public, avatars, pulse, agent_actions
+from routers import admin, users, public, avatars, pulse, agent_actions, oauth
 from routers.mcp import mcp as fastmcp_server
 from dependencies import current_agent_user_id
 import hashlib
@@ -26,6 +26,7 @@ app.include_router(public.router)
 app.include_router(avatars.router)
 app.include_router(pulse.router)
 app.include_router(agent_actions.router)
+app.include_router(oauth.router)
 
 import urllib.parse
 import traceback
@@ -126,14 +127,26 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
             if not api_key:
                 return JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
                 
-            key_hash = hashlib.sha256(api_key.encode()).hexdigest()
-            
-            # Authenticate against supabase
-            res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
-            if not res.data:
-                return JSONResponse(status_code=401, content={"error": "Invalid API Key"})
+            if api_key.startswith("bodhic_oa_"):
+                # Authenticate against oauth_tokens
+                res = supabase.table("oauth_tokens").select("user_id, expires_at").eq("access_token", api_key).execute()
+                if not res.data:
+                    return JSONResponse(status_code=401, content={"error": "Invalid OAuth Token"})
                 
-            user_id = res.data[0]["user_id"]
+                token_data = res.data[0]
+                from datetime import datetime, timezone
+                if datetime.fromisoformat(token_data["expires_at"]) < datetime.now(timezone.utc):
+                    return JSONResponse(status_code=401, content={"error": "OAuth Token Expired"})
+                
+                user_id = token_data["user_id"]
+            else:
+                # Authenticate against user_api_keys (static keys)
+                key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+                res = supabase.table("user_api_keys").select("user_id").eq("api_key_hash", key_hash).execute()
+                if not res.data:
+                    return JSONResponse(status_code=401, content={"error": "Invalid API Key"})
+                    
+                user_id = res.data[0]["user_id"]
             
             # Set context variable
             current_agent_user_id.set(user_id)

@@ -59,7 +59,13 @@ export default function AuthForm({ type }: AuthFormProps) {
         if (adminData) {
           window.location.href = '/admin'; // Redirect admin to admin panel
         } else {
-          window.location.href = '/dashboard/buyer'; // Redirect user to buyer dashboard
+          const oauthRedirect = sessionStorage.getItem('oauth_redirect');
+          if (oauthRedirect) {
+            sessionStorage.removeItem('oauth_redirect');
+            window.location.href = oauthRedirect;
+          } else {
+            window.location.href = '/dashboard/buyer'; // Redirect user to buyer dashboard
+          }
         }
       }
     } catch (err: any) {
