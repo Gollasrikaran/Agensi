@@ -12,8 +12,14 @@ from dependencies import current_agent_user_id
 import hashlib
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-app = FastAPI(title="Bodhic AI - AI Agent Skill Marketplace")
 
+# Create the MCP app instance once so we can share its lifespan
+mcp_app = fastmcp_server.http_app(transport="sse")
+
+app = FastAPI(
+    title="Bodhic AI - AI Agent Skill Marketplace",
+    lifespan=mcp_app.lifespan
+)
 app.include_router(admin.router)
 app.include_router(users.router)
 app.include_router(public.router)
@@ -71,7 +77,7 @@ class FastMCPWrapper:
             
         return await self.app(scope, receive, send)
 
-app.mount("/mcp", FastMCPWrapper(fastmcp_server.http_app(transport="sse")))
+app.mount("/mcp", FastMCPWrapper(mcp_app))
 
 app.add_middleware(
     CORSMiddleware,
