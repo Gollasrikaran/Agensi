@@ -21,11 +21,37 @@ app.include_router(avatars.router)
 app.include_router(pulse.router)
 app.include_router(agent_actions.router)
 
-# Mount the FastMCP Server-Sent Events app
-# Wait, FastMCP does not have `.http_app` exposed directly as ASGI maybe, but we can check.
-# Let's use standard starlette mount. Wait, from the `dir(FastMCP)` I saw `mcp._setup_handlers()` and `mcp.run_http_async()`. FastMCP usually relies on its own server.
-# But it does expose an ASGI app if using starlette/fastapi. 
-app.mount("/mcp", fastmcp_server.http_app)
+import urllib.parse
+
+class FastMCPWrapper:
+    def __init__(self, app):
+        self.app = app
+    
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope["path"]
+            
+            # Case 1: path is /<token>/sse or /<token>/messages
+            parts = path.strip("/").split("/")
+            if len(parts) >= 2 and parts[1] in ["sse", "messages"]:
+                token = parts[0]
+                scope["path"] = "/" + "/".join(parts[1:])
+                scope["root_path"] = scope.get("root_path", "") + f"/{token}"
+                return await self.app(scope, receive, send)
+                
+            # Case 2: path is /sse but token is in query params
+            if path == "/sse":
+                query_string = scope.get("query_string", b"").decode("utf-8")
+                query_params = dict(urllib.parse.parse_qsl(query_string))
+                if "token" in query_params:
+                    token = query_params["token"]
+                    # Rewrite root_path so the returned endpoint uses the path-based token
+                    scope["root_path"] = scope.get("root_path", "") + f"/{token}"
+                    return await self.app(scope, receive, send)
+                    
+        return await self.app(scope, receive, send)
+
+app.mount("/mcp", FastMCPWrapper(fastmcp_server.http_app))
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,6 +64,15 @@ app.add_middleware(
 class AgentAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
+        
+        # Check if the token is passed in the path: /mcp/<token>/...
+        path_token = None
+        if path.startswith("/mcp/") and len(path.split("/")) >= 4:
+            # e.g., /mcp/<token>/sse -> parts: ["", "mcp", "<token>", "sse"]
+            parts = path.split("/")
+            if parts[3] in ["sse", "messages"]:
+                path_token = parts[2]
+                
         if path.startswith("/mcp") or path.startswith("/api/agents"):
             # Allow CORS preflight requests
             if request.method == "OPTIONS":
@@ -55,6 +90,8 @@ class AgentAuthMiddleware(BaseHTTPMiddleware):
                 api_key = auth_header.split("Bearer ")[1].strip()
             elif request.query_params.get("token"):
                 api_key = request.query_params.get("token").strip()
+            elif path_token:
+                api_key = path_token
                 
             if not api_key:
                 return JSONResponse(status_code=401, content={"error": "Missing API key. Provide Authorization: Bearer <key> or ?token=<key> query parameter."})
