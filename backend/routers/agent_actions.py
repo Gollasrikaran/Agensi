@@ -45,7 +45,7 @@ def get_credits():
     balance = res_credits.data[0]["balance"] if res_credits.data else 0
     return {"balance": balance}
 
-@router.post("/chat", response_model=ChatResponse, summary="Chat with an AI Skill", description="Send a message to a specific skill. Deducts 10 Bodhic credits per message unless the skill is purchased.")
+@router.post("/chat", response_model=ChatResponse, summary="Chat with an AI Skill", description="Send a message to a specific skill. Deducts credits based on complexity.")
 async def chat_with_skill(request: ChatRequest):
     user_id = current_agent_user_id.get()
     if not user_id:
@@ -54,11 +54,18 @@ async def chat_with_skill(request: ChatRequest):
     skill_id = request.skill_id
     message = request.message
     
+    if len(message) > 8000:
+        raise HTTPException(status_code=400, detail="Input too large. Please break your request into smaller chunks to conserve context.")
+    
     # 1. Fetch Skill Info
-    skill_res = supabase.table("skills").select("title").eq("id", skill_id).execute()
+    skill_res = supabase.table("skills").select("title, complexity_level").eq("id", skill_id).execute()
     if not skill_res.data:
         raise HTTPException(status_code=404, detail="Skill not found")
     skill = skill_res.data[0]
+    
+    cost_map = {1: 10, 2: 20, 3: 40, 4: 70, 5: 100}
+    complexity_level = skill.get("complexity_level") or 1
+    cost = cost_map.get(complexity_level, 10)
     
     version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
     prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
@@ -71,18 +78,33 @@ async def chat_with_skill(request: ChatRequest):
         credits_res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
         balance = credits_res.data[0]["balance"] if credits_res.data else 0
         
-        if balance < 10:
-            raise HTTPException(status_code=402, detail=f"Insufficient credits. Balance: {balance}, Required: 10.")
+        if balance < cost:
+            raise HTTPException(status_code=402, detail=f"Insufficient credits. Balance: {balance}, Required: {cost}.")
             
-        supabase.table("user_credits").update({"balance": balance - 10}).eq("user_id", user_id).execute()
+        supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
         
         supabase.table("credit_transactions").insert({
             "user_id": user_id,
-            "amount": -10,
+            "amount": -cost,
             "transaction_type": "mcp_purchase",
             "reference_id": skill_id,
-            "description": f"Agent Chat with {skill['title']}"
+            "description": f"Agent Chat with {skill['title']} (Level {complexity_level})"
         }).execute()
+        
+        # Affiliate Referral Kickback (20%)
+        referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
+        if referral_res.data:
+            referrer_id = referral_res.data[0]["referrer_id"]
+            kickback = cost * 0.20
+            ref_credits_res = supabase.table("user_credits").select("balance").eq("user_id", referrer_id).execute()
+            ref_balance = ref_credits_res.data[0]["balance"] if ref_credits_res.data else 0
+            supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+            supabase.table("credit_transactions").insert({
+                "user_id": referrer_id,
+                "amount": kickback,
+                "transaction_type": "referral_bonus",
+                "description": f"20% Affiliate Bonus from user spending {cost} credits"
+            }).execute()
         
     # 3. Call Cloudflare AI
     cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")
@@ -121,11 +143,18 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
         skill_id = request.skill_id
         message = request.message
         
+        if len(message) > 8000:
+            raise HTTPException(status_code=400, detail="Input too large. Please break your request into smaller chunks to conserve context.")
+            
         # 1. Fetch Skill Info
-        skill_res = supabase.table("skills").select("title").eq("id", skill_id).execute()
+        skill_res = supabase.table("skills").select("title, complexity_level").eq("id", skill_id).execute()
         if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
         skill = skill_res.data[0]
+        
+        cost_map = {1: 10, 2: 20, 3: 40, 4: 70, 5: 100}
+        complexity_level = skill.get("complexity_level") or 1
+        cost = cost_map.get(complexity_level, 10)
         
         version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
         prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
@@ -138,18 +167,33 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
             credits_res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
             balance = credits_res.data[0]["balance"] if credits_res.data else 0
             
-            if balance < 10:
-                raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits. Balance: {balance}, Required: 10.")
+            if balance < cost:
+                raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits. Balance: {balance}, Required: {cost}.")
                 
-            supabase.table("user_credits").update({"balance": balance - 10}).eq("user_id", user_id).execute()
+            supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
             
             supabase.table("credit_transactions").insert({
                 "user_id": user_id,
-                "amount": -10,
+                "amount": -cost,
                 "transaction_type": "mcp_purchase",
                 "reference_id": skill_id,
-                "description": f"Bodhic LLM Chat with {skill['title']}"
+                "description": f"Bodhic LLM Chat with {skill['title']} (Level {complexity_level})"
             }).execute()
+            
+            # Affiliate Referral Kickback (20%)
+            referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
+            if referral_res.data:
+                referrer_id = referral_res.data[0]["referrer_id"]
+                kickback = cost * 0.20
+                ref_credits_res = supabase.table("user_credits").select("balance").eq("user_id", referrer_id).execute()
+                ref_balance = ref_credits_res.data[0]["balance"] if ref_credits_res.data else 0
+                supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+                supabase.table("credit_transactions").insert({
+                    "user_id": referrer_id,
+                    "amount": kickback,
+                    "transaction_type": "referral_bonus",
+                    "description": f"20% Affiliate Bonus from user spending {cost} credits"
+                }).execute()
             
         # 3. Call Cloudflare AI
         cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")

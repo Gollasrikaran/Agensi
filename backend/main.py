@@ -20,6 +20,11 @@ app = FastAPI(
     title="Bodhic AI - AI Agent Skill Marketplace",
     lifespan=mcp_app.lifespan
 )
+
+@app.get("/api/health", summary="Render Keep-Alive", tags=["System"])
+async def health_check():
+    return {"status": "awake"}
+
 app.include_router(admin.router)
 app.include_router(users.router)
 app.include_router(public.router)
@@ -178,6 +183,7 @@ class SkillUploadRequest(BaseModel):
     base_price_inr: float
     billing_type: str = "one-time"
     categories: list[str] = ["development"]
+    target_audience: str = "all"
 
 class CheckoutRequest(BaseModel):
     skill_id: str
@@ -353,6 +359,7 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "slug": skill_slug,
         "description": req.description,
         "category": ",".join(req.categories),
+        "target_audience": req.target_audience,
         "base_price_inr": req.base_price_inr,
         "is_free": req.base_price_inr == 0,
         "billing_type": req.billing_type,

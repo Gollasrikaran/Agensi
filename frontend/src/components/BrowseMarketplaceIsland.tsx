@@ -15,9 +15,11 @@ interface Skill {
 export default function BrowseMarketplaceIsland() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [audience, setAudience] = useState<string>('all');
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/public/skills`)
+    setLoading(true);
+    fetch(`${import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000'}/api/public/skills?audience=${audience}`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -27,14 +29,35 @@ export default function BrowseMarketplaceIsland() {
         console.error("Error fetching skills:", err);
         setLoading(false);
       });
-  }, []);
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>Loading marketplace...</div>;
-  }
+  }, [audience]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-xl)' }}>
+    <div>
+      <div style={{ display: 'flex', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)', justifyContent: 'center' }}>
+        <button 
+          className={`btn ${audience === 'all' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setAudience('all')}
+        >
+          All Skills
+        </button>
+        <button 
+          className={`btn ${audience === 'student' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setAudience('student')}
+        >
+          For Students
+        </button>
+        <button 
+          className={`btn ${audience === 'professional' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setAudience('professional')}
+        >
+          For Professionals
+        </button>
+      </div>
+      
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>Loading marketplace...</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-xl)' }}>
       {skills.length === 0 ? (
         <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--mute)' }}>
           No skills available in the marketplace yet.
@@ -71,13 +94,29 @@ export default function BrowseMarketplaceIsland() {
               <div style={{ fontWeight: 600, fontSize: '18px', color: 'var(--primary)' }}>
                 ₹{skill.base_price_inr}
               </div>
-              <button className="btn btn-primary btn-sm">
-                View Details
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <a 
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    audience === 'student' || skill.target_audience === 'student'
+                      ? `Bro, stop wasting hours on assignments... bodhicai.tech/?ref=YOUR_ID`
+                      : `Hey, found this clean FastMCP marketplace for automating local dev workflows... bodhicai.tech/?ref=YOUR_ID`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm"
+                  style={{ background: '#25D366', color: '#fff', border: 'none' }}
+                >
+                  Share 🚀
+                </a>
+                <button className="btn btn-primary btn-sm">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
         ))
       )}
+      </div>
     </div>
   );
 }

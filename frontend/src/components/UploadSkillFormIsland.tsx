@@ -24,6 +24,7 @@ export default function UploadSkillFormIsland() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [targetAudience, setTargetAudience] = useState<'all' | 'student' | 'professional'>('all');
   const [pricingModel, setPricingModel] = useState<'free' | 'paid'>('free');
   const [file, setFile] = useState<File | null>(null);
   const [agreedToGuidelines, setAgreedToGuidelines] = useState(false);
@@ -46,15 +47,16 @@ export default function UploadSkillFormIsland() {
         if (draft.price) setPrice(draft.price);
         if (draft.pricingModel) setPricingModel(draft.pricingModel);
         if (draft.selectedCategories) setSelectedCategories(draft.selectedCategories);
+        if (draft.targetAudience) setTargetAudience(draft.targetAudience);
       } catch(e) {}
     }
   }, []);
 
   // Save draft on change
   useEffect(() => {
-    const draft = { title, description, price, pricingModel, selectedCategories };
+    const draft = { title, description, price, pricingModel, selectedCategories, targetAudience };
     localStorage.setItem('skill_upload_draft', JSON.stringify(draft));
-  }, [title, description, price, pricingModel, selectedCategories]);
+  }, [title, description, price, pricingModel, selectedCategories, targetAudience]);
 
   useEffect(() => {
     // Check session on load and redirect if not logged in
@@ -150,7 +152,8 @@ export default function UploadSkillFormIsland() {
           content,
           base_price_inr: pricingModel === 'free' ? 0 : parseFloat(price) || 0,
           billing_type: 'one-time',
-          categories: selectedCategories
+          categories: selectedCategories,
+          target_audience: targetAudience
         })
       });
 
@@ -277,6 +280,19 @@ export default function UploadSkillFormIsland() {
               onChange={(e) => setDescription(e.target.value)}
               style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }}
             />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Target Audience *</label>
+            <select 
+              value={targetAudience}
+              onChange={(e) => setTargetAudience(e.target.value as any)}
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', cursor: 'pointer' }}
+            >
+              <option value="all">Everyone (General Purpose)</option>
+              <option value="student">Students (Assignments, Prep, College)</option>
+              <option value="professional">Professionals (Work, Tech, Finance)</option>
+            </select>
           </div>
 
           <div className="form-group" style={{ marginBottom: '20px' }} ref={dropdownRef}>

@@ -4,14 +4,17 @@ from auth import supabase, get_current_user
 router = APIRouter(prefix="/api/public", tags=["public"])
 
 @router.get("/skills")
-def get_public_skills():
+def get_public_skills(audience: str = "all"):
     try:
         # Fetch approved skills and join with the users table and reviews
-        res = supabase.table("skills") \
+        query = supabase.table("skills") \
             .select("*, seller:seller_id(username, avatar_url, background_url), reviews(rating)") \
-            .eq("moderation_status", "approved") \
-            .order("published_at", desc=True) \
-            .execute()
+            .eq("moderation_status", "approved")
+            
+        if audience != "all":
+            query = query.eq("target_audience", audience)
+            
+        res = query.order("published_at", desc=True).execute()
         
         # Calculate average rating for each skill
         skills = res.data
