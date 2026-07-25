@@ -35,14 +35,29 @@ def search_skills(query: str = ""):
     res = supabase.table("skills").select("id, title, description, category, base_price_inr").ilike("title", f"%{query}%").eq("moderation_status", "approved").limit(5).execute()
     return res.data
 
+def get_or_init_balance(user_id: str) -> float:
+    res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
+    if res.data:
+        return float(res.data[0]["balance"])
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 100.0}).execute()
+    try:
+        supabase.table("credit_transactions").insert({
+            "user_id": user_id,
+            "amount": 100.0,
+            "transaction_type": "welcome_bonus",
+            "description": "100 Free Welcome Credits for testing Bodhic AI skills!"
+        }).execute()
+    except Exception:
+        pass
+    return 100.0
+
 @router.get("/credits", response_model=CreditResponse, summary="Check Bodhic Credit Balance", description="Get the remaining Bodhic Credit balance for the authenticated user.")
 def get_credits():
     user_id = current_agent_user_id.get()
     if not user_id:
         raise HTTPException(status_code=401, detail="Unauthorized")
         
-    res_credits = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
-    balance = res_credits.data[0]["balance"] if res_credits.data else 0
+    balance = get_or_init_balance(user_id)
     return {"balance": balance}
 
 @router.post("/chat", response_model=ChatResponse, summary="Chat with an AI Skill", description="Send a message to a specific skill. Deducts credits based on complexity.")
@@ -75,8 +90,7 @@ async def chat_with_skill(request: ChatRequest):
     has_purchased = len(purchase_res.data) > 0
     
     if not has_purchased:
-        credits_res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
-        balance = credits_res.data[0]["balance"] if credits_res.data else 0
+        balance = get_or_init_balance(user_id)
         
         if balance < cost:
             raise HTTPException(status_code=402, detail=f"Insufficient credits. Balance: {balance}, Required: {cost}.")
@@ -91,13 +105,12 @@ async def chat_with_skill(request: ChatRequest):
             "description": f"Agent Chat with {skill['title']} (Level {complexity_level})"
         }).execute()
         
-        # Affiliate Referral Kickback (20%)
+        # Affiliate Referral Kickback (20% of utilized credits)
         referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
         if referral_res.data:
             referrer_id = referral_res.data[0]["referrer_id"]
             kickback = cost * 0.20
-            ref_credits_res = supabase.table("user_credits").select("balance").eq("user_id", referrer_id).execute()
-            ref_balance = ref_credits_res.data[0]["balance"] if ref_credits_res.data else 0
+            ref_balance = get_or_init_balance(referrer_id)
             supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
             supabase.table("credit_transactions").insert({
                 "user_id": referrer_id,
@@ -164,8 +177,7 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
         has_purchased = len(purchase_res.data) > 0
         
         if not has_purchased:
-            credits_res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
-            balance = credits_res.data[0]["balance"] if credits_res.data else 0
+            balance = get_or_init_balance(user_id)
             
             if balance < cost:
                 raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits. Balance: {balance}, Required: {cost}.")
@@ -180,13 +192,12 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
                 "description": f"Bodhic LLM Chat with {skill['title']} (Level {complexity_level})"
             }).execute()
             
-            # Affiliate Referral Kickback (20%)
+            # Affiliate Referral Kickback (20% of utilized credits)
             referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
             if referral_res.data:
                 referrer_id = referral_res.data[0]["referrer_id"]
                 kickback = cost * 0.20
-                ref_credits_res = supabase.table("user_credits").select("balance").eq("user_id", referrer_id).execute()
-                ref_balance = ref_credits_res.data[0]["balance"] if ref_credits_res.data else 0
+                ref_balance = get_or_init_balance(referrer_id)
                 supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
                 supabase.table("credit_transactions").insert({
                     "user_id": referrer_id,

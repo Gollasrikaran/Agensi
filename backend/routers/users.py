@@ -325,11 +325,27 @@ def delete_api_key(key_id: str, user = Depends(get_current_user)):
 
 # --- CREDITS ENDPOINTS ---
 
+def get_or_init_balance(user_id: str) -> float:
+    res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
+    if res.data:
+        return float(res.data[0]["balance"])
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 100.0}).execute()
+    try:
+        supabase.table("credit_transactions").insert({
+            "user_id": user_id,
+            "amount": 100.0,
+            "transaction_type": "welcome_bonus",
+            "description": "100 Free Welcome Credits for testing Bodhic AI skills!"
+        }).execute()
+    except Exception:
+        pass
+    return 100.0
+
 @router.get("/me/credits")
 def get_credits(user = Depends(get_current_user)):
     try:
-        res = supabase.table("user_credits").select("balance").eq("user_id", user.id).execute()
-        return {"balance": res.data[0]["balance"] if res.data else 0}
+        balance = get_or_init_balance(user.id)
+        return {"balance": balance}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -375,14 +391,10 @@ def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_curr
         if req.amount_inr >= 499:
             credits_to_add += 500
             
-        credits_res = supabase.table("user_credits").select("balance").eq("user_id", user.id).execute()
-        current_balance = credits_res.data[0]["balance"] if credits_res.data else 0
+        current_balance = get_or_init_balance(user.id)
         new_balance = current_balance + credits_to_add
         
-        if credits_res.data:
-            supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", user.id).execute()
-        else:
-            supabase.table("user_credits").insert({"user_id": user.id, "balance": new_balance}).execute()
+        supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", user.id).execute()
             
         supabase.table("credit_transactions").insert({
             "user_id": user.id,

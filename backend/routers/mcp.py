@@ -11,6 +11,23 @@ from fastmcp import FastMCP
 # Initialize FastMCP Server
 mcp = FastMCP("Bodhic-MCP")
 
+def get_or_init_balance(user_id: str) -> float:
+    res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
+    if res.data:
+        return float(res.data[0]["balance"])
+    # Initialize new user with 100 Free Welcome Credits!
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 100.0}).execute()
+    try:
+        supabase.table("credit_transactions").insert({
+            "user_id": user_id,
+            "amount": 100.0,
+            "transaction_type": "welcome_bonus",
+            "description": "100 Free Welcome Credits for testing Bodhic AI skills!"
+        }).execute()
+    except Exception as e:
+        print(f"Error logging welcome bonus: {e}")
+    return 100.0
+
 @mcp.tool()
 def search_skills(query: str, category: str = None) -> str:
     """Search the Bodhic AI marketplace for available skills."""
@@ -57,8 +74,7 @@ def get_my_credits() -> str:
     if not user_id:
         return "Error: Unauthorized. Missing user context."
         
-    res_credits = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
-    balance = res_credits.data[0]["balance"] if res_credits.data else 0
+    balance = get_or_init_balance(user_id)
     return f"You have {balance} Bodhic Credits remaining."
 
 @mcp.tool()
@@ -162,8 +178,7 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
     
     if not has_purchased:
         # 3. Check credits and deduct 10
-        credits_res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
-        balance = credits_res.data[0]["balance"] if credits_res.data else 0
+        balance = get_or_init_balance(user_id)
         
         if balance < 10:
             return f"You are out of credits ({balance} remaining, 10 required). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhicai.tech/skill/{skill_id}"
@@ -179,6 +194,20 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
             "reference_id": skill_id,
             "description": f"Chat with {skill['title']}"
         }).execute()
+        
+        # Affiliate Referral Kickback (20% of utilized credits)
+        referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
+        if referral_res.data:
+            referrer_id = referral_res.data[0]["referrer_id"]
+            kickback = 10 * 0.20
+            ref_balance = get_or_init_balance(referrer_id)
+            supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+            supabase.table("credit_transactions").insert({
+                "user_id": referrer_id,
+                "amount": kickback,
+                "transaction_type": "referral_bonus",
+                "description": "20% Affiliate Bonus from referred user chat in MCP"
+            }).execute()
         
     # 4. Call Cloudflare Workers AI
     cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")
