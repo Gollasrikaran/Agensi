@@ -25,6 +25,45 @@ def get_my_skills(user = Depends(get_current_user)):
 from pydantic import BaseModel
 from typing import Optional
 
+class SkillEditRequest(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    base_price_inr: Optional[float] = None
+    category: Optional[str] = None
+    target_audience: Optional[str] = None
+
+@router.patch("/me/skills/{skill_id}")
+def edit_my_skill(skill_id: str, req: SkillEditRequest, user = Depends(get_current_user)):
+    try:
+        existing = supabase.table("skills").select("seller_id").eq("id", skill_id).single().execute()
+        if not existing.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+        if existing.data.get("seller_id") != user.id:
+            raise HTTPException(status_code=403, detail="You can only edit your own skills")
+
+        update_data = {}
+        if req.title is not None:
+            update_data["title"] = req.title
+        if req.description is not None:
+            update_data["description"] = req.description
+        if req.base_price_inr is not None:
+            update_data["base_price_inr"] = req.base_price_inr
+            update_data["is_free"] = req.base_price_inr == 0
+        if req.category is not None:
+            update_data["category"] = req.category
+        if req.target_audience is not None:
+            update_data["target_audience"] = req.target_audience
+
+        if not update_data:
+            return {"message": "No changes provided"}
+
+        res = supabase.table("skills").update(update_data).eq("id", skill_id).execute()
+        return {"message": "Skill updated successfully", "skill": res.data[0] if res.data else None}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 class ProfileUpdateRequest(BaseModel):
     username: str
     avatar_url: str

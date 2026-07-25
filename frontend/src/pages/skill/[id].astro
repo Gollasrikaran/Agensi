@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
+import EditSkillButtonIsland from '../../components/EditSkillButtonIsland.tsx';
 
 
 
@@ -50,6 +51,7 @@ const jsonLd = skill ? JSON.stringify({
 		</div>
 	) : (
 		<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-xl);">
+			<EditSkillButtonIsland client:load skill={skill} />
 			<div style="margin-bottom: var(--space-xl);">
 				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm);">
 					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
