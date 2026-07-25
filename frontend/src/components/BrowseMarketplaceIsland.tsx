@@ -19,7 +19,8 @@ export default function BrowseMarketplaceIsland() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000'}/api/public/skills?audience=${audience}`)
+    const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
+    fetch(`${apiBase}/api/public/skills?audience=${audience}`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -33,24 +34,27 @@ export default function BrowseMarketplaceIsland() {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-2xl)', justifyContent: 'center', background: 'var(--canvas-soft)', padding: '6px', borderRadius: 'var(--radius-pill)', width: 'fit-content', margin: '0 auto var(--space-2xl) auto', border: '1px solid var(--hairline)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <button 
-          className={`btn ${audience === 'all' ? 'btn-primary' : 'btn-outline'}`}
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'all' ? 'var(--primary)' : 'transparent', color: audience === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('all')}
         >
-          All Skills
+          ✨ All Skills
         </button>
         <button 
-          className={`btn ${audience === 'student' ? 'btn-primary' : 'btn-outline'}`}
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'student' ? 'var(--primary)' : 'transparent', color: audience === 'student' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('student')}
         >
-          For Students
+          🎓 For Students
         </button>
         <button 
-          className={`btn ${audience === 'professional' ? 'btn-primary' : 'btn-outline'}`}
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'professional' ? 'var(--primary)' : 'transparent', color: audience === 'professional' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('professional')}
         >
-          For Professionals
+          💼 For Professionals
         </button>
       </div>
       
