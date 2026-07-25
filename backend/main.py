@@ -88,6 +88,8 @@ class FastMCPWrapper:
         return await self.app(scope, receive, send)
 
 app.mount("/mcp", FastMCPWrapper(mcp_app))
+app.mount("/api/public/mcp", FastMCPWrapper(mcp_app))
+app.mount("/api/mcp", FastMCPWrapper(mcp_app))
 
 
 class AgentAuthMiddleware:
@@ -101,21 +103,22 @@ class AgentAuthMiddleware:
         request = Request(scope)
         path = request.url.path
         
-        # Check if the token is passed in the path: /mcp/<token>/...
+        # Check if the token is passed in the path: /mcp/<token>/... or /api/public/mcp/<token>/...
         path_token = None
-        if path.startswith("/mcp/") and len(path.split("/")) >= 4:
-            # e.g., /mcp/<token>/sse -> parts: ["", "mcp", "<token>", "sse"]
+        if "/mcp/" in path:
             parts = path.split("/")
-            if parts[3] in ["sse", "messages"]:
-                path_token = parts[2]
+            for i, part in enumerate(parts):
+                if part == "mcp" and i + 2 < len(parts):
+                    if parts[i+2] in ["sse", "messages"]:
+                        path_token = parts[i+1]
                 
-        if path.startswith("/mcp") or path.startswith("/api/agents"):
+        if "/mcp" in path or path.startswith("/api/agents"):
             # Allow CORS preflight requests
             if request.method == "OPTIONS":
                 return await self.app(scope, receive, send)
                 
             # Exclude config or openapi json if needed
-            if path == "/mcp/config.json":
+            if path.endswith("/config.json"):
                 return await self.app(scope, receive, send)
                 
             # Check for Bearer token OR query parameter (for Claude Web UI)
@@ -194,6 +197,8 @@ def read_root():
     return {"status": "ok", "message": "Marketplace API is running"}
 
 @app.get("/mcp/config.json")
+@app.get("/api/public/mcp/config.json")
+@app.get("/api/mcp/config.json")
 def get_mcp_config():
     return {
         "mcpServers": {

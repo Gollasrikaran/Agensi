@@ -10,15 +10,14 @@ export default function ApiKeysIsland() {
   const [error, setError] = useState<string | null>(null);
   const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
 
+  const apiUrl = import.meta.env.PUBLIC_API_URL || 'https://bodhicai.onrender.com';
   const mcpConfigSnippet = `{
   "mcpServers": {
     "bodhic": {
-      "command": "curl",
-      "args": [
-        "-H",
-        "Authorization: Bearer YOUR_API_KEY",
-        "${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/mcp/sse"
-      ]
+      "url": "${apiUrl}/mcp/sse",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
     }
   }
 }`;
