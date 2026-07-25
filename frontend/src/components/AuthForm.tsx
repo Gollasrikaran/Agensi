@@ -3,9 +3,10 @@ import { supabase } from '../lib/supabase';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
+  onSuccess?: () => void;
 }
 
-export default function AuthForm({ type }: AuthFormProps) {
+export default function AuthForm({ type, onSuccess }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +57,9 @@ export default function AuthForm({ type }: AuthFormProps) {
           .eq('id', userId)
           .maybeSingle();
           
-        if (adminData) {
+        if (onSuccess) {
+          onSuccess();
+        } else if (adminData) {
           window.location.href = '/admin'; // Redirect admin to admin panel
         } else {
           const oauthRedirect = sessionStorage.getItem('oauth_redirect');
@@ -84,7 +87,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + '/dashboard/buyer'
+          redirectTo: onSuccess ? window.location.href : window.location.origin + '/dashboard/buyer'
         }
       });
       if (error) throw error;

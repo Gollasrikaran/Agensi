@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { API_BASE } from '../lib/config';
+import AuthForm from './AuthForm';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -12,7 +13,23 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userSession, setUserSession] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserSession(session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUserSession(session);
+      if (session) {
+        setShowAuthModal(false);
+        setError('');
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -33,7 +50,10 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error("You must be logged in to test this skill.");
+        setError("You must be logged in to test this skill.");
+        setShowAuthModal(true);
+        setLoading(false);
+        return;
       }
 
       const res = await fetch(`${API_BASE}/api/agents/web-chat`, {
@@ -90,6 +110,15 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 <img src="/logo.png" alt="Bodhic" style={{ width: '80px', height: '80px', opacity: 0.5, marginBottom: '24px', filter: 'grayscale(100%) brightness(200%)' }} />
                 <h2 style={{ color: 'var(--ink)', fontSize: '24px', marginBottom: '12px', fontWeight: 500 }}>How can I help you?</h2>
                 <p style={{ lineHeight: 1.6, color: 'var(--body)' }}>Ask any question or test this skill's capabilities. Each message deducts 10 Bodhic Credits.</p>
+                {!userSession && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthModal(true)}
+                    style={{ background: 'var(--accent-gradient)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '15px', cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)' }}
+                  >
+                    Log In to Start Testing →
+                  </button>
+                )}
               </div>
             )}
             
@@ -133,7 +162,20 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
       {/* Input Area */}
       <div style={{ padding: '24px', background: 'linear-gradient(to top, var(--canvas) 50%, transparent 100%)', zIndex: 10 }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            {error && <div style={{ padding: '12px 16px', color: 'var(--error)', fontSize: '14px', background: 'var(--error-soft)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>{error}</div>}
+            {error && (
+              <div style={{ padding: '12px 16px', color: 'var(--error)', fontSize: '14px', background: 'var(--error-soft)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', border: '1px solid rgba(248, 113, 113, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <span>{error}</span>
+                {(!userSession || error.toLowerCase().includes("logged in") || error.toLowerCase().includes("auth")) && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthModal(true)}
+                    style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(108, 60, 225, 0.3)' }}
+                  >
+                    Log In Now →
+                  </button>
+                )}
+              </div>
+            )}
             
             <form onSubmit={handleSend} style={{ display: 'flex', position: 'relative', alignItems: 'center' }}>
                 <input 
@@ -169,6 +211,26 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         </div>
       </div>
       
+      {showAuthModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div className="card" style={{ maxWidth: '440px', width: '100%', padding: '32px', position: 'relative', background: 'var(--canvas-elevated)', borderRadius: '24px', border: '1px solid var(--hairline-strong)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <button 
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'var(--mute)', fontSize: '20px', cursor: 'pointer', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+            >
+              ✕
+            </button>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <img src="/logo.png" alt="Bodhic" style={{ width: '48px', height: '48px', borderRadius: '12px', marginBottom: '12px' }} />
+              <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ink)', margin: '0 0 6px 0' }}>Log In to Continue</h2>
+              <p style={{ color: 'var(--body)', fontSize: '14px', margin: 0 }}>Sign in to test this skill without losing your chat session.</p>
+            </div>
+            <AuthForm type="login" onSuccess={() => { setShowAuthModal(false); setError(''); }} />
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes pulse {
             0% { opacity: 0.5; }
