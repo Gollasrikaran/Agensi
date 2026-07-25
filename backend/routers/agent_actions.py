@@ -39,17 +39,9 @@ def get_or_init_balance(user_id: str) -> float:
     res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     if res.data:
         return float(res.data[0]["balance"])
-    supabase.table("user_credits").insert({"user_id": user_id, "balance": 100.0}).execute()
-    try:
-        supabase.table("credit_transactions").insert({
-            "user_id": user_id,
-            "amount": 100.0,
-            "transaction_type": "welcome_bonus",
-            "description": "100 Free Welcome Credits for testing Bodhic AI skills!"
-        }).execute()
-    except Exception:
-        pass
-    return 100.0
+    # Everyone starts at 0 credits!
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0.0}).execute()
+    return 0.0
 
 @router.get("/credits", response_model=CreditResponse, summary="Check Bodhic Credit Balance", description="Get the remaining Bodhic Credit balance for the authenticated user.")
 def get_credits():
@@ -90,34 +82,48 @@ async def chat_with_skill(request: ChatRequest):
     has_purchased = len(purchase_res.data) > 0
     
     if not has_purchased:
-        balance = get_or_init_balance(user_id)
+        # Check if user has 3 Free Test Messages remaining for this skill
+        test_res = supabase.table("credit_transactions").select("id").eq("user_id", user_id).eq("reference_id", skill_id).execute()
+        msg_count = len(test_res.data) if test_res.data else 0
         
-        if balance < cost:
-            raise HTTPException(status_code=402, detail=f"Insufficient credits. Balance: {balance}, Required: {cost}.")
-            
-        supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
-        
-        supabase.table("credit_transactions").insert({
-            "user_id": user_id,
-            "amount": -cost,
-            "transaction_type": "mcp_purchase",
-            "reference_id": skill_id,
-            "description": f"Agent Chat with {skill['title']} (Level {complexity_level})"
-        }).execute()
-        
-        # Affiliate Referral Kickback (20% of utilized credits)
-        referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
-        if referral_res.data:
-            referrer_id = referral_res.data[0]["referrer_id"]
-            kickback = cost * 0.20
-            ref_balance = get_or_init_balance(referrer_id)
-            supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+        if msg_count < 3:
+            # FREE TEST MESSAGE! Do not check or deduct credits!
             supabase.table("credit_transactions").insert({
-                "user_id": referrer_id,
-                "amount": kickback,
-                "transaction_type": "referral_bonus",
-                "description": f"20% Affiliate Bonus from user spending {cost} credits"
+                "user_id": user_id,
+                "amount": 0,
+                "transaction_type": "free_test",
+                "reference_id": skill_id,
+                "description": f"Free Test Message ({msg_count + 1}/3) for {skill['title']}"
             }).execute()
+        else:
+            balance = get_or_init_balance(user_id)
+            
+            if balance < cost:
+                raise HTTPException(status_code=402, detail=f"You have used your 3 free test messages! Insufficient credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
+                
+            supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
+            
+            supabase.table("credit_transactions").insert({
+                "user_id": user_id,
+                "amount": -cost,
+                "transaction_type": "mcp_purchase",
+                "reference_id": skill_id,
+                "description": f"Agent Chat with {skill['title']} (Level {complexity_level})"
+            }).execute()
+            
+            # Affiliate Referral Kickback (20% of utilized credits)
+            referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
+            if referral_res.data:
+                referrer_id = referral_res.data[0]["referrer_id"]
+                kickback = cost * 0.20
+                ref_balance = get_or_init_balance(referrer_id)
+                supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+                supabase.table("credit_transactions").insert({
+                    "user_id": referrer_id,
+                    "amount": kickback,
+                    "transaction_type": "referral_bonus",
+                    "description": f"20% Affiliate Bonus from user spending {cost} credits"
+                }).execute()
         
     # 3. Call Cloudflare AI
     cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")
@@ -177,34 +183,48 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
         has_purchased = len(purchase_res.data) > 0
         
         if not has_purchased:
-            balance = get_or_init_balance(user_id)
+            # Check if user has 3 Free Test Messages remaining for this skill
+            test_res = supabase.table("credit_transactions").select("id").eq("user_id", user_id).eq("reference_id", skill_id).execute()
+            msg_count = len(test_res.data) if test_res.data else 0
             
-            if balance < cost:
-                raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits. Balance: {balance}, Required: {cost}.")
-                
-            supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
-            
-            supabase.table("credit_transactions").insert({
-                "user_id": user_id,
-                "amount": -cost,
-                "transaction_type": "mcp_purchase",
-                "reference_id": skill_id,
-                "description": f"Bodhic LLM Chat with {skill['title']} (Level {complexity_level})"
-            }).execute()
-            
-            # Affiliate Referral Kickback (20% of utilized credits)
-            referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
-            if referral_res.data:
-                referrer_id = referral_res.data[0]["referrer_id"]
-                kickback = cost * 0.20
-                ref_balance = get_or_init_balance(referrer_id)
-                supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+            if msg_count < 3:
+                # FREE TEST MESSAGE! Do not check or deduct credits!
                 supabase.table("credit_transactions").insert({
-                    "user_id": referrer_id,
-                    "amount": kickback,
-                    "transaction_type": "referral_bonus",
-                    "description": f"20% Affiliate Bonus from user spending {cost} credits"
+                    "user_id": user_id,
+                    "amount": 0,
+                    "transaction_type": "free_test",
+                    "reference_id": skill_id,
+                    "description": f"Free Test Message ({msg_count + 1}/3) for {skill['title']}"
                 }).execute()
+            else:
+                balance = get_or_init_balance(user_id)
+                
+                if balance < cost:
+                    raise HTTPException(status_code=402, detail=f"You have used your 3 free test messages! Insufficient Bodhic Credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
+                    
+                supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
+                
+                supabase.table("credit_transactions").insert({
+                    "user_id": user_id,
+                    "amount": -cost,
+                    "transaction_type": "mcp_purchase",
+                    "reference_id": skill_id,
+                    "description": f"Bodhic LLM Chat with {skill['title']} (Level {complexity_level})"
+                }).execute()
+                
+                # Affiliate Referral Kickback (20% of utilized credits)
+                referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
+                if referral_res.data:
+                    referrer_id = referral_res.data[0]["referrer_id"]
+                    kickback = cost * 0.20
+                    ref_balance = get_or_init_balance(referrer_id)
+                    supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+                    supabase.table("credit_transactions").insert({
+                        "user_id": referrer_id,
+                        "amount": kickback,
+                        "transaction_type": "referral_bonus",
+                        "description": f"20% Affiliate Bonus from user spending {cost} credits"
+                    }).execute()
             
         # 3. Call Cloudflare AI
         cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")

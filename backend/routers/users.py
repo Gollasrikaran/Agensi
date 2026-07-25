@@ -329,17 +329,9 @@ def get_or_init_balance(user_id: str) -> float:
     res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     if res.data:
         return float(res.data[0]["balance"])
-    supabase.table("user_credits").insert({"user_id": user_id, "balance": 100.0}).execute()
-    try:
-        supabase.table("credit_transactions").insert({
-            "user_id": user_id,
-            "amount": 100.0,
-            "transaction_type": "welcome_bonus",
-            "description": "100 Free Welcome Credits for testing Bodhic AI skills!"
-        }).execute()
-    except Exception:
-        pass
-    return 100.0
+    # Everyone starts at 0 credits!
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0.0}).execute()
+    return 0.0
 
 @router.get("/me/credits")
 def get_credits(user = Depends(get_current_user)):
