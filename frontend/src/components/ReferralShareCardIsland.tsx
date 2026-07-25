@@ -14,7 +14,7 @@ export default function ReferralShareCardIsland() {
     });
   }, []);
 
-  const shareText = `Hey! I'm using Bodhic AI — an incredible action-agent marketplace where AI agents directly edit code, run local commands, and automate your workflows. Use my unique invite code (${refId}) to unlock bonus credits!`;
+  const shareText = `Hey! I'm using Bodhic AI — an incredible action-agent marketplace where AI agents directly edit code, run local commands, and automate your workflows. Use my unique invite code (${refId}) to explore and test advanced AI skills!`;
   const shareTitle = `Bodhic AI — Action-Agent Marketplace (Invite: ${refId})`;
 
   return (
@@ -32,15 +32,15 @@ export default function ReferralShareCardIsland() {
             <span>🎁</span> MULTI-CHANNEL VIRAL REFERRAL
           </div>
           <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: 'var(--ink)' }}>
-            Refer Friends & Earn Free AI Credits!
+            Refer Friends & Earn 20% Affiliate Kickbacks!
           </h3>
           <p style={{ fontSize: '14px', color: 'var(--body)', lineHeight: 1.6, margin: '0 0 12px 0' }}>
-            Share your unique referral code <strong style={{ color: 'var(--primary)', fontFamily: 'monospace', background: 'var(--canvas-soft)', padding: '2px 6px', borderRadius: '4px' }}>{refId}</strong> via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone visits and signs up using your link, both you and your friend get <strong style={{ color: '#10b981' }}>50 Bonus Bodhic Credits</strong>!
+            Share your unique referral code <strong style={{ color: 'var(--primary)', fontFamily: 'monospace', background: 'var(--canvas-soft)', padding: '2px 6px', borderRadius: '4px' }}>{refId}</strong> via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone visits and signs up using your link, you automatically earn a <strong style={{ color: '#10b981' }}>20% Affiliate Kickback</strong> on all credits they utilize for life!
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '12px', color: 'var(--mute)' }}>
             <span>✨ Free instant sharing</span>
             <span>•</span>
-            <span>⚡ Automated reward attribution</span>
+            <span>⚡ Automated 20% reward attribution</span>
           </div>
         </div>
 
