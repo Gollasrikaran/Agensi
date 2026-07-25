@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Star, ShoppingCart, TrendingUp, Download } from 'lucide-react';
+import { getReferralId } from '../lib/referral';
 
 interface SkillCardProps {
   skill: any;
@@ -25,8 +26,15 @@ const getCategoryColor = (category: string) => {
 };
 
 export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false, onUpvote, showRank = null }: SkillCardProps) {
+  const [refId, setRefId] = useState('REF-BODHIC');
+  useEffect(() => {
+    getReferralId().then(setRefId);
+  }, []);
+
   const catColor = getCategoryColor(skill.category);
   const isFree = skill.base_price_inr === 0 || skill.is_free;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
+  const shareUrl = `${origin}/skill/${skill.id}?ref=${refId}`;
   
   return (
     <div
@@ -245,8 +253,8 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           <a 
             href={`https://wa.me/?text=${encodeURIComponent(
               skill.target_audience === 'student'
-                ? `Bro, stop wasting hours on assignments... check out "${skill.title}" on bodhicai.tech/?ref=YOUR_ID`
-                : `Hey, found this clean MCP agent skill "${skill.title}" for automating local workflows on bodhicai.tech/?ref=YOUR_ID`
+                ? `Bro, stop wasting hours on assignments... check out "${skill.title}": ${shareUrl}`
+                : `Hey, found this clean MCP agent skill "${skill.title}" for automating local workflows: ${shareUrl}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

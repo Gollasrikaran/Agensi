@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
+import ReferralShareCardIsland from './ReferralShareCardIsland';
 
 const CATEGORIES = [
   { value: 'development', label: 'Development' },
@@ -232,6 +233,8 @@ export default function SellerDashboardIsland() {
           </svg>
         </a>
       </div>
+
+      <ReferralShareCardIsland />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         <div className="glass-card" style={{ padding: '1.5rem' }}>

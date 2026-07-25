@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import ReferralShareCardIsland from './ReferralShareCardIsland';
 export default function BuyerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,8 @@ export default function BuyerDashboardIsland() {
           </svg>
         </a>
       </div>
+      
+      <ReferralShareCardIsland />
       
       <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h2>Your Purchased Skills</h2>

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { getReferralId } from '../lib/referral';
+
 interface SellerProfile {
   username: string | null;
   avatar_url: string | null;
@@ -16,6 +18,13 @@ export default function BrowseMarketplaceIsland() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [audience, setAudience] = useState<string>('all');
+  const [refId, setRefId] = useState('REF-BODHIC');
+
+  useEffect(() => {
+    getReferralId().then(setRefId);
+  }, []);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
 
   useEffect(() => {
     setLoading(true);
@@ -102,8 +111,8 @@ export default function BrowseMarketplaceIsland() {
                 <a 
                   href={`https://wa.me/?text=${encodeURIComponent(
                     audience === 'student' || skill.target_audience === 'student'
-                      ? `Bro, stop wasting hours on assignments... bodhicai.tech/?ref=YOUR_ID`
-                      : `Hey, found this clean FastMCP marketplace for automating local dev workflows... bodhicai.tech/?ref=YOUR_ID`
+                      ? `Bro, stop wasting hours on assignments... check out "${skill.title}": ${origin}/skill/${skill.id}?ref=${refId}`
+                      : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}": ${origin}/skill/${skill.id}?ref=${refId}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

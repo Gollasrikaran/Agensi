@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { captureReferralFromUrl } from '../lib/referral';
 
 export default function NavbarIsland() {
   const [session, setSession] = useState<any>(null);
@@ -10,6 +11,7 @@ export default function NavbarIsland() {
   const [currentPath, setCurrentPath] = useState('/');
 
   useEffect(() => {
+    captureReferralFromUrl();
     // Handle scroll for glassmorphism effect
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
