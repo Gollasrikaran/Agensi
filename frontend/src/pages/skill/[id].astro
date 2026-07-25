@@ -4,6 +4,7 @@ import CheckoutIsland from '../../components/CheckoutIsland.tsx';
 import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
 import EditSkillButtonIsland from '../../components/EditSkillButtonIsland.tsx';
+import SkillShareBannerIsland from '../../components/SkillShareBannerIsland.tsx';
 
 
 
@@ -106,6 +107,10 @@ const jsonLd = skill ? JSON.stringify({
 
 			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
 			
+			<div style="margin-top: var(--space-xl);">
+				<SkillShareBannerIsland client:load skillId={skill.id} skillTitle={skill.title} />
+			</div>
+
 			<div style="margin-top: var(--space-xl); padding: var(--space-xl); background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px solid var(--border);">
 				<h3 style="font-size: 18px; font-weight: 600; margin-bottom: var(--space-xs); color: var(--ink);">Test Before You Buy</h3>
 				<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-md);">Try out this skill to ensure it meets your needs. Testing costs 10 Bodhic Credits per message.</p>

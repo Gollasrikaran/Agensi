@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getReferralId } from '../lib/referral';
+import SocialShareButtonsIsland from './SocialShareButtonsIsland';
 
 interface SellerProfile {
   username: string | null;
@@ -107,20 +108,14 @@ export default function BrowseMarketplaceIsland() {
               <div style={{ fontWeight: 600, fontSize: '18px', color: 'var(--primary)' }}>
                 ₹{skill.base_price_inr}
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a 
-                  href={`https://wa.me/?text=${encodeURIComponent(
-                    audience === 'student' || skill.target_audience === 'student'
-                      ? `Bro, stop wasting hours on assignments... check out "${skill.title}": ${origin}/skill/${skill.id}?ref=${refId}`
-                      : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}": ${origin}/skill/${skill.id}?ref=${refId}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm"
-                  style={{ background: '#25D366', color: '#fff', border: 'none' }}
-                >
-                  Share 🚀
-                </a>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <SocialShareButtonsIsland 
+                  url={`${origin}/skill/${skill.id}?ref=${refId}`}
+                  title={skill.title}
+                  text={audience === 'student' || skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}"!`}
+                  compact={true}
+                  label="Share"
+                />
                 <button className="btn btn-primary btn-sm">
                   View Details
                 </button>

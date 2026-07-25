@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Star, ShoppingCart, TrendingUp, Download } from 'lucide-react';
 import { getReferralId } from '../lib/referral';
+import SocialShareButtonsIsland from './SocialShareButtonsIsland';
 
 interface SkillCardProps {
   skill: any;
@@ -248,42 +249,13 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {/* WhatsApp Share Button */}
-          <a 
-            href={`https://wa.me/?text=${encodeURIComponent(
-              skill.target_audience === 'student'
-                ? `Bro, stop wasting hours on assignments... check out "${skill.title}": ${shareUrl}`
-                : `Hey, found this clean MCP agent skill "${skill.title}" for automating local workflows: ${shareUrl}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            style={{ 
-              background: '#25D366', 
-              border: '1px solid #25D366',
-              borderRadius: 'var(--radius-md)', 
-              padding: '4px 10px', 
-              color: '#fff', 
-              textDecoration: 'none',
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '4px',
-              fontWeight: 600,
-              fontSize: '12px',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 6px rgba(37, 211, 102, 0.2)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'none';
-            }}
-          >
-            Share 🚀
-          </a>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <SocialShareButtonsIsland 
+            url={shareUrl}
+            title={skill.title}
+            text={skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean MCP agent skill "${skill.title}" for automating local workflows!`}
+            compact={true}
+          />
 
           {/* Upvote Button */}
           <button 
