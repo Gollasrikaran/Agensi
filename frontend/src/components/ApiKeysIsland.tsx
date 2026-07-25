@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
+import McpConfigTabsIsland from './McpConfigTabsIsland';
 
 export default function ApiKeysIsland() {
   const [keys, setKeys] = useState<any[]>([]);
@@ -9,18 +10,6 @@ export default function ApiKeysIsland() {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
-
-  const apiUrl = import.meta.env.PUBLIC_API_URL || 'https://bodhicai.onrender.com';
-  const mcpConfigSnippet = `{
-  "mcpServers": {
-    "bodhic": {
-      "url": "${apiUrl}/mcp/sse",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}`;
 
   useEffect(() => {
     fetchKeys();
@@ -169,15 +158,7 @@ export default function ApiKeysIsland() {
           )}
         </div>
         
-        <div className="card" style={{ padding: 'var(--space-xl)', marginTop: 'var(--space-lg)', background: 'var(--canvas-soft)' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>How to use with MCP</h3>
-          <p style={{ fontSize: '14px', color: 'var(--body)', marginBottom: '16px' }}>
-            To connect Cursor or Claude Desktop to Bodhic AI, add the following to your MCP configuration file (e.g., <code>cursor_mcp.json</code>):
-          </p>
-          <pre style={{ background: '#111', color: '#fff', padding: '16px', borderRadius: '8px', fontSize: '12px', overflowX: 'auto' }}>
-            {mcpConfigSnippet}
-          </pre>
-        </div>
+        <McpConfigTabsIsland apiKey={generatedKey || "YOUR_API_KEY"} />
       </div>
     </div>
   );

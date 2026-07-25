@@ -1,17 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
-const mcpConfig = {
-  mcpServers: {
-    "bodhic-ai": {
-      url: "https://your-api-url/mcp/sse",
-      headers: {
-        Authorization: "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-};
-const mcpConfigSnippet = JSON.stringify(mcpConfig, null, 2);
+import McpConfigTabsIsland from '../components/McpConfigTabsIsland';
 ---
 
 <Layout 
@@ -60,33 +49,12 @@ const mcpConfigSnippet = JSON.stringify(mcpConfig, null, 2);
 				Head to the <a href="/dashboard/developer" style="color: var(--accent); font-weight: 600;">Developer Dashboard</a> and click <strong>"Generate New Key"</strong>. Copy the key immediately — for security, it is only shown once.
 			</p>
 
-			<h3 style="font-size: 18px; margin-bottom: var(--space-sm); color: var(--ink);">Step 2 — Add MCP Config to Your Editor</h3>
+			<h3 style="font-size: 18px; margin-bottom: var(--space-sm); color: var(--ink);">Step 2 — Add MCP Config to Your Editor or Web Agent</h3>
 			<p style="color: var(--body); line-height: 1.6; margin-bottom: var(--space-sm);">
-				Add this JSON snippet to your AI agent's MCP configuration file:
+				Select your AI environment below to get the exact JSON snippet or direct URL:
 			</p>
 			
-			<div style="background: var(--surface-2, #1a1a2e); border-radius: 12px; padding: var(--space-lg); margin-bottom: var(--space-lg); overflow-x: auto; border: 1px solid var(--hairline);">
-				<pre style="margin: 0; color: var(--code-text, #e2e8f0); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap;"><code>{mcpConfigSnippet}</code></pre>
-			</div>
-
-			<p style="color: var(--mute); font-size: 13px; margin-bottom: var(--space-lg);">
-				💡 Replace <code style="background: var(--surface-2, rgba(255,255,255,0.08)); padding: 2px 6px; border-radius: 4px;">YOUR_API_KEY</code> with the key you generated. The exact API URL is shown in your Developer Dashboard.
-			</p>
-
-			<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
-				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
-					<strong style="font-size: 14px;">Cursor</strong>
-					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">Settings → MCP → Add from JSON</p>
-				</div>
-				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
-					<strong style="font-size: 14px;">Windsurf</strong>
-					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">Settings → Cascade → MCP Config</p>
-				</div>
-				<div style="padding: var(--space-md); border-radius: 10px; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--hairline);">
-					<strong style="font-size: 14px;">Claude Desktop</strong>
-					<p style="color: var(--mute); font-size: 13px; margin-top: 4px;">claude_desktop_config.json</p>
-				</div>
-			</div>
+			<McpConfigTabsIsland client:load apiKey="YOUR_API_KEY" />
 		</div>
 
 		<!-- Credits System -->
