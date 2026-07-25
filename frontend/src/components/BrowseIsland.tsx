@@ -25,6 +25,7 @@ export default function BrowseIsland() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [audience, setAudience] = useState('all');
   const [upvoteStates, setUpvoteStates] = useState<Record<string, boolean>>({});
   const [upvotingIds, setUpvotingIds] = useState<Set<string>>(new Set());
 
@@ -105,7 +106,8 @@ export default function BrowseIsland() {
   let filteredSkills = skills.filter((skill: any) => {
     const matchesCategory = activeCategory === 'all' || (skill.category || '').toLowerCase().includes(activeCategory.toLowerCase());
     const matchesSearch = skill.title.toLowerCase().includes(searchQuery.toLowerCase()) || skill.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesAudience = audience === 'all' || (skill.target_audience || 'professional') === audience;
+    return matchesCategory && matchesSearch && matchesAudience;
   });
   
   filteredSkills.sort((a: any, b: any) => {
@@ -116,7 +118,33 @@ export default function BrowseIsland() {
   });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+    <div>
+      {/* Audience Segmented Pill Bar */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-2xl)', justifyContent: 'center', background: 'var(--canvas-soft)', padding: '6px', borderRadius: 'var(--radius-pill)', width: 'fit-content', margin: '0 auto var(--space-2xl) auto', border: '1px solid var(--hairline)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'all' ? 'var(--primary)' : 'transparent', color: audience === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setAudience('all')}
+        >
+          ✨ All Skills
+        </button>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'student' ? 'var(--primary)' : 'transparent', color: audience === 'student' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setAudience('student')}
+        >
+          🎓 For Students
+        </button>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'professional' ? 'var(--primary)' : 'transparent', color: audience === 'professional' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setAudience('professional')}
+        >
+          💼 For Professionals
+        </button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 'var(--space-2xl)', alignItems: 'start' }}>
       
       {/* Sidebar */}
       <aside style={{ position: 'sticky', top: 'var(--space-2xl)' }}>
@@ -196,6 +224,7 @@ export default function BrowseIsland() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
