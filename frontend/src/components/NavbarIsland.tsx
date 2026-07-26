@@ -97,20 +97,13 @@ export default function NavbarIsland() {
       {/* Left: Logo */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <div style={{ 
+          <img src="/logo.png" alt="Bodhic AI Logo" style={{ 
             width: '32px', 
             height: '32px', 
             borderRadius: '8px', 
-            background: 'var(--accent-gradient)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-            boxShadow: 'var(--shadow-glow)'
-          }}>
-            B
-          </div>
+            objectFit: 'cover',
+            boxShadow: 'var(--shadow-glow)' 
+          }} />
           <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--ink)', letterSpacing: '-0.5px' }}>
             Bodhic<span style={{ color: 'var(--primary)' }}>AI</span>
           </span>
