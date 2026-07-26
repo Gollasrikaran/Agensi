@@ -206,17 +206,17 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
                 <span>Balance: {creditBalance} CR</span>
               </h4>
               <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
-                Cost: <strong>{Number(basePrice || 0) * 10} CR</strong>
+                Cost: <strong>{Math.round(Number(basePrice || 0) * 10)} CR</strong>
               </p>
               <button 
                 className="btn btn-primary btn-lg" 
                 style={{ width: '100%' }}
                 onClick={handleCreditPayment}
-                disabled={loading || creditBalance < Number(basePrice || 0) * 10}
+                disabled={loading || creditBalance < Math.round(Number(basePrice || 0) * 10)}
               >
-                {loading ? 'Processing...' : (creditBalance < Number(basePrice || 0) * 10 ? 'Insufficient Credits' : `Pay ${Number(basePrice || 0) * 10} Credits`)}
+                {loading ? 'Processing...' : (creditBalance < Math.round(Number(basePrice || 0) * 10) ? 'Insufficient Credits' : `Pay ${Math.round(Number(basePrice || 0) * 10)} Credits`)}
               </button>
-              {creditBalance < Number(basePrice || 0) * 10 && (
+              {creditBalance < Math.round(Number(basePrice || 0) * 10) && (
                 <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
                   <a href="/dashboard/credits" style={{ color: 'var(--primary)' }}>Top up your wallet</a>
                 </p>
