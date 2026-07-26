@@ -96,7 +96,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ padding: '6px 12px', background: 'var(--accent-soft)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>
-                -10 Credits / MSG
+                Dynamic Credits / MSG
             </div>
             <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', padding: '8px 12px', borderRadius: 'var(--radius-sm)', transition: 'color 0.2s' }}>Exit Chat</a>
         </div>
@@ -174,6 +174,21 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                     Log In Now →
                   </button>
                 )}
+              </div>
+            )}
+            
+            {!userSession && (
+              <div style={{ padding: '10px 16px', background: 'var(--canvas-elevated)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-pill)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', boxShadow: 'var(--shadow-sm)', flexWrap: 'wrap', gap: '10px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🔐</span> Please log in before chatting. Don't worry, your chat session stays right here!
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(true)}
+                  style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(108, 60, 225, 0.3)' }}
+                >
+                  Log In Now →
+                </button>
               </div>
             )}
             
