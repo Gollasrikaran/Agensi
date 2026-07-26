@@ -237,7 +237,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
           
           <button 
             className="btn btn-primary btn-lg" 
-            style={{ marginTop: 'var(--space-md)', width: '100%', background: 'var(--surface)', color: 'var(--ink)', border: '1px solid var(--hairline)' }}
+            style={{ marginTop: 'var(--space-md)', width: '100%' }}
             onClick={handleCheckout}
             disabled={loading}
           >
