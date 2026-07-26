@@ -325,13 +325,13 @@ def delete_api_key(key_id: str, user = Depends(get_current_user)):
 
 # --- CREDITS ENDPOINTS ---
 
-def get_or_init_balance(user_id: str) -> float:
+def get_or_init_balance(user_id: str) -> int:
     res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     if res.data:
-        return float(res.data[0]["balance"])
+        return int(round(float(res.data[0]["balance"])))
     # Everyone starts at 0 credits!
-    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0.0}).execute()
-    return 0.0
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0}).execute()
+    return 0
 
 @router.get("/me/credits")
 def get_credits(user = Depends(get_current_user)):
@@ -343,6 +343,9 @@ def get_credits(user = Depends(get_current_user)):
 
 class CreditTopupRequest(BaseModel):
     amount_inr: float
+    razorpay_payment_id: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 @router.post("/me/credits/checkout")
 def checkout_credits(req: CreditTopupRequest, user = Depends(get_current_user)):
@@ -377,14 +380,14 @@ def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_curr
                 raise HTTPException(status_code=400, detail="Invalid payment signature. Credits not added.")
                 
         # 1 INR = 10 Credits
-        credits_to_add = int(req.amount_inr * 10)
+        credits_to_add = int(round(req.amount_inr * 10))
         
         # Give bonus if >= 499
         if req.amount_inr >= 499:
             credits_to_add += 500
             
         current_balance = get_or_init_balance(user.id)
-        new_balance = current_balance + credits_to_add
+        new_balance = int(round(current_balance + credits_to_add))
         
         supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", user.id).execute()
             

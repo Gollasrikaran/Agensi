@@ -11,13 +11,13 @@ from fastmcp import FastMCP
 # Initialize FastMCP Server
 mcp = FastMCP("Bodhic-MCP")
 
-def get_or_init_balance(user_id: str) -> float:
+def get_or_init_balance(user_id: str) -> int:
     res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     if res.data:
-        return float(res.data[0]["balance"])
+        return int(round(float(res.data[0]["balance"])))
     # Everyone starts at 0 credits!
-    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0.0}).execute()
-    return 0.0
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0}).execute()
+    return 0
 
 @mcp.tool()
 def search_skills(query: str, category: str = None) -> str:
@@ -175,7 +175,8 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
             return f"You are out of credits ({balance} remaining, 10 required). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhicai.tech/skill/{skill_id}"
         
         # Deduct credits
-        supabase.table("user_credits").update({"balance": balance - 10}).eq("user_id", user_id).execute()
+        new_bal = int(round(balance - 10))
+        supabase.table("user_credits").update({"balance": new_bal}).eq("user_id", user_id).execute()
         
         # Log transaction
         supabase.table("credit_transactions").insert({
@@ -190,9 +191,9 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
         referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
         if referral_res.data:
             referrer_id = referral_res.data[0]["referrer_id"]
-            kickback = 10 * 0.20
+            kickback = int(round(10 * 0.20))
             ref_balance = get_or_init_balance(referrer_id)
-            supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+            supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
             supabase.table("credit_transactions").insert({
                 "user_id": referrer_id,
                 "amount": kickback,

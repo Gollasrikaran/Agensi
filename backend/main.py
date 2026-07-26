@@ -459,17 +459,17 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
             return {"message": "Already purchased", "skill_id": req.skill_id}
             
         # 2. Calculate credit cost (1 INR = 10 Credits)
-        credit_cost = int(base_price * 10)
+        credit_cost = int(round(float(base_price) * 10))
         
         # 3. Check buyer's credit balance
         balance_res = supabase.table("user_credits").select("balance").eq("user_id", buyer_id).execute()
-        current_balance = int(balance_res.data[0]["balance"]) if balance_res.data else 0
+        current_balance = int(round(float(balance_res.data[0]["balance"]))) if balance_res.data else 0
         
         if current_balance < credit_cost:
             raise HTTPException(status_code=400, detail=f"Insufficient credits. Required: {credit_cost}, Available: {current_balance}")
             
         # 4. Deduct credits
-        new_balance = current_balance - credit_cost
+        new_balance = int(round(current_balance - credit_cost))
         if not balance_res.data:
             supabase.table("user_credits").insert({"user_id": buyer_id, "balance": new_balance}).execute()
         else:

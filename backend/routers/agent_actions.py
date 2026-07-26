@@ -35,13 +35,13 @@ def search_skills(query: str = ""):
     res = supabase.table("skills").select("id, title, description, category, base_price_inr").ilike("title", f"%{query}%").eq("moderation_status", "approved").limit(5).execute()
     return res.data
 
-def get_or_init_balance(user_id: str) -> float:
+def get_or_init_balance(user_id: str) -> int:
     res = supabase.table("user_credits").select("balance").eq("user_id", user_id).execute()
     if res.data:
-        return float(res.data[0]["balance"])
+        return int(round(float(res.data[0]["balance"])))
     # Everyone starts at 0 credits!
-    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0.0}).execute()
-    return 0.0
+    supabase.table("user_credits").insert({"user_id": user_id, "balance": 0}).execute()
+    return 0
 
 @router.get("/credits", response_model=CreditResponse, summary="Check Bodhic Credit Balance", description="Get the remaining Bodhic Credit balance for the authenticated user.")
 def get_credits():
@@ -87,11 +87,11 @@ async def chat_with_skill(request: ChatRequest):
         if balance < cost:
             raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
             
-        supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
+        supabase.table("user_credits").update({"balance": int(round(balance - cost))}).eq("user_id", user_id).execute()
         
         supabase.table("credit_transactions").insert({
             "user_id": user_id,
-            "amount": -cost,
+            "amount": -int(round(cost)),
             "transaction_type": "mcp_purchase",
             "reference_id": skill_id,
             "description": f"Agent Chat with {skill['title']} (Level {complexity_level})"
@@ -101,9 +101,9 @@ async def chat_with_skill(request: ChatRequest):
         referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
         if referral_res.data:
             referrer_id = referral_res.data[0]["referrer_id"]
-            kickback = cost * 0.20
+            kickback = int(round(cost * 0.20))
             ref_balance = get_or_init_balance(referrer_id)
-            supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+            supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
             supabase.table("credit_transactions").insert({
                 "user_id": referrer_id,
                 "amount": kickback,
@@ -174,11 +174,11 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
             if balance < cost:
                 raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
                 
-            supabase.table("user_credits").update({"balance": balance - cost}).eq("user_id", user_id).execute()
+            supabase.table("user_credits").update({"balance": int(round(balance - cost))}).eq("user_id", user_id).execute()
             
             supabase.table("credit_transactions").insert({
                 "user_id": user_id,
-                "amount": -cost,
+                "amount": -int(round(cost)),
                 "transaction_type": "mcp_purchase",
                 "reference_id": skill_id,
                 "description": f"Bodhic LLM Chat with {skill['title']} (Level {complexity_level})"
@@ -188,9 +188,9 @@ async def web_chat_with_skill(request: ChatRequest, user = Depends(get_current_u
             referral_res = supabase.table("referrals").select("referrer_id").eq("referred_user_id", user_id).execute()
             if referral_res.data:
                 referrer_id = referral_res.data[0]["referrer_id"]
-                kickback = cost * 0.20
+                kickback = int(round(cost * 0.20))
                 ref_balance = get_or_init_balance(referrer_id)
-                supabase.table("user_credits").update({"balance": ref_balance + kickback}).eq("user_id", referrer_id).execute()
+                supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
                 supabase.table("credit_transactions").insert({
                     "user_id": referrer_id,
                     "amount": kickback,
