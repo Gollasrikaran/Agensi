@@ -208,7 +208,7 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
     if not cf_account_id or not cf_api_token:
         return "Error: Cloudflare MCP credentials not configured on the server."
         
-    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3-8b-instruct"
+    cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
     
     # Apply the Anti-Leak Security Wrapper (Sandwich + Blunt Rejection)
     base_prompt = prompt_template or "You are a helpful AI assistant."
