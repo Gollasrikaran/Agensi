@@ -463,7 +463,7 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
         
         # 3. Check buyer's credit balance
         balance_res = supabase.table("user_credits").select("balance").eq("user_id", buyer_id).execute()
-        current_balance = float(balance_res.data[0]["balance"]) if balance_res.data else 0.0
+        current_balance = int(balance_res.data[0]["balance"]) if balance_res.data else 0
         
         if current_balance < credit_cost:
             raise HTTPException(status_code=400, detail=f"Insufficient credits. Required: {credit_cost}, Available: {current_balance}")
