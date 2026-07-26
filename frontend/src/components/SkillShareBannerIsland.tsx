@@ -38,10 +38,10 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
               <span>🎁</span> INSTANT REFER & EARN
             </div>
             <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>
-              Share This Skill & Earn 50 Credits!
+              Share This Skill & Earn 20% Kickbacks!
             </h4>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--body)' }}>
-              Share your invite link via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When a friend signs up or buys, you both get 50 credits!
+              Share your invite link via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone signs up, you automatically earn a <strong style={{ color: '#10b981' }}>20% Affiliate Kickback</strong> on all credits they utilize for life!
             </p>
           </div>
           <div style={{ fontFamily: 'monospace', fontSize: '12px', background: 'var(--canvas-soft)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--hairline)' }}>
