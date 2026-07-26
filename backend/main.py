@@ -435,6 +435,83 @@ def checkout(req: CheckoutRequest, user = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class CreditCheckoutRequest(BaseModel):
+    skill_id: str
+
+@app.post("/api/checkout/credits")
+def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current_user)):
+    try:
+        # 1. Fetch skill details
+        skill_res = supabase.table("skills").select("base_price_inr, seller_id, title").eq("id", req.skill_id).single().execute()
+        if not skill_res.data:
+            raise HTTPException(status_code=404, detail="Skill not found")
+            
+        base_price = skill_res.data["base_price_inr"]
+        seller_id = skill_res.data["seller_id"]
+        buyer_id = user.id
+        
+        if seller_id == buyer_id:
+            raise HTTPException(status_code=403, detail="You cannot purchase your own skill.")
+            
+        # Check if already purchased
+        existing = supabase.table("purchases").select("id").eq("buyer_id", buyer_id).eq("skill_id", req.skill_id).execute()
+        if existing.data:
+            return {"message": "Already purchased", "skill_id": req.skill_id}
+            
+        # 2. Calculate credit cost (1 INR = 10 Credits)
+        credit_cost = int(base_price * 10)
+        
+        # 3. Check buyer's credit balance
+        balance_res = supabase.table("user_credits").select("balance").eq("user_id", buyer_id).execute()
+        current_balance = float(balance_res.data[0]["balance"]) if balance_res.data else 0.0
+        
+        if current_balance < credit_cost:
+            raise HTTPException(status_code=400, detail=f"Insufficient credits. Required: {credit_cost}, Available: {current_balance}")
+            
+        # 4. Deduct credits
+        new_balance = current_balance - credit_cost
+        if not balance_res.data:
+            supabase.table("user_credits").insert({"user_id": buyer_id, "balance": new_balance}).execute()
+        else:
+            supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", buyer_id).execute()
+            
+        # 5. Log credit transaction
+        supabase.table("credit_transactions").insert({
+            "user_id": buyer_id,
+            "amount": -credit_cost,
+            "transaction_type": "mcp_purchase",
+            "reference_id": req.skill_id,
+            "description": f"Purchased skill '{skill_res.data['title']}' for {credit_cost} credits"
+        }).execute()
+        
+        # 6. Record purchase (This automatically triggers seller's 80% INR payout in the sweep)
+        supabase.table("purchases").insert({
+            "buyer_id": buyer_id,
+            "skill_id": req.skill_id,
+            "amount": base_price,
+            "currency": "INR",
+            "payment_provider": "credits",
+            "payment_status": "completed",
+            "provider_txn_id": f"cred_txn_{req.skill_id}",
+        }).execute()
+        
+        # 7. Increment purchase_count
+        current_count = skill_res.data.get("purchase_count") or 0
+        supabase.table("skills").update({"purchase_count": current_count + 1}).eq("id", req.skill_id).execute()
+        
+        # 8. Log activity
+        supabase.table("user_activity").insert([
+            {"user_id": seller_id, "activity_type": "sale"},
+            {"user_id": buyer_id, "activity_type": "purchase"}
+        ]).execute()
+        
+        return {"message": "Purchase completed using credits", "new_balance": new_balance, "skill_id": req.skill_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 class CheckoutSuccessRequest(BaseModel):
     skill_id: str
     razorpay_payment_id: Optional[str] = None

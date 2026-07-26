@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 interface CheckoutIslandProps {
@@ -12,6 +12,59 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
   const [intent, setIntent] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCreditBalance(data.balance || 0);
+        }
+      } catch (e) {
+        console.error('Failed to fetch credits', e);
+      }
+    };
+    fetchCredits();
+  }, []);
+
+  const handleCreditPayment = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError('You must be logged in to complete payment.');
+        setLoading(false);
+        return;
+      }
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/credits`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}` 
+        },
+        body: JSON.stringify({ skill_id: skillId })
+      });
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || 'Credit payment failed');
+      }
+      
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -146,6 +199,36 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
       
       {!intent ? (
         <div className="form-group">
+          {creditBalance !== null && (
+            <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(108, 60, 225, 0.1) 0%, rgba(74, 33, 175, 0.1) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary)' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Pay with Bodhic Credits</span>
+                <span>Balance: {creditBalance} CR</span>
+              </h4>
+              <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
+                Cost: <strong>{Number(basePrice || 0) * 10} CR</strong>
+              </p>
+              <button 
+                className="btn btn-primary btn-lg" 
+                style={{ width: '100%' }}
+                onClick={handleCreditPayment}
+                disabled={loading || creditBalance < Number(basePrice || 0) * 10}
+              >
+                {loading ? 'Processing...' : (creditBalance < Number(basePrice || 0) * 10 ? 'Insufficient Credits' : `Pay ${Number(basePrice || 0) * 10} Credits`)}
+              </button>
+              {creditBalance < Number(basePrice || 0) * 10 && (
+                <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
+                  <a href="/dashboard/credits" style={{ color: 'var(--primary)' }}>Top up your wallet</a>
+                </p>
+              )}
+            </div>
+          )}
+          
+          <div style={{ position: 'relative', textAlign: 'center', margin: 'var(--space-lg) 0' }}>
+            <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)' }} />
+            <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--surface)', padding: '0 12px', color: 'var(--mute)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>OR PAY WITH CASH</span>
+          </div>
+
           <label>Payment Region (Defaulting to India for INR processing)</label>
           <select value={country} onChange={(e) => setCountry(e.target.value)}>
             <option value="IN">India (Razorpay / UPI)</option>
@@ -154,7 +237,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
           
           <button 
             className="btn btn-primary btn-lg" 
-            style={{ marginTop: 'var(--space-md)', width: '100%' }}
+            style={{ marginTop: 'var(--space-md)', width: '100%', background: 'var(--surface)', color: 'var(--ink)', border: '1px solid var(--hairline)' }}
             onClick={handleCheckout}
             disabled={loading}
           >
