@@ -311,7 +311,7 @@ export default function UploadSkillFormIsland() {
           <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: '24px' }}>
             Upload your agent code (.zip) or {itemType === 'prompt' ? 'prompt text (.md)' : 'instructions (.md)'}. We will automatically scan it for security vulnerabilities.
             <br/><br/>
-            <a href="/guides/example-skill-template" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+            <a href={itemType === 'prompt' ? "/guides/example-prompt-template" : "/guides/example-skill-template"} target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
               View Example {itemType === 'skill' ? 'Skill' : 'Prompt'} Template &rarr;
             </a>
           </p>

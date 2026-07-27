@@ -113,7 +113,7 @@ export default function NavbarIsland() {
       {/* Center: Links */}
       <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '14px' }}>
         <a href="/browse" style={{ color: currentPath.startsWith('/browse') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/browse') ? '600' : '500' }}>Browse</a>
-        <a href="/requests" style={{ color: currentPath.startsWith('/requests') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/requests') ? '600' : '500' }}>Request</a>
+        <a href="/requests" style={{ color: currentPath.startsWith('/requests') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/requests') ? '600' : '500' }}>Request for new skill</a>
         <a href="/sell" style={{ color: currentPath.startsWith('/sell') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/sell') ? '600' : '500' }}>Sell a Skill</a>
         <a href="/guides" style={{ color: currentPath.startsWith('/guides') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/guides') ? '600' : '500' }}>Guides</a>
         <a href="/mcp" style={{ color: currentPath.startsWith('/mcp') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/mcp') ? '600' : '500' }}>MCP</a>
