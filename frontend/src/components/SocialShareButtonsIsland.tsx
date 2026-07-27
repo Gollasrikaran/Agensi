@@ -68,11 +68,11 @@ export default function SocialShareButtonsIsland({
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
 
   const buttons = [
-    { name: 'WhatsApp', icon: <WhatsAppIcon />, url: whatsappUrl, bg: '#25D366', color: '#fff' },
-    { name: 'LinkedIn', icon: <LinkedInIcon />, url: linkedinUrl, bg: '#0a66c2', color: '#fff' },
-    { name: 'Reddit', icon: <RedditIcon />, url: redditUrl, bg: '#ff4500', color: '#fff' },
-    { name: 'X / Twitter', icon: <TwitterIcon />, url: twitterUrl, bg: '#14171a', color: '#fff' },
-    { name: 'Telegram', icon: <TelegramIcon />, url: telegramUrl, bg: '#0088cc', color: '#fff' },
+    { name: 'WhatsApp', icon: <WhatsAppIcon />, url: whatsappUrl, bg: '#25D366', color: '#fff', border: 'none', shadow: '0 2px 8px #25D36644', iconColor: '#fff' },
+    { name: 'LinkedIn', icon: <LinkedInIcon />, url: linkedinUrl, bg: '#0a66c2', color: '#fff', border: 'none', shadow: '0 2px 8px #0a66c244', iconColor: '#fff' },
+    { name: 'Reddit', icon: <RedditIcon />, url: redditUrl, bg: '#1a1a1b', color: '#ffffff', border: '1px solid #ff4500', shadow: '0 2px 8px rgba(255, 69, 0, 0.4)', iconColor: '#ff4500' },
+    { name: 'X / Twitter', icon: <TwitterIcon />, url: twitterUrl, bg: '#14171a', color: '#fff', border: 'none', shadow: '0 2px 8px #14171a44', iconColor: '#fff' },
+    { name: 'Telegram', icon: <TelegramIcon />, url: telegramUrl, bg: '#0088cc', color: '#fff', border: 'none', shadow: '0 2px 8px #0088cc44', iconColor: '#fff' },
   ];
 
   if (compact) {
@@ -93,7 +93,7 @@ export default function SocialShareButtonsIsland({
             style={{
               background: btn.bg,
               color: btn.color,
-              border: 'none',
+              border: btn.border,
               padding: '4px 8px',
               borderRadius: '6px',
               fontSize: '12px',
@@ -105,7 +105,7 @@ export default function SocialShareButtonsIsland({
               height: '26px'
             }}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center' }}>{btn.icon}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', color: btn.iconColor }}>{btn.icon}</span>
           </a>
         ))}
         <button
@@ -146,7 +146,7 @@ export default function SocialShareButtonsIsland({
             style={{
               background: btn.bg,
               color: btn.color,
-              border: 'none',
+              border: btn.border,
               padding: '8px 12px',
               borderRadius: '8px',
               fontWeight: 600,
@@ -156,13 +156,13 @@ export default function SocialShareButtonsIsland({
               justifyContent: 'center',
               gap: '6px',
               textDecoration: 'none',
-              boxShadow: `0 2px 8px ${btn.bg}44`,
+              boxShadow: btn.shadow,
               transition: 'transform 0.15s, opacity 0.15s'
             }}
             onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
             onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center' }}>{btn.icon}</span> {btn.name}
+            <span style={{ display: 'inline-flex', alignItems: 'center', color: btn.iconColor }}>{btn.icon}</span> {btn.name}
           </a>
         ))}
       </div>

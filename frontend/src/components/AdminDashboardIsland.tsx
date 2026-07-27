@@ -226,15 +226,37 @@ export default function AdminDashboardIsland() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
                 <th style={{ padding: '0.5rem' }}>Title</th>
+                <th style={{ padding: '0.5rem' }}>Complexity</th>
+                <th style={{ padding: '0.5rem' }}>Credits / Chat</th>
                 <th style={{ padding: '0.5rem' }}>Price</th>
                 <th style={{ padding: '0.5rem' }}>Status</th>
                 <th style={{ padding: '0.5rem' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {data.recent_skills?.map((skill: any) => (
+              {data.recent_skills?.map((skill: any) => {
+                const comp = skill.complexity_level || 1;
+                const costMap: Record<number, number> = { 1: 10, 2: 20, 3: 40, 4: 70, 5: 100 };
+                const creditsPerChat = costMap[comp] || (comp * 10);
+                return (
                 <tr key={skill.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  <td style={{ padding: '0.5rem' }}>{skill.title}</td>
+                  <td style={{ padding: '0.5rem', fontWeight: 500 }}>{skill.title}</td>
+                  <td style={{ padding: '0.5rem' }}>
+                    <span style={{ 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.75rem', 
+                      background: 'var(--canvas-soft-2, #222)', 
+                      color: 'var(--primary)',
+                      border: '1px solid var(--hairline)',
+                      fontWeight: 600
+                    }}>
+                      Level {comp}
+                    </span>
+                  </td>
+                  <td style={{ padding: '0.5rem' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--success)', fontSize: '0.85rem' }}>{creditsPerChat} CR</span>
+                  </td>
                   <td style={{ padding: '0.5rem' }}>₹{skill.base_price_usd || skill.base_price_inr}</td>
                   <td style={{ padding: '0.5rem' }}>
                     <span style={{ 
@@ -292,7 +314,8 @@ export default function AdminDashboardIsland() {
                     )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -509,14 +532,36 @@ export default function AdminDashboardIsland() {
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <th style={{ padding: '0.5rem' }}>Title</th>
+                  <th style={{ padding: '0.5rem' }}>Complexity</th>
+                  <th style={{ padding: '0.5rem' }}>Credits / Chat</th>
                   <th style={{ padding: '0.5rem' }}>Status</th>
                   <th style={{ padding: '0.5rem' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {userSkills.map(skill => (
+                {userSkills.map(skill => {
+                  const comp = skill.complexity_level || 1;
+                  const costMap: Record<number, number> = { 1: 10, 2: 20, 3: 40, 4: 70, 5: 100 };
+                  const creditsPerChat = costMap[comp] || (comp * 10);
+                  return (
                   <tr key={skill.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.5rem' }}>{skill.title}</td>
+                    <td style={{ padding: '0.5rem', fontWeight: 500 }}>{skill.title}</td>
+                    <td style={{ padding: '0.5rem' }}>
+                      <span style={{ 
+                        padding: '0.2rem 0.5rem', 
+                        borderRadius: '4px', 
+                        fontSize: '0.75rem', 
+                        background: 'var(--canvas-soft-2, #222)', 
+                        color: 'var(--primary)',
+                        border: '1px solid var(--hairline)',
+                        fontWeight: 600
+                      }}>
+                        Level {comp}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.5rem' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--success)', fontSize: '0.85rem' }}>{creditsPerChat} CR</span>
+                    </td>
                     <td style={{ padding: '0.5rem' }}>
                       <span style={{
                         padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem',
@@ -535,9 +580,10 @@ export default function AdminDashboardIsland() {
                        </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
                 {userSkills.length === 0 && (
-                  <tr><td colSpan={3} style={{ padding: '1rem', textAlign: 'center' }}>No skills found.</td></tr>
+                  <tr><td colSpan={5} style={{ padding: '1rem', textAlign: 'center' }}>No skills found.</td></tr>
                 )}
               </tbody>
             </table>

@@ -371,7 +371,8 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "skill_md_file_url": "pending_upload_url",
         "moderation_status": moderation_status,
         "scan_summary_json": final_scan_result,
-        "declared_capabilities_json": []
+        "declared_capabilities_json": [],
+        "complexity_level": scan_result_tier2.get("complexity_level", 1) if scan_result_tier2 else 1
     }
 
     try:
