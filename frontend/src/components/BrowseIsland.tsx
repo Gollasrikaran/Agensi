@@ -141,21 +141,21 @@ export default function BrowseIsland() {
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'all' ? 'var(--primary)' : 'transparent', color: itemType === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('all')}
         >
-          ✨ Everything
+          Everything
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'skill' ? 'var(--primary)' : 'transparent', color: itemType === 'skill' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('skill')}
         >
-          🤖 AI Skills
+          AI Skills
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'prompt' ? 'var(--primary)' : 'transparent', color: itemType === 'prompt' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('prompt')}
         >
-          📝 Prompts
+          Prompts
         </button>
       </div>
 
@@ -166,21 +166,21 @@ export default function BrowseIsland() {
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'all' ? 'var(--primary)' : 'transparent', color: audience === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('all')}
         >
-          ✨ All Skills
+          All Skills
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'student' ? 'var(--primary)' : 'transparent', color: audience === 'student' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('student')}
         >
-          🎓 For Students
+          For Students
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'professional' ? 'var(--primary)' : 'transparent', color: audience === 'professional' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('professional')}
         >
-          💼 For Professionals
+          For Professionals
         </button>
       </div>
 

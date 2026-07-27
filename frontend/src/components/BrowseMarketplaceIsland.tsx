@@ -52,21 +52,21 @@ export default function BrowseMarketplaceIsland() {
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'all' ? 'var(--primary)' : 'transparent', color: itemType === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('all')}
         >
-          ✨ Everything
+          Everything
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'skill' ? 'var(--primary)' : 'transparent', color: itemType === 'skill' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('skill')}
         >
-          🤖 AI Skills
+          AI Skills
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'prompt' ? 'var(--primary)' : 'transparent', color: itemType === 'prompt' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setItemType('prompt')}
         >
-          📝 Prompts
+          Prompts
         </button>
       </div>
 
@@ -76,28 +76,28 @@ export default function BrowseMarketplaceIsland() {
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'all' ? 'var(--primary)' : 'transparent', color: audience === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('all')}
         >
-          ✨ All Audiences
+          All Audiences
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'student' ? 'var(--primary)' : 'transparent', color: audience === 'student' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('student')}
         >
-          🎓 For Students
+          For Students
         </button>
         <button 
           className="btn"
           style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: audience === 'professional' ? 'var(--primary)' : 'transparent', color: audience === 'professional' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
           onClick={() => setAudience('professional')}
         >
-          💼 For Professionals
+          For Professionals
         </button>
       </div>
       
       {loading ? (
         <div style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>Loading marketplace...</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-xl)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 'var(--space-xl)' }}>
       {skills.length === 0 ? (
         <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--mute)' }}>
           No skills available in the marketplace yet.
