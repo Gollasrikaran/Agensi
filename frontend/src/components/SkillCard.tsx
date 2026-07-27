@@ -220,18 +220,18 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         {/* Badges */}
         <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--canvas-soft-2, #222)', color: 'var(--accent, #a855f7)', border: '1px solid var(--hairline-strong)', borderRadius: '8px', fontSize: '10px', fontWeight: 700 }}>
-            ⚡ Level {skill.complexity_level || 1}
+            Level {skill.complexity_level || 1}
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', fontSize: '10px', fontWeight: 700 }}>
-            💎 {({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
+            {({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
           </span>
           {skill.moderation_status === 'approved' && (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px rgba(16, 185, 129, 0.1)' }}>
-              🛡️ Passed OWASP
+              OWASP Verified
             </span>
           )}
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px var(--primary-soft)' }}>
-            🔌 MCP Ready
+            MCP Ready
           </span>
         </div>
 
@@ -287,7 +287,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
                   e.currentTarget.style.color = domainColor;
                 }}
               >
-                🌐 {cat}
+                {cat}
               </a>
             );
           })}
@@ -309,7 +309,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
                alignItems: 'center',
                gap: '4px'
              }}>
-               💻 {agent}
+               {agent}
              </span>
            ))}
         </div>

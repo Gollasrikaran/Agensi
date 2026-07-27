@@ -56,23 +56,23 @@ const jsonLd = skill ? JSON.stringify({
 			<div style="margin-bottom: var(--space-xl);">
 				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm); flex-wrap: wrap;">
 					{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
-						<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; text-decoration: none;">🌐 {cat}</a>
+						<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; text-decoration: none;">{cat}</a>
 					))}
 					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--canvas-soft-2, #222); color: var(--accent, #a855f7); border: 1px solid var(--hairline-strong); border-radius: 12px; font-size: 12px; font-weight: 600;">
-						⚡ Level {skill.complexity_level || 1}
+						Level {skill.complexity_level || 1}
 					</span>
 					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600;">
-						💎 {({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
+						{({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
 					</span>
 					{skill.moderation_status === 'approved' ? (
 						<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
-							🛡️ Passed OWASP Security Scan
+							OWASP Verified
 						</span>
 					) : (
 						<span class="badge warning">⏳ Pending Review</span>
 					)}
 					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px var(--primary-soft);">
-						🔌 MCP Ready
+						MCP Ready
 					</span>
 				</div>
 				<h1 style="font-size: 48px; margin-bottom: var(--space-xs);">{skill.title}</h1>
@@ -100,7 +100,7 @@ const jsonLd = skill ? JSON.stringify({
 					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
 						{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
 							<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; text-decoration: none;">
-								🌐 {cat}
+								{cat}
 							</a>
 						))}
 					</div>
@@ -110,7 +110,7 @@ const jsonLd = skill ? JSON.stringify({
 					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
 						{['Cursor', 'Claude', 'Windsurf', 'MCP'].map(agent => (
 							<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--canvas-soft); border: 1px solid var(--hairline); border-radius: 6px; font-size: 13px; color: var(--body); font-weight: 500;">
-								💻 {agent}
+								{agent}
 							</span>
 						))}
 					</div>
@@ -159,7 +159,7 @@ const jsonLd = skill ? JSON.stringify({
 				
 				<div style="display: flex; flex-direction: column; gap: var(--space-sm);">
 					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 14px; text-decoration: none;">
-						<span style="font-size: 18px;">✨</span> Test with Bodhic LLM Web Chat
+						Test with Bodhic LLM Web Chat
 					</a>
 					<McpTestIsland client:load skillId={skill.id} />
 				</div>

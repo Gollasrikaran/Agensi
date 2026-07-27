@@ -56,7 +56,7 @@ export default function McpConfigTabsIsland({
     <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--canvas-soft)', border: '1px solid var(--border)', borderRadius: '16px', marginTop: 'var(--space-md)' }}>
       <div style={{ marginBottom: '16px' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>🔌</span> Connect Your AI Agent Environment
+          Connect Your AI Agent Environment
         </h3>
         <p style={{ fontSize: '14px', color: 'var(--body)' }}>
           We provide separated configurations for desktop IDEs, VS Code Copilot, and cloud/web-based agents. Choose your setup:
@@ -80,7 +80,7 @@ export default function McpConfigTabsIsland({
             transition: 'all 0.2s' 
           }}
         >
-          💻 Cursor / Claude Desktop / Windsurf
+          Cursor / Claude Desktop / Windsurf
         </button>
         <button
           type="button"
@@ -98,7 +98,7 @@ export default function McpConfigTabsIsland({
             transition: 'all 0.2s' 
           }}
         >
-          🤖 VS Code (GitHub Copilot)
+          VS Code (GitHub Copilot)
         </button>
         <button
           type="button"
@@ -116,7 +116,7 @@ export default function McpConfigTabsIsland({
             transition: 'all 0.2s' 
           }}
         >
-          🌐 Claude Web UI / Web Agents
+          Claude Web UI / Web Agents
         </button>
       </div>
 
@@ -132,7 +132,7 @@ export default function McpConfigTabsIsland({
               className="btn btn-secondary" 
               style={{ padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
             >
-              📋 Copy JSON
+              Copy JSON
             </button>
           </div>
           <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>
@@ -153,7 +153,7 @@ export default function McpConfigTabsIsland({
               className="btn btn-secondary" 
               style={{ padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
             >
-              📋 Copy JSON
+              Copy JSON
             </button>
           </div>
           <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>
@@ -177,7 +177,7 @@ export default function McpConfigTabsIsland({
                 className="btn btn-secondary" 
                 style={{ padding: '2px 8px', fontSize: '11px', cursor: 'pointer' }}
               >
-                📋 Copy URL
+                Copy URL
               </button>
             </div>
             <div style={{ background: 'rgba(108, 60, 225, 0.1)', border: '1px solid var(--primary)', padding: '12px 14px', borderRadius: '8px', fontSize: '13px', wordBreak: 'break-all', color: 'var(--primary)', fontWeight: 600, fontFamily: 'monospace' }}>
@@ -193,7 +193,7 @@ export default function McpConfigTabsIsland({
               className="btn btn-secondary" 
               style={{ padding: '2px 8px', fontSize: '11px', cursor: 'pointer' }}
             >
-              📋 Copy JSON
+              Copy JSON
             </button>
           </div>
           <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>

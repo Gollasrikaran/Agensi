@@ -200,8 +200,8 @@ export default function SkillPulseGraph({ username }: { username: string }) {
         </div>
 
         <div style={{ textAlign: 'right', fontSize: '13px' }}>
-          <div style={{ color: 'var(--text-secondary)' }}>🔥 Current Streak: <strong style={{ color: '#fff' }}>14 days</strong></div>
-          <div style={{ color: 'var(--text-secondary)' }}>⚡ Longest Streak: <strong>42 days</strong></div>
+          <div style={{ color: 'var(--text-secondary)' }}>Current Streak: <strong style={{ color: '#fff' }}>14 days</strong></div>
+          <div style={{ color: 'var(--text-secondary)' }}>Longest Streak: <strong>42 days</strong></div>
         </div>
 
       </div>

@@ -92,7 +92,7 @@ export default function AchievementManager() {
                   className={`btn btn-sm ${ach.is_public ? 'btn-primary' : 'btn-secondary'}`}
                   style={{ opacity: ach.is_admin_awarded ? 0.5 : 1, padding: '4px 8px' }}
                 >
-                  {ach.is_admin_awarded ? '🔒 Public Only' : (ach.is_public ? '👁️ Public' : '🙈 Private')}
+                  {ach.is_admin_awarded ? 'Public Only' : (ach.is_public ? 'Public' : 'Private')}
                 </button>
               </div>
             ) : (

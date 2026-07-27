@@ -151,7 +151,7 @@ export default function TrendingSkillsIsland() {
         className="hide-scrollbar"
       >
         {skills.map((skill: any, index: number) => (
-          <div key={skill.id} style={{ scrollSnapAlign: 'start', flex: '0 0 auto', width: '320px' }}>
+          <div key={skill.id} style={{ scrollSnapAlign: 'start', flex: '0 0 auto', width: 'min(320px, 85vw)' }}>
             <SkillCard 
               skill={skill}
               isUpvoted={upvoteStates[skill.id]}

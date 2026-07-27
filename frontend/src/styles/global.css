@@ -646,29 +646,44 @@ footer {
 /* ═══════ RESPONSIVE ═══════ */
 @media (max-width: 960px) {
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .responsive-grid { grid-template-columns: repeat(2, 1fr) !important; }
   h1 { font-size: 40px; letter-spacing: -1.8px; }
   .hero h1 { font-size: 44px; letter-spacing: -2px; }
   .stat-row { gap: var(--space-xl); }
 }
 
+@media (max-width: 768px) {
+  .responsive-split-grid { grid-template-columns: 1fr !important; }
+  .responsive-grid { grid-template-columns: 1fr !important; }
+  .card { padding: var(--space-lg) !important; }
+  table, .table-container { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+  .form-group, input, select, textarea { width: 100% !important; max-width: 100%; box-sizing: border-box; }
+}
+
 @media (max-width: 600px) {
   .grid-3 { grid-template-columns: 1fr; }
   .grid { grid-template-columns: 1fr; }
+  .responsive-split-grid { grid-template-columns: 1fr !important; }
+  .responsive-grid { grid-template-columns: 1fr !important; }
   h1 { font-size: 32px; letter-spacing: -1.2px; }
-  h2 { font-size: 28px; }
+  h2 { font-size: 26px; letter-spacing: -0.8px; }
+  h3 { font-size: 20px; }
   .hero { padding: var(--space-4xl) var(--space-md) var(--space-3xl); }
-  .hero h1 { font-size: 36px; letter-spacing: -1.5px; }
+  .hero h1 { font-size: 34px; letter-spacing: -1.5px; }
   .hero p { font-size: 16px; }
-  .hero .cta-row { flex-direction: column; width: 100%; max-width: 300px; }
+  .hero .cta-row { flex-direction: column; width: 100%; max-width: 100%; }
   .hero .cta-row .btn { width: 100%; }
   .navbar nav { display: none; }
-  .navbar nav.mobile-open { display: flex !important; }
+  .navbar nav.mobile-open { display: flex !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--canvas-elevated); padding: var(--space-lg); border-bottom: 1px solid var(--hairline); box-shadow: var(--shadow-xl); z-index: 100; gap: var(--space-md); }
   .mobile-toggle { display: block !important; }
   .desktop-only { display: none !important; }
   .navbar { padding: 0 var(--space-md); }
   .stat-row { flex-direction: column; gap: var(--space-lg); }
   main { padding: var(--space-lg) var(--space-md); }
-  .band-brand { margin: var(--space-xl) var(--space-md); padding: var(--space-3xl) var(--space-lg); border-radius: var(--radius-lg); }
+  .band-brand { margin: var(--space-xl) var(--space-md); padding: var(--space-2xl) var(--space-lg); border-radius: var(--radius-lg); }
+  .card { padding: var(--space-md) !important; border-radius: var(--radius-md); }
+  .btn { width: 100%; justify-content: center; text-align: center; }
+  .badge { font-size: 11px; padding: 3px 8px; }
 }
 
 /* ═══════ SMOOTH SCROLL REVEAL ═══════ */

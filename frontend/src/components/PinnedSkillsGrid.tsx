@@ -43,7 +43,7 @@ export default function PinnedSkillsGrid({ skills }: { skills: any[] }) {
                 boxShadow: '0 4px 12px rgba(108,60,225,0.4)',
                 zIndex: 10
               }}>
-                🔥 Most Popular
+                Most Popular
               </div>
             )}
             <SkillCard skill={skill} />

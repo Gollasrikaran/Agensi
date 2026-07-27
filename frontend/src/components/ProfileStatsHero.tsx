@@ -63,12 +63,12 @@ export default function ProfileStatsHero({ profile }: { profile: UserProfile }) 
               </h1>
               {profile.is_verified && (
                 <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '4px 10px', borderRadius: 'var(--border-radius-pill)', fontSize: '12px', fontWeight: 'bold' }}>
-                  🛡️ Verified Creator
+                  Verified Creator
                 </span>
               )}
             </div>
             
-            <div style={{ display: 'flex', gap: '24px', color: 'var(--text-secondary)', fontSize: '14px' }}>
+            <div style={{ display: 'flex', gap: '16px', color: 'var(--text-secondary)', fontSize: '14px', flexWrap: 'wrap' }}>
               <span>Joined {profile.join_date}</span>
               <span><strong>{profile.total_skills}</strong> Skills Published</span>
               <span><strong>{profile.total_sales}</strong> Total Sales</span>
@@ -88,7 +88,7 @@ export default function ProfileStatsHero({ profile }: { profile: UserProfile }) 
                 fontSize: '13px',
                 fontWeight: 'bold'
               }}>
-                ⭐ {profile.pulse_score} Pulse Score
+                {profile.pulse_score} Pulse Score
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function ProfileStatsHero({ profile }: { profile: UserProfile }) 
               Follow
             </button>
             <button style={{ background: 'var(--accent-gradient)', border: 'none', color: '#fff', padding: '10px 20px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer', fontWeight: 'bold' }}>
-              Sponsor ☕
+              Sponsor
             </button>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function ProfileStatsHero({ profile }: { profile: UserProfile }) 
         {/* Bottom: Activity Graph */}
         {profile.is_private ? (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--mute)' }}>
-            🔒 Skill pulse activity is private
+            Skill pulse activity is private
           </div>
         ) : (
           <div>

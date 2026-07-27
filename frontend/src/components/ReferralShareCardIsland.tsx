@@ -29,7 +29,7 @@ export default function ReferralShareCardIsland() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
         <div style={{ flex: '1 1 320px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(108, 60, 225, 0.2)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, marginBottom: '8px' }}>
-            <span>🎁</span> MULTI-CHANNEL VIRAL REFERRAL
+            MULTI-CHANNEL VIRAL REFERRAL
           </div>
           <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: 'var(--ink)' }}>
             Refer Friends & Earn 20% Affiliate Kickbacks!
@@ -38,9 +38,9 @@ export default function ReferralShareCardIsland() {
             Share your unique referral code <strong style={{ color: 'var(--primary)', fontFamily: 'monospace', background: 'var(--canvas-soft)', padding: '2px 6px', borderRadius: '4px' }}>{refId}</strong> via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone visits and signs up using your link, you automatically earn a <strong style={{ color: '#10b981' }}>20% Affiliate Kickback</strong> on all credits they utilize for life!
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '12px', color: 'var(--mute)' }}>
-            <span>✨ Free instant sharing</span>
+            <span>Free instant sharing</span>
             <span>•</span>
-            <span>⚡ Automated 20% reward attribution</span>
+            <span>Automated 20% reward attribution</span>
           </div>
         </div>
 

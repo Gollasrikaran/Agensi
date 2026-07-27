@@ -35,7 +35,7 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(108, 60, 225, 0.15)', color: 'var(--primary)', padding: '2px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>
-              <span>🎁</span> INSTANT REFER & EARN
+              INSTANT REFER & EARN
             </div>
             <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>
               Share This Skill & Earn 20% Kickbacks!

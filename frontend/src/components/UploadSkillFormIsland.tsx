@@ -292,14 +292,14 @@ export default function UploadSkillFormIsland() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '0px' }}>
-        <div onClick={() => setItemType('skill')} style={{ flex: 1, padding: '16px', borderRadius: '12px', border: itemType === 'skill' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'skill' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🤖</div>
-          <strong style={{ color: itemType === 'skill' ? 'var(--primary)' : 'var(--ink)' }}>AI Skill</strong>
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '0px' }}>
+        <div onClick={() => setItemType('skill')} style={{ padding: '16px', borderRadius: '12px', border: itemType === 'skill' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'skill' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
+          <strong style={{ color: itemType === 'skill' ? 'var(--primary)' : 'var(--ink)', fontSize: '16px', display: 'block' }}>AI Agent Skill</strong>
+          <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '4px' }}>MCP tools & instructions</span>
         </div>
-        <div onClick={() => setItemType('prompt')} style={{ flex: 1, padding: '16px', borderRadius: '12px', border: itemType === 'prompt' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'prompt' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
-          <strong style={{ color: itemType === 'prompt' ? 'var(--primary)' : 'var(--ink)' }}>Prompt</strong>
+        <div onClick={() => setItemType('prompt')} style={{ padding: '16px', borderRadius: '12px', border: itemType === 'prompt' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'prompt' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
+          <strong style={{ color: itemType === 'prompt' ? 'var(--primary)' : 'var(--ink)', fontSize: '16px', display: 'block' }}>Prompt Template</strong>
+          <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '4px' }}>System prompts & workflows</span>
         </div>
       </div>
 
@@ -312,7 +312,7 @@ export default function UploadSkillFormIsland() {
             Upload your agent code (.zip) or {itemType === 'prompt' ? 'prompt text (.md)' : 'instructions (.md)'}. We will automatically scan it for security vulnerabilities.
             <br/><br/>
             <a href="/guides/example-skill-template" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
-              📄 View Example {itemType === 'skill' ? 'Skill' : 'Prompt'} Template &rarr;
+              View Example {itemType === 'skill' ? 'Skill' : 'Prompt'} Template &rarr;
             </a>
           </p>
           
@@ -333,9 +333,8 @@ export default function UploadSkillFormIsland() {
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
             />
-            <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.7 }}>📄</div>
-            <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 500 }}>{file ? file.name : "Click or drag file to upload"}</p>
-            <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'var(--mute)' }}>Supports .md only (Max 5MB)</p>
+            <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--primary)', marginBottom: '6px' }}>{file ? file.name : "Click or drag file to upload"}</div>
+            <p style={{ margin: '0', fontSize: '13px', color: 'var(--mute)' }}>Supports .md only (Max 5MB)</p>
           </div>
         </div>
 
@@ -432,8 +431,7 @@ export default function UploadSkillFormIsland() {
                   onChange={(e) => { const f = e.target.files?.[0]; if (f) handleMediaFileChange(f); }}
                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
                 />
-                <div style={{ fontSize: '28px', marginBottom: '8px' }}>🖼️</div>
-                <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 500, fontSize: '14px' }}>Click or drag to upload image / video</p>
+                <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 600, fontSize: '14px' }}>Click or drag to upload image / video</p>
                 <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>PNG, JPG, GIF, MP4, WEBM — max 20MB</p>
               </div>
             )}
@@ -501,7 +499,7 @@ export default function UploadSkillFormIsland() {
         <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
           <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>3. Pricing Model</h3>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+          <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             <div 
               onClick={() => setPricingModel('free')}
               style={{ 
@@ -510,8 +508,7 @@ export default function UploadSkillFormIsland() {
                 cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
               }}
             >
-              <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎁</div>
-              <div style={{ fontWeight: 600, color: pricingModel === 'free' ? 'var(--primary)' : 'var(--ink)' }}>Free</div>
+              <div style={{ fontWeight: 700, fontSize: '16px', color: pricingModel === 'free' ? 'var(--primary)' : 'var(--ink)' }}>Free</div>
               <div style={{ fontSize: '13px', color: 'var(--body)', marginTop: '4px' }}>Available to all users</div>
             </div>
             
@@ -523,8 +520,7 @@ export default function UploadSkillFormIsland() {
                 cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
               }}
             >
-              <div style={{ fontSize: '24px', marginBottom: '8px' }}>💰</div>
-              <div style={{ fontWeight: 600, color: pricingModel === 'paid' ? 'var(--primary)' : 'var(--ink)' }}>Paid</div>
+              <div style={{ fontWeight: 700, fontSize: '16px', color: pricingModel === 'paid' ? 'var(--primary)' : 'var(--ink)' }}>Paid License</div>
               <div style={{ fontSize: '13px', color: 'var(--body)', marginTop: '4px' }}>One-time purchase</div>
             </div>
           </div>
