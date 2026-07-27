@@ -97,9 +97,10 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
             />
           )
         )}
-        {/* Clickable Category/Domain Pills */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', zIndex: 10, padding: '0 16px' }}>
-          {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
+        {/* Clickable Category/Domain Pills - Only show if no media */}
+        {!skill.media_url && (
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', zIndex: 10, padding: '0 16px' }}>
+            {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
             <a 
               key={index}
               href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`}
@@ -133,7 +134,8 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
               {cat}
             </a>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Rank Badge */}
         {showRank && (
