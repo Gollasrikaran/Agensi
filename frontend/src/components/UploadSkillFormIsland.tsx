@@ -30,6 +30,9 @@ export default function UploadSkillFormIsland() {
   const [agreedToGuidelines, setAgreedToGuidelines] = useState(false);
   const [itemType, setItemType] = useState<'skill' | 'prompt'>('skill');
   const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string>('');
+  const [mediaUploading, setMediaUploading] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; content: React.ReactNode } | null>(null);
@@ -84,6 +87,43 @@ export default function UploadSkillFormIsland() {
     setSelectedCategories(prev => 
       prev.includes(value) ? prev.filter(c => c !== value) : [...prev, value]
     );
+  };
+
+  const handleMediaFileChange = async (file: File) => {
+    setMediaFile(file);
+    // Show local preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    setMediaPreview(objectUrl);
+    setMediaUrl('');
+
+    // Upload to Supabase Storage
+    setMediaUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not logged in');
+
+      const ext = file.name.split('.').pop();
+      const filePath = `skill_media/${session.user.id}/${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('user_media')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user_media')
+        .getPublicUrl(filePath);
+
+      setMediaUrl(publicUrl);
+      showToast('Media uploaded!', 'success');
+    } catch (err: any) {
+      showToast('Media upload failed: ' + err.message, 'error');
+      setMediaFile(null);
+      setMediaPreview('');
+    } finally {
+      setMediaUploading(false);
+    }
   };
 
   const handleAppeal = async () => {
@@ -313,15 +353,62 @@ export default function UploadSkillFormIsland() {
           </div>
 
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Media URL (Optional)</label>
-            <input 
-              type="url" 
-              placeholder="https://example.com/image.png"
-              value={mediaUrl}
-              onChange={(e) => setMediaUrl(e.target.value)}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }}
-            />
-            {itemType === 'prompt' && <p style={{ fontSize: '13px', color: 'var(--mute)', marginTop: '4px' }}>Recommended for prompts to show a preview.</p>}
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              Media / Thumbnail <span style={{ color: 'var(--mute)', fontWeight: 400 }}>(Optional — image or video)</span>
+            </label>
+
+            {/* Preview */}
+            {mediaPreview && (
+              <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--hairline)', position: 'relative', maxHeight: '220px', background: 'var(--canvas-elevated)' }}>
+                {mediaFile?.type.startsWith('video') ? (
+                  <video src={mediaPreview} muted autoPlay loop playsInline style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', display: 'block' }} />
+                ) : (
+                  <img src={mediaPreview} alt="preview" style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', display: 'block' }} />
+                )}
+                {mediaUploading && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 600, fontSize: '15px', gap: '10px' }}>
+                    <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> Uploading...
+                  </div>
+                )}
+                {!mediaUploading && mediaUrl && (
+                  <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(16,185,129,0.9)', color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>
+                    ✓ Uploaded
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setMediaFile(null); setMediaPreview(''); setMediaUrl(''); }}
+                  style={{ position: 'absolute', top: '10px', left: '10px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Drop Zone */}
+            {!mediaPreview && (
+              <div
+                style={{ border: '2px dashed var(--hairline-strong)', borderRadius: '10px', padding: '28px 20px', textAlign: 'center', background: 'var(--canvas-soft-2)', cursor: 'pointer', transition: 'border-color 0.2s ease', position: 'relative' }}
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary)'; }}
+                onDragLeave={(e) => { e.currentTarget.style.borderColor = 'var(--hairline-strong)'; }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.borderColor = 'var(--hairline-strong)';
+                  const f = e.dataTransfer.files[0];
+                  if (f) handleMediaFileChange(f);
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*,video/mp4,video/webm"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleMediaFileChange(f); }}
+                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                />
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>🖼️</div>
+                <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 500, fontSize: '14px' }}>Click or drag to upload image / video</p>
+                <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>PNG, JPG, GIF, MP4, WEBM — max 20MB</p>
+              </div>
+            )}
           </div>
 
           <div className="form-group" style={{ marginBottom: '20px' }} ref={dropdownRef}>
