@@ -171,13 +171,36 @@ class AgentAuthMiddleware:
 
 app.add_middleware(AgentAuthMiddleware)
 
+ALLOWED_ORIGINS = [
+    "https://bodhicai.tech",
+    "https://www.bodhicai.tech",
+    "http://localhost:4321",
+    "http://localhost:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ensure CORS headers are present even on HTTPException error responses.
+# Without this, browsers block 401/403/500 responses from cross-origin API calls.
+from fastapi.responses import JSONResponse
+from fastapi.exception_handlers import http_exception_handler
+from fastapi import Request as FastAPIRequest
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(StarletteHTTPException)
+async def cors_aware_http_exception_handler(request: FastAPIRequest, exc: StarletteHTTPException):
+    response = await http_exception_handler(request, exc)
+    origin = request.headers.get("origin", "")
+    if origin in ALLOWED_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "false"
+    return response
 
 class SkillUploadRequest(BaseModel):
     title: str
