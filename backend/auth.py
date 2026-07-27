@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import jwt
 import logging
 import requests as http_requests
@@ -7,6 +9,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -107,7 +110,8 @@ class _UserProxy:
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     """
-    FastAPI dependency — verifies the Supabase JWT locally (no network call).
+    FastAPI dependency — verifies the Supabase JWT locally (no network call),
+    with automatic fallback to Supabase Auth API if local verification fails.
     """
     token = credentials.credentials
     try:
@@ -117,8 +121,15 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         return _UserProxy(payload)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
-    except jwt.InvalidAudienceError:
-        raise HTTPException(status_code=401, detail="Invalid token audience.")
-    except Exception as e:
-        logger.error("JWT verification failed: %s | token prefix: %s", str(e), token[:20])
-        raise HTTPException(status_code=401, detail=f"Auth error: {str(e)}")
+    except Exception as local_err:
+        logger.warning("Local JWT verification failed (%s), falling back to supabase.auth.get_user...", str(local_err))
+        try:
+            response = supabase.auth.get_user(token)
+            if not response.user:
+                raise HTTPException(status_code=401, detail="Invalid or expired session. Please log in again.")
+            return response.user
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("JWT verification and fallback failed: %s | token prefix: %s", str(e), token[:20])
+            raise HTTPException(status_code=401, detail=f"Auth error: {str(e)}")

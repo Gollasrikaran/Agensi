@@ -250,20 +250,66 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
           {skill.description}
         </p>
 
-        {/* Agent Compatibility */}
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-           {/* Fallback mock agents for now */}
-           {['Cursor', 'Claude'].map(agent => (
+        {/* Domains / Categories Section */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+          <span style={{ fontSize: '11px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Domains:</span>
+          {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => {
+            const domainColor = getCategoryColor(cat);
+            return (
+              <a 
+                key={index}
+                href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: domainColor,
+                  background: `${domainColor}15`,
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  fontFamily: 'var(--font-mono)',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  letterSpacing: '0.5px',
+                  border: `1px solid ${domainColor}44`,
+                  transition: 'all 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.background = domainColor;
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.background = `${domainColor}15`;
+                  e.currentTarget.style.color = domainColor;
+                }}
+              >
+                🌐 {cat}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Functionality & Compatibility */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '11px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Works With:</span>
+           {['Cursor', 'Claude', 'Windsurf', 'MCP'].map(agent => (
              <span key={agent} style={{
                background: 'var(--canvas-soft)',
                border: '1px solid var(--hairline)',
                padding: '2px 8px',
                borderRadius: '4px',
                fontSize: 'var(--text-xs)',
-               color: 'var(--mute)',
-               fontWeight: 500
+               color: 'var(--body)',
+               fontWeight: 500,
+               display: 'inline-flex',
+               alignItems: 'center',
+               gap: '4px'
              }}>
-               {agent}
+               💻 {agent}
              </span>
            ))}
         </div>

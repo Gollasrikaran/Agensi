@@ -55,7 +55,9 @@ const jsonLd = skill ? JSON.stringify({
 			<EditSkillButtonIsland client:load skill={skill} />
 			<div style="margin-bottom: var(--space-xl);">
 				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm); flex-wrap: wrap;">
-					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
+					{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
+						<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; text-decoration: none;">🌐 {cat}</a>
+					))}
 					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--canvas-soft-2, #222); color: var(--accent, #a855f7); border: 1px solid var(--hairline-strong); border-radius: 12px; font-size: 12px; font-weight: 600;">
 						⚡ Level {skill.complexity_level || 1}
 					</span>
@@ -89,6 +91,30 @@ const jsonLd = skill ? JSON.stringify({
 			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
 				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Description</h3>
 				<p style="color: var(--body); font-size: 16px; white-space: pre-wrap; line-height: 1.7;">{skill.description}</p>
+			</div>
+
+			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
+				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-md);">Domains & Compatibility</h3>
+				<div style="margin-bottom: var(--space-md);">
+					<div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Domains</div>
+					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+						{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
+							<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; text-decoration: none;">
+								🌐 {cat}
+							</a>
+						))}
+					</div>
+				</div>
+				<div>
+					<div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Supported Functionality & Agents</div>
+					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+						{['Cursor', 'Claude', 'Windsurf', 'MCP'].map(agent => (
+							<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--canvas-soft); border: 1px solid var(--hairline); border-radius: 6px; font-size: 13px; color: var(--body); font-weight: 500;">
+								💻 {agent}
+							</span>
+						))}
+					</div>
+				</div>
 			</div>
 
 			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">

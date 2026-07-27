@@ -37,7 +37,15 @@ export default function AdminDashboardIsland() {
       });
       
       if (!res.ok) {
-        throw new Error('Not authorized as admin or server error');
+        let errorMsg = 'Not authorized as admin or server error';
+        try {
+          const errData = await res.json();
+          if (errData.detail) errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+        } catch {
+          const text = await res.text();
+          if (text) errorMsg = `${errorMsg} (${res.status}: ${text.slice(0, 100)})`;
+        }
+        throw new Error(errorMsg);
       }
       
       const dashboardData = await res.json();
