@@ -40,6 +40,7 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 		]
 	})}
 >
+	<main id="app-landing-purpose">
 	<!-- Dynamic Hero Section -->
 	<section style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
 		<!-- Background mesh effect -->
@@ -74,15 +75,18 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 	</section>
 
 	<!-- Explicit Application Purpose & OAuth Overview Section (For Google Verification) -->
-	<section style="padding: var(--space-4xl) 0; border-top: 1px solid var(--hairline); background: var(--canvas-soft);">
+	<article style="padding: var(--space-4xl) 0; border-top: 1px solid var(--hairline); background: var(--canvas-soft);">
 		<div style="max-width: 960px; margin: 0 auto; padding: 0 var(--space-md);">
-			<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25);">
+			<section aria-label="Application Purpose and Google OAuth Disclosure" class="card" style="padding: var(--space-2xl); background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25);">
 				<div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.15); color: #a855f7; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">
 					ABOUT BODHICAI & APPLICATION PURPOSE
 				</div>
-				<h2 style="font-size: 26px; font-weight: 700; margin-bottom: var(--space-md); color: var(--ink);">What is BodhicAI and why do we request Google authentication?</h2>
+				<h2 style="font-size: 26px; font-weight: 700; margin-bottom: var(--space-md); color: var(--ink);">Application Purpose &amp; Google OAuth Disclosure</h2>
 				<p style="color: var(--body); font-size: 16px; line-height: 1.7; margin-bottom: var(--space-lg);">
-					<strong>BodhicAI</strong> is an action-agent skill and prompt marketplace designed for software engineers, developers, and AI creators. Our web platform allows users to browse, test, request, and monetize custom instructions, Model Context Protocol (MCP) sidecar tools, and automated workflows compatible with modern AI coding assistants like Cursor, Windsurf, and Claude Desktop.
+					The core functional purpose of the <strong>BodhicAI</strong> web application is to serve as an online marketplace and developer ecosystem for prompt artifacts and artificial intelligence agent skills.
+				</p>
+				<p style="color: var(--body); font-size: 16px; line-height: 1.7; margin-bottom: var(--space-lg);">
+					<strong>BodhicAI</strong> requests access to your Google identity information strictly via safe Google OAuth Single Sign-On procedures. We request permission to view your primary profile information solely to authenticate user system access, maintain individual user purchase libraries, generate secure developer API access keys, and process creator wallet monetization balance payouts.
 				</p>
 				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); border-top: 1px solid var(--hairline); padding-top: var(--space-lg);">
 					<div>
@@ -98,9 +102,9 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 						</p>
 					</div>
 				</div>
-			</div>
+			</section>
 		</div>
-	</section>
+	</article>
 
 	<!-- How It Works Flow -->
 	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
@@ -152,4 +156,5 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 		</p>
 		<a href="/sell" class="btn btn-primary btn-lg" style="font-weight: 700; padding: 16px 40px; font-size: var(--text-lg);">Start Selling Now</a>
 	</section>
+	</main>
 </Layout>
