@@ -1,7 +1,11 @@
 import json
 import httpx
 import os
+import uuid
+import difflib
+from datetime import datetime
 from auth import supabase
+from security_scanner import scan_skill, scan_skill_tier2
 
 from dependencies import current_agent_user_id
 
@@ -26,7 +30,16 @@ def search_skills(query: str, category: str = None) -> str:
     if category:
         q = q.eq("category", category)
     res = q.limit(10).execute()
-    return json.dumps(res.data, indent=2)
+    skills = []
+    for s in (res.data or []):
+        skills.append({
+            "skill_name": s.get("title") or "Untitled Skill",
+            "skill_id": s.get("id"),
+            "category": s.get("category"),
+            "description": s.get("description"),
+            "base_price_inr": s.get("base_price_inr")
+        })
+    return json.dumps(skills, indent=2)
 
 @mcp.tool()
 def get_creator_profile(username: str) -> str:
@@ -40,7 +53,17 @@ def get_creator_profile(username: str) -> str:
 def get_popular_skills(limit: int = 5) -> str:
     """Get the most popular skills based on sales and upvotes."""
     res = supabase.table("skills").select("id, title, description, category, base_price_inr, upvotes").eq("moderation_status", "approved").order("upvotes", desc=True).limit(limit).execute()
-    return json.dumps(res.data, indent=2)
+    skills = []
+    for s in (res.data or []):
+        skills.append({
+            "skill_name": s.get("title") or "Untitled Skill",
+            "skill_id": s.get("id"),
+            "category": s.get("category"),
+            "description": s.get("description"),
+            "base_price_inr": s.get("base_price_inr"),
+            "upvotes": s.get("upvotes")
+        })
+    return json.dumps(skills, indent=2)
 
 @mcp.tool()
 def browse_skill_requests(limit: int = 10) -> str:
@@ -75,7 +98,15 @@ def get_my_library() -> str:
     if not user_id:
         return "Error: Unauthorized. Missing user context."
     res = supabase.table("skills").select("id, title, category, moderation_status").eq("seller_id", user_id).execute()
-    return json.dumps(res.data if res.data else [], indent=2)
+    library = []
+    for s in (res.data or []):
+        library.append({
+            "skill_name": s.get("title") or "Untitled Skill",
+            "skill_id": s.get("id"),
+            "category": s.get("category") or "General",
+            "status": s.get("moderation_status") or "pending"
+        })
+    return json.dumps(library, indent=2)
 
 @mcp.tool()
 def get_my_purchases() -> str:
@@ -83,8 +114,19 @@ def get_my_purchases() -> str:
     user_id = current_agent_user_id.get()
     if not user_id:
         return "Error: Unauthorized. Missing user context."
-    res = supabase.table("purchases").select("skill_id, payment_status, created_at").eq("buyer_id", user_id).eq("payment_status", "completed").execute()
-    return json.dumps(res.data if res.data else [], indent=2)
+    res = supabase.table("purchases").select("skill_id, payment_status, created_at, skills(title, description, category)").eq("buyer_id", user_id).eq("payment_status", "completed").execute()
+    purchases = []
+    for p in (res.data or []):
+        skill_info = p.get("skills") or {}
+        purchases.append({
+            "skill_name": skill_info.get("title") or "Unknown Skill",
+            "skill_id": p.get("skill_id"),
+            "category": skill_info.get("category") or "General",
+            "description": skill_info.get("description") or "",
+            "purchased_at": p.get("created_at"),
+            "status": p.get("payment_status")
+        })
+    return json.dumps(purchases, indent=2)
 
 @mcp.tool()
 def get_skill_details(skill_id: str) -> str:
@@ -95,6 +137,7 @@ def get_skill_details(skill_id: str) -> str:
     if not res.data:
         return json.dumps({"error": "Skill not found"})
     skill = res.data[0]
+    skill["skill_name"] = skill.get("title") or "Untitled Skill"
     
     # If authenticated, check if user is creator or buyer
     if user_id:
@@ -127,6 +170,131 @@ def install_skill(skill_id: str) -> str:
     # Return the checkout link
     checkout_url = f"https://bodhicai.tech/skill/{skill_id}"
     return f"To buy and install '{skill['title']}' for ₹{price}, please complete the secure Razorpay checkout here: {checkout_url}\n\nOnce purchased, the creator will receive 80% of the sale, and you can access the full source code."
+
+@mcp.tool()
+def upload_skill_to_bodhic(
+    title: str,
+    description: str,
+    content: str,
+    price_inr: float = 49.0,
+    category: str = "development",
+    target_audience: str = "all"
+) -> str:
+    """Upload a new AI agent skill or prompt workflow directly to the Bodhic AI Marketplace. The content MUST be formatted in Markdown with clear instructions for AI agents."""
+    user_id = current_agent_user_id.get()
+    if not user_id:
+        return "Error: Unauthorized. Missing user context. Please provide a valid Bodhic API key."
+
+    # Pre-check if user is blocked
+    try:
+        user_db = supabase.table("users").select("is_blocked, warnings_count").eq("id", user_id).execute()
+        if user_db.data and user_db.data[0].get("is_blocked"):
+            return "Error: Your account is blocked. Please submit an appeal on the Bodhic AI platform."
+    except Exception as e:
+        print(f"[WARN] Could not check user block status for {user_id}: {e}")
+
+    if "CodeReviewerAgent" in title or "You are an expert, highly critical software engineer conducting a code review" in content:
+        return "Error: You cannot upload the example template. Please write your own skill."
+
+    # Anti-Re-upload Hashing (Similarity Check)
+    try:
+        approved_skills = supabase.table("skills").select("id").eq("moderation_status", "approved").execute()
+        approved_ids = [s["id"] for s in (approved_skills.data or [])]
+        if approved_ids:
+            versions = supabase.table("skill_versions").select("skill_id, md_content").in_("skill_id", approved_ids).execute()
+            for v in (versions.data or []):
+                ratio = difflib.SequenceMatcher(None, content, v.get("md_content", "")).ratio()
+                if ratio >= 0.90:
+                    return "Error: Plagiarism detected. This skill is 90%+ identical to an existing skill on the platform."
+    except Exception as e:
+        print(f"[WARN] Plagiarism check failed: {e}")
+
+    # Tier 1 synchronous scan
+    passed_tier1, scan_result_tier1 = scan_skill(content)
+    
+    tier2_error = False
+    passed_tier2 = True
+    scan_result_tier2 = {}
+    
+    if passed_tier1:
+        passed_tier2, scan_result_tier2 = scan_skill_tier2(content)
+        if not passed_tier2:
+            issues = scan_result_tier2.get("issues", [])
+            is_system_error = any(issue.get("rule") in ["tier2_error", "llm_parse_error"] for issue in issues)
+            if is_system_error:
+                tier2_error = True
+                print("Tier 2 AI system error. Falling back to pending/manual review.")
+
+    if not passed_tier1 or (not passed_tier2 and not tier2_error):
+        try:
+            user_db = supabase.table("users").select("warnings_count").eq("id", user_id).execute()
+            current_warnings = user_db.data[0].get("warnings_count", 0) if user_db.data else 0
+            new_warnings = current_warnings + 1
+            update_data = {"warnings_count": new_warnings}
+            if new_warnings >= 3:
+                update_data["is_blocked"] = True
+            supabase.table("users").update(update_data).eq("id", user_id).execute()
+            if new_warnings >= 3:
+                return "Error: Security scan failed. You have exceeded your 3 warnings and your account is now blocked."
+            return f"Error: Security scan failed at Tier {'1' if not passed_tier1 else '2'}. Warning {new_warnings}/3. Issues: {scan_result_tier1.get('issues') or scan_result_tier2.get('issues')}"
+        except Exception as e:
+            return f"Error: Security scan failed ({e})."
+
+    moderation_status = "pending"
+    final_scan_result = {
+        "tier1": scan_result_tier1,
+        "tier2": scan_result_tier2
+    }
+
+    skill_slug = title.lower().replace(" ", "-") + "-" + uuid.uuid4().hex[:6]
+
+    new_skill = {
+        "seller_id": user_id,
+        "title": title,
+        "slug": skill_slug,
+        "description": description,
+        "category": category,
+        "target_audience": target_audience,
+        "base_price_inr": float(price_inr),
+        "is_free": float(price_inr) == 0,
+        "billing_type": "one-time",
+        "skill_md_file_url": "pending_upload_url",
+        "moderation_status": moderation_status,
+        "scan_summary_json": final_scan_result,
+        "declared_capabilities_json": []
+    }
+
+    try:
+        skill_res = supabase.table("skills").insert(new_skill).execute()
+        inserted_skill = skill_res.data[0]
+
+        supabase.table("skill_versions").insert({
+            "skill_id": inserted_skill["id"],
+            "version_number": 1,
+            "md_content": content,
+            "changelog": "Initial upload via MCP"
+        }).execute()
+
+        supabase.table("security_scans").insert({
+            "skill_id": inserted_skill["id"],
+            "tier": 1,
+            "scan_result_json": scan_result_tier1,
+            "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier1.get("issues", [])],
+            "passed": passed_tier1
+        }).execute()
+
+        if scan_result_tier2:
+            supabase.table("security_scans").insert({
+                "skill_id": inserted_skill["id"],
+                "tier": 2,
+                "scan_result_json": scan_result_tier2,
+                "rule_categories_triggered": [issue["rule"] for issue in scan_result_tier2.get("issues", [])],
+                "passed": passed_tier2
+            }).execute()
+
+        return f"✅ Skill '{title}' has been successfully uploaded to Bodhic AI! Status: {moderation_status.upper()}.\n\n🔗 Marketplace URL: https://bodhicai.tech/skill/{inserted_skill['id']}\n📊 Manage on Seller Dashboard: https://bodhicai.tech/dashboard/seller"
+    except Exception as e:
+        return f"Error creating skill: {str(e)}"
 
 @mcp.tool()
 def submit_skill_request(title: str, description: str, reward: int = 100) -> str:
