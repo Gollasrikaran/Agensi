@@ -5,8 +5,8 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 ---
 
 <Layout 
-	title="AI Agent Skill Marketplace | Bodhic AI" 
-	description="Discover, verify, and monetize premium AI agent skills. Bodhic AI provides a secure marketplace with automated prompt injection scanning and zero markup for buyers. Compete for our monthly ₹20,000 top-creator prize."
+	title="BodhicAI — Action-Agent Skill & Prompt Marketplace" 
+	description="Welcome to BodhicAI (Bodhic AI). The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude. Sign in with Google to manage skills, API keys, and creator wallets."
 >
 	<!-- Dynamic Hero Section -->
 	<section style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
@@ -18,16 +18,45 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 			<span class="eyebrow" style="font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(79, 70, 229, 0.15); display: inline-block; margin-bottom: var(--space-md);">the premier ecosystem</span>
 			
 			<h1 style="font-size: clamp(var(--text-4xl), 8vw, var(--text-5xl)); line-height: 1.1; margin-bottom: var(--space-md); letter-spacing: -3px;">
-				The verified <span class="gradient-text">AI Agent Skill</span> Marketplace
+				Welcome to <span class="gradient-text">BodhicAI</span> Skill Marketplace
 			</h1>
 			
 			<p style="color: var(--body); font-size: clamp(var(--text-lg), 2vw, var(--text-xl)); max-width: 700px; margin: 0 auto var(--space-xl) auto; line-height: 1.5;">
 				Discover, buy, and sell prompt artifacts built for AI agents. Every skill is scanned for prompt injections and security threats before it goes live.
 			</p>
 			
-			<div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
+			<div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-4xl);">
 				<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 32px; font-size: var(--text-lg);">Explore Skills →</a>
 				<a href="/sell" class="btn btn-secondary btn-lg" style="padding: 16px 32px; font-size: var(--text-lg); border-color: var(--hairline); background: var(--canvas-soft);">Start Selling</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- Explicit Application Purpose & OAuth Overview Section (For Google Verification) -->
+	<section style="padding: var(--space-4xl) 0; border-top: 1px solid var(--hairline); background: var(--canvas-soft);">
+		<div style="max-width: 960px; margin: 0 auto; padding: 0 var(--space-md);">
+			<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25);">
+				<div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.15); color: #a855f7; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">
+					ABOUT BODHICAI & APPLICATION PURPOSE
+				</div>
+				<h2 style="font-size: 26px; font-weight: 700; margin-bottom: var(--space-md); color: var(--ink);">What is BodhicAI and why do we request Google authentication?</h2>
+				<p style="color: var(--body); font-size: 16px; line-height: 1.7; margin-bottom: var(--space-lg);">
+					<strong>BodhicAI (Bodhic AI)</strong> is an action-agent skill and prompt marketplace designed for software engineers, developers, and AI creators. Our web platform allows users to browse, test, request, and monetize custom instructions, Model Context Protocol (MCP) sidecar tools, and automated workflows compatible with modern AI coding assistants like Cursor, Windsurf, and Claude Desktop.
+				</p>
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); border-top: 1px solid var(--hairline); padding-top: var(--space-lg);">
+					<div>
+						<h3 style="font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">🔐 Why users sign in with Google</h3>
+						<p style="color: var(--mute); font-size: 14px; line-height: 1.6; margin: 0;">
+							We use Google OAuth (Single Sign-On) exclusively to authenticate user identity, generate secure developer API keys, maintain buyer purchase libraries, and manage seller wallet balances for skill monetization.
+						</p>
+					</div>
+					<div>
+						<h3 style="font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">🛡️ Data protection & privacy</h3>
+						<p style="color: var(--mute); font-size: 14px; line-height: 1.6; margin: 0;">
+							BodhicAI only requests basic profile information (email address, name, and profile avatar). We never access private Google Drive files, emails, or personal contacts, and we never sell user profile data to third parties.
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
