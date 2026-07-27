@@ -4,7 +4,7 @@ title: "How to Write Effective Prompts for AI Agents"
 description: "A comprehensive masterclass on structuring system prompts, setting constraints, and ensuring high adherence across LLMs."
 ---
 
-Writing effective prompts for AI agents requires a transition from conversational instruction to structural software engineering. When building reusable agent skills on Bodhic AI, your prompt acts as the execution logic for an autonomous system.
+Writing effective prompts for AI agents requires a transition from conversational instruction to structural software engineering. When building reusable agent skills on BodhicAI, your prompt acts as the execution logic for an autonomous system.
 
 ## 1. Define a Clear Role and Objective
 
@@ -60,4 +60,4 @@ Providing 1 to 3 concrete input-output examples dramatically improves adherence,
 
 ## 5. Test Across Multiple Architectures
 
-Ensure your prompt performs reliably across different foundational LLM architectures (GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro). Use Bodhic AI's built-in testing chat to verify adherence before publishing your skill to the marketplace.
+Ensure your prompt performs reliably across different foundational LLM architectures (GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro). Use BodhicAI's built-in testing chat to verify adherence before publishing your skill to the marketplace.

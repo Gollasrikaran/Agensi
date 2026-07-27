@@ -49,8 +49,8 @@ const CopyIcon = () => (
 
 export default function SocialShareButtonsIsland({ 
   url, 
-  title = "Bodhic AI — Action-Agent Marketplace", 
-  text = "Check out this AI agent skill on Bodhic AI!", 
+  title = "BodhicAI — Action-Agent Marketplace", 
+  text = "Check out this AI agent skill on BodhicAI!", 
   compact = false,
   label
 }: SocialShareProps) {

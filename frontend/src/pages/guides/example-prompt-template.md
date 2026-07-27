@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/GuideLayout.astro
 title: "Example Prompt Template (Ready-to-Use)"
-description: "A professional, production-grade prompt template designed to be published and monetized in the Bodhic AI prompt marketplace."
+description: "A professional, production-grade prompt template designed to be published and monetized in the BodhicAI prompt marketplace."
 ---
 
-When selling standalone prompts or system instructions on Bodhic AI, providing a clean, structured template guarantees high adherence and buyer satisfaction. 
+When selling standalone prompts or system instructions on BodhicAI, providing a clean, structured template guarantees high adherence and buyer satisfaction. 
 
 Copy and customize the template below when drafting your AI prompts.
 

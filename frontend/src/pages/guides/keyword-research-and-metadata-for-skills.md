@@ -4,7 +4,7 @@ title: "Keyword Research & Metadata Guide for Skill Creators"
 description: "Master keyword research, semantic tagging, and YAML frontmatter optimization to maximize sales and agent discoverability."
 ---
 
-When buyers or autonomous orchestration agents search the Bodhic AI marketplace, they rely on rich metadata and keyword indexing. This guide explains how to perform keyword research and configure YAML frontmatter for maximum visibility.
+When buyers or autonomous orchestration agents search the BodhicAI marketplace, they rely on rich metadata and keyword indexing. This guide explains how to perform keyword research and configure YAML frontmatter for maximum visibility.
 
 ## 1. Understanding Buyer Search Intent
 
@@ -21,11 +21,11 @@ Keyword research for AI agent skills differs from traditional web SEO. You must 
 To identify high-traffic keyword opportunities before creating your skill, utilize these strategies:
 - **GitHub Trending & Issues**: Look at trending repositories and frequently opened issues in popular open-source projects.
 - **Stack Overflow Tag Trends**: Identify tags with high question volume but low answer satisfaction rates.
-- **Bodhic AI Search Auto-Complete**: Use the marketplace search bar to see what topics other buyers are actively looking for.
+- **BodhicAI Search Auto-Complete**: Use the marketplace search bar to see what topics other buyers are actively looking for.
 
 ## 3. Optimizing YAML Frontmatter Metadata
 
-When packaging your skill in Markdown or ZIP archives, your YAML frontmatter is parsed directly by Bodhic AI's ingestion engine. Ensure your fields are comprehensive and accurate.
+When packaging your skill in Markdown or ZIP archives, your YAML frontmatter is parsed directly by BodhicAI's ingestion engine. Ensure your fields are comprehensive and accurate.
 
 ```yaml
 ---
@@ -49,7 +49,7 @@ description: >
 
 ## 4. Preventing Metadata Stuffing Penalties
 
-Do not spam irrelevant keywords in your tags or description. Bodhic AI's moderation system and search indexing algorithm penalize keyword stuffing:
+Do not spam irrelevant keywords in your tags or description. BodhicAI's moderation system and search indexing algorithm penalize keyword stuffing:
 - **Rule 1**: Only include frameworks and tools that your skill explicitly supports and tests.
 - **Rule 2**: Keep tag counts between 5 and 10 highly relevant terms.
 - **Rule 3**: Ensure keyword phrases flow naturally within your descriptive paragraphs.

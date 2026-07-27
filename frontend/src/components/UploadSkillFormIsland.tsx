@@ -554,7 +554,7 @@ export default function UploadSkillFormIsland() {
             style={{ marginTop: '4px', cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--error)' }}
           />
           <label htmlFor="guidelines_check" style={{ fontSize: '14px', color: 'var(--ink)', cursor: 'pointer', lineHeight: 1.5 }}>
-            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Bodhic AI Seller Requirements</a> and verify that this {itemType} contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
+            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>BodhicAI Seller Requirements</a> and verify that this {itemType} contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
           </label>
         </div>
 

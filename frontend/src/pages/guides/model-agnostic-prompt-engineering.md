@@ -4,7 +4,7 @@ title: "Model-Agnostic Prompt Engineering"
 description: "Write instructions that work flawlessly across GPT-4, Claude 3.5, and Gemini."
 ---
 
-Because buyers on Bodhic AI might run your skills using different foundational models, your prompts must be robust.
+Because buyers on BodhicAI might run your skills using different foundational models, your prompts must be robust.
 
 ## Avoid Model-Specific Quirks
 *   Don't rely on Claude's XML tag affinity if GPT-4 prefers Markdown headers. Use a mix of both if necessary, but keep it standard.

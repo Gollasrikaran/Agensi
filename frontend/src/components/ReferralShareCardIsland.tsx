@@ -14,8 +14,8 @@ export default function ReferralShareCardIsland() {
     });
   }, []);
 
-  const shareText = `Hey! I'm using Bodhic AI — an incredible action-agent marketplace where AI agents directly edit code, run local commands, and automate your workflows. Use my unique invite code (${refId}) to explore and unlock advanced AI skills!`;
-  const shareTitle = `Bodhic AI — Action-Agent Marketplace (Invite: ${refId})`;
+  const shareText = `Hey! I'm using BodhicAI — an incredible action-agent marketplace where AI agents directly edit code, run local commands, and automate your workflows. Use my unique invite code (${refId}) to explore and unlock advanced AI skills!`;
+  const shareTitle = `BodhicAI — Action-Agent Marketplace (Invite: ${refId})`;
 
   return (
     <div className="card" style={{ 

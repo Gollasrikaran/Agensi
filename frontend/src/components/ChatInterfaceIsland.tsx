@@ -103,7 +103,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--ink)', letterSpacing: '0.5px' }}>{skillTitle}</h1>
             <span style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', boxShadow: '0 0 8px var(--accent)' }}></span>
-              Powered by Bodhic AI
+              Powered by BodhicAI
             </span>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                     type="text" 
                     value={input} 
                     onChange={e => setInput(e.target.value)} 
-                    placeholder="Message Bodhic AI..." 
+                    placeholder="Message BodhicAI..." 
                     style={{ flex: 1, padding: '18px 60px 18px 24px', borderRadius: 'var(--radius-pill)', border: '1.5px solid var(--hairline)', background: 'var(--canvas-soft-2)', color: 'var(--ink)', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'var(--shadow-md)' }}
                     disabled={loading}
                     onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}

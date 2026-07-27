@@ -20,7 +20,7 @@ from starlette.responses import JSONResponse
 mcp_app = fastmcp_server.http_app(transport="sse")
 
 app = FastAPI(
-    title="Bodhic AI - AI Agent Skill Marketplace",
+    title="BodhicAI - AI Agent Skill Marketplace",
     lifespan=mcp_app.lifespan
 )
 
@@ -237,7 +237,7 @@ def get_mcp_config():
         "mcpServers": {
             "bodhic-ai": {
                 "command": "node", 
-                "args": ["-e", "console.log('Use SSE URL in Cline/Cursor for Bodhic AI')"],
+                "args": ["-e", "console.log('Use SSE URL in Cline/Cursor for BodhicAI')"],
                 "url": "https://bodhicai.onrender.com/mcp/sse",
                 "env": {
                     "AUTHORIZATION": "Bearer YOUR_API_KEY_HERE"
@@ -703,7 +703,7 @@ def download_skill(skill_id: str, user = Depends(get_current_user)):
         watermark = '\u200D' + ''.join(mapping[b] for b in binary_str) + '\u200D'
         
         # 2. Single-User License Agreement
-        eula = f"""\n\n{"-"*50}\n**Bodhic AI Single-User License Agreement**\nThis file is uniquely licensed to the buyer. Redistribution is strictly prohibited.\nYour unique cryptographic identifier is permanently embedded in this file.\n\n**Violation Clause:** If you are found distributing this skill on any other platform, your account will be permanently banned. Any pending earnings or funds in your Bodhic AI wallet will be immediately forfeited and become the property of Bodhic AI."""
+        eula = f"""\n\n{"-"*50}\n**BodhicAI Single-User License Agreement**\nThis file is uniquely licensed to the buyer. Redistribution is strictly prohibited.\nYour unique cryptographic identifier is permanently embedded in this file.\n\n**Violation Clause:** If you are found distributing this skill on any other platform, your account will be permanently banned. Any pending earnings or funds in your BodhicAI wallet will be immediately forfeited and become the property of BodhicAI."""
         
         # Inject watermark at the end of the content before EULA
         final_content = raw_content + watermark + eula

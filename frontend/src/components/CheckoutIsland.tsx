@@ -126,7 +126,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         key: intent.razorpay_key_id,
         amount: Math.round(intent.amount_inr * 100),
         currency: "INR",
-        name: "Bodhic AI",
+        name: "BodhicAI",
         description: "Skill License Purchase",
         order_id: intent.client_secret,
         handler: async function (response: any) {

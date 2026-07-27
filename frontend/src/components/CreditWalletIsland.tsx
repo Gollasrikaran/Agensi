@@ -83,7 +83,7 @@ export default function CreditWalletIsland() {
         key: orderData.razorpay_key_id,
         amount: Math.round(orderData.amount_inr * 100),
         currency: orderData.currency,
-        name: "Bodhic AI",
+        name: "BodhicAI",
         description: `Purchase Bodhic Credits`,
         order_id: orderData.client_secret,
         handler: async function (response: any) {

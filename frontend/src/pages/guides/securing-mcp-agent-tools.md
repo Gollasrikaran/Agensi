@@ -4,7 +4,7 @@ title: "Securing FastMCP Agent Tools & API Endpoints"
 description: "A developer guide on securing Model Context Protocol (MCP) servers, preventing command injection, and implementing safe tool boundaries."
 ---
 
-When creating advanced Level 4 and Level 5 AI agent skills that integrate with the Model Context Protocol (MCP), your sidecar tools execute code directly on buyer machines or remote cloud endpoints. Ensuring enterprise-grade security is mandatory for passing Bodhic AI moderation scans.
+When creating advanced Level 4 and Level 5 AI agent skills that integrate with the Model Context Protocol (MCP), your sidecar tools execute code directly on buyer machines or remote cloud endpoints. Ensuring enterprise-grade security is mandatory for passing BodhicAI moderation scans.
 
 ## 1. Preventing Command Injection in Tool Arguments
 

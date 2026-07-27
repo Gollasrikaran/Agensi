@@ -12,4 +12,4 @@ Don't write a single 5,000-word prompt that tries to do everything. Break your w
 *   Skill 2: SQL Query Generator
 *   Skill 3: Query Execution & Error Handler
 
-By selling modular skills on Bodhic AI, you allow enterprise developers to compose them together like Lego bricks.
+By selling modular skills on BodhicAI, you allow enterprise developers to compose them together like Lego bricks.

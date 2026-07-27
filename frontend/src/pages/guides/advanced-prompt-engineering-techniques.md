@@ -4,7 +4,7 @@ title: "Advanced Prompt Engineering: CoT, ReACT, and Self-Reflection"
 description: "Master advanced agent reasoning frameworks including Chain of Thought, ReACT tool orchestration, and automated self-correction."
 ---
 
-When developing high-complexity (Level 3 to Level 5) AI agent skills on Bodhic AI, simple prompt instructions are no longer sufficient. You must design prompts that induce structured reasoning, tool orchestration, and error correction.
+When developing high-complexity (Level 3 to Level 5) AI agent skills on BodhicAI, simple prompt instructions are no longer sufficient. You must design prompts that induce structured reasoning, tool orchestration, and error correction.
 
 ## 1. Chain of Thought (CoT) Reasoning
 

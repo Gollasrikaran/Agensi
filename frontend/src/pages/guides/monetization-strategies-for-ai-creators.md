@@ -1,14 +1,14 @@
 ---
 layout: ../../layouts/GuideLayout.astro
 title: "Monetization Strategies for AI Skill & Prompt Creators"
-description: "Learn proven strategies for pricing, marketing, and scaling your AI agent skills on the Bodhic AI marketplace."
+description: "Learn proven strategies for pricing, marketing, and scaling your AI agent skills on the BodhicAI marketplace."
 ---
 
-Monetizing your technical expertise on Bodhic AI transforms one-off engineering solutions into recurring digital assets. This guide outlines how top creators package, price, and market their AI agent skills to generate steady revenue.
+Monetizing your technical expertise on BodhicAI transforms one-off engineering solutions into recurring digital assets. This guide outlines how top creators package, price, and market their AI agent skills to generate steady revenue.
 
 ## 1. Choosing the Right Pricing Tier
 
-Bodhic AI supports flexible pricing models. Align your pricing strategy with the complexity and enterprise value of your workflow:
+BodhicAI supports flexible pricing models. Align your pricing strategy with the complexity and enterprise value of your workflow:
 
 | Complexity Level | Target Audience | Recommended Price (INR) | Best Suited For |
 | :--- | :--- | :--- | :--- |
@@ -28,11 +28,11 @@ Your marketplace listing page is your storefront. Focus on clear ROI (Return on 
 
 ## 3. Maximizing Viral Reach with Affiliate Referrals
 
-Every creator on Bodhic AI gets a unique affiliate referral code. Leverage this network effect to boost your sales:
-- **Embed in GitHub READMEs**: Add a "Powered by Bodhic AI" badge and referral link in your open-source projects.
+Every creator on BodhicAI gets a unique affiliate referral code. Leverage this network effect to boost your sales:
+- **Embed in GitHub READMEs**: Add a "Powered by BodhicAI" badge and referral link in your open-source projects.
 - **Tech Tutorials & YouTube**: Create short demo videos showing your AI agent solving complex bugs in real-time, putting your referral link in the video description.
 - **Developer Communities**: Share technical case studies on Reddit (r/LocalLLaMA, r/devops) and LinkedIn showing before-and-after agent performance.
 
 ## 4. Building Customer Loyalty & Upselling
 
-Encourage buyers to leave verified 5-star reviews by providing exceptional documentation. Creators with high Pulse Scores and positive review counts receive featured placement on the Bodhic AI homepage and higher rankings in semantic search.
+Encourage buyers to leave verified 5-star reviews by providing exceptional documentation. Creators with high Pulse Scores and positive review counts receive featured placement on the BodhicAI homepage and higher rankings in semantic search.

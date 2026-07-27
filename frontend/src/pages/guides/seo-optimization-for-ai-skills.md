@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/GuideLayout.astro
 title: "SEO Optimization for AI Skills & Prompt Marketplace"
-description: "Learn how to title, tag, and describe your AI skills to rank at the top of Google search and Bodhic AI marketplace search."
+description: "Learn how to title, tag, and describe your AI skills to rank at the top of Google search and BodhicAI marketplace search."
 ---
 
-Discoverability is critical to monetizing your AI skills on Bodhic AI. Effective Search Engine Optimization (SEO) ensures your skill ranks highly both on external search engines like Google and within Bodhic AI's internal semantic search engine.
+Discoverability is critical to monetizing your AI skills on BodhicAI. Effective Search Engine Optimization (SEO) ensures your skill ranks highly both on external search engines like Google and within BodhicAI's internal semantic search engine.
 
 ## 1. Crafting SEO-Optimized Skill Titles
 
@@ -44,7 +44,7 @@ Tag your skill with relevant categories that match buyer search intent. Think ab
 
 ## 4. Structured Content for Semantic Search
 
-Bodhic AI uses advanced vector embeddings and semantic search to match user queries with skills. To rank higher in semantic search:
+BodhicAI uses advanced vector embeddings and semantic search to match user queries with skills. To rank higher in semantic search:
 - Clearly list **Supported Frameworks & IDEs** (Cursor, Windsurf, Claude Desktop, VS Code).
 - Provide explicit **Use Case Scenarios** with problem-solution pairings.
 - Outline the **MCP Tools Included** within your skill bundle so automated agent discoverability algorithms can identify your skill's capabilities.

@@ -108,7 +108,7 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
         key: order.razorpay_key_id || "rzp_test_mockkey", // mock key for testing
         amount: Math.round(order.amount_inr * 100),
         currency: "INR",
-        name: "Bodhic AI",
+        name: "BodhicAI",
         description: `Unlock ${pack.name}`,
         order_id: order.client_secret,
         handler: async function (response: any) {

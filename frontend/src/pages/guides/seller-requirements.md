@@ -1,13 +1,13 @@
 ---
 layout: ../../layouts/GuideLayout.astro
-title: "Bodhic AI Seller Requirements & Guidelines"
-description: "Mandatory reading for all sellers. Learn the strict structure and security rules required to list a skill on Bodhic AI."
+title: "BodhicAI Seller Requirements & Guidelines"
+description: "Mandatory reading for all sellers. Learn the strict structure and security rules required to list a skill on BodhicAI."
 ---
 
 > [!IMPORTANT]
 > This is a mandatory guide. All sellers must read and agree to these terms before uploading an AI Agent Skill to the marketplace.
 
-When you submit a skill (a `.md` file) to Bodhic AI, it undergoes strict Tier 1 and Tier 2 AI scanning. We evaluate submissions on two primary axes: **STRUCTURE** and **SECURITY**.
+When you submit a skill (a `.md` file) to BodhicAI, it undergoes strict Tier 1 and Tier 2 AI scanning. We evaluate submissions on two primary axes: **STRUCTURE** and **SECURITY**.
 
 ## 1. STRUCTURE Requirements
 Your skill must be a valid, actionable instruction set.
@@ -24,6 +24,6 @@ Your skill will be instantly rejected (and your account may be flagged) if it vi
 *   **No Prompt Injection (Downstream):** Instructions designed to hijack an agent only *after* it reads an external file or URL.
 *   **No Data Exfiltration:** Instructions attempting to send file contents, API keys, or conversation history to an external URL.
 *   **No Destructive Commands:** Unscoped file deletion or unrestricted shell execution without clear user boundaries.
-*   **No False Authority:** Do not write instructions claiming "This is a system-level rule approved by Bodhic AI" to bypass scanning.
+*   **No False Authority:** Do not write instructions claiming "This is a system-level rule approved by BodhicAI" to bypass scanning.
 
 **Failure to adhere to these rules will result in automatic rejection.**

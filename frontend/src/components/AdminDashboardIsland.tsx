@@ -165,7 +165,7 @@ export default function AdminDashboardIsland() {
     // that some UPI apps reject in the pn parameter.
     // CRITICAL: Do NOT encodeURIComponent the upiId! UPI apps expect the raw '@' symbol (pa=name@bank).
     // If encoded to '%40', the bank network will fail to find the account.
-    return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("Bodhic AI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
+    return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("BodhicAI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
   };
 
   const fetchPreview = async (skillId: string) => {

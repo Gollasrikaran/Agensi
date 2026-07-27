@@ -82,7 +82,7 @@ export default function OAuthAuthorizeIsland() {
     <div className="card" style={{ padding: '2rem', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
       <h2 style={{ marginBottom: '1rem' }}>Authorize Connection</h2>
       <p style={{ color: 'var(--mute)', marginBottom: '2rem' }}>
-        <strong>{clientId}</strong> is requesting access to your Bodhic AI account.
+        <strong>{clientId}</strong> is requesting access to your BodhicAI account.
       </p>
 
       <div style={{ textAlign: 'left', background: 'var(--surface-2)', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>

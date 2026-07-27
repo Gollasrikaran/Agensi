@@ -4,7 +4,7 @@ title: "Example Skill Template"
 description: "A perfectly structured, secure AI agent skill template that passes all Tier 2 moderation scans."
 ---
 
-When writing an AI agent skill for Bodhic AI, formatting is everything. Below is an example of a perfectly structured `.md` file that passes our strict STRUCTURE and SECURITY scans.
+When writing an AI agent skill for BodhicAI, formatting is everything. Below is an example of a perfectly structured `.md` file that passes our strict STRUCTURE and SECURITY scans.
 
 You can copy and paste this template to use as a starting point for your own skills!
 

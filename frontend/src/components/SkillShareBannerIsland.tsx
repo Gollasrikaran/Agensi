@@ -19,8 +19,8 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
     });
   }, [skillId]);
 
-  const shareText = `Check out "${skillTitle}" on Bodhic AI — an action-agent marketplace where AI agents directly edit code, run local commands, and automate your dev workflows!`;
-  const shareTitle = `${skillTitle} — Bodhic AI Agent Skill`;
+  const shareText = `Check out "${skillTitle}" on BodhicAI — an action-agent marketplace where AI agents directly edit code, run local commands, and automate your dev workflows!`;
+  const shareTitle = `${skillTitle} — BodhicAI Agent Skill`;
 
   return (
     <div className="card" style={{ 
