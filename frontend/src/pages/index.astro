@@ -7,6 +7,38 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 <Layout 
 	title="BodhicAI — Action-Agent Skill & Prompt Marketplace" 
 	description="Welcome to BodhicAI. The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude. Sign in with Google to manage skills, API keys, and creator wallets."
+	jsonLd={JSON.stringify({
+		"@context": "https://schema.org",
+		"@graph": [
+			{
+				"@type": "Organization",
+				"name": "BodhicAI",
+				"url": "https://bodhicai.tech",
+				"logo": "https://bodhicai.tech/logo.png",
+				"description": "BodhicAI is an action-agent skill and prompt marketplace for AI coding assistants. Developers can discover, test, and monetize custom MCP sidecar tools and prompt artifacts.",
+				"sameAs": []
+			},
+			{
+				"@type": "WebSite",
+				"name": "BodhicAI",
+				"url": "https://bodhicai.tech",
+				"description": "The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude.",
+				"potentialAction": {
+					"@type": "SearchAction",
+					"target": "https://bodhicai.tech/search?q={search_term_string}",
+					"query-input": "required name=search_term_string"
+				}
+			},
+			{
+				"@type": "WebApplication",
+				"name": "BodhicAI",
+				"url": "https://bodhicai.tech",
+				"applicationCategory": "DeveloperApplication",
+				"operatingSystem": "Web",
+				"description": "BodhicAI uses Google OAuth to securely log in users and authenticate access. We use these permissions solely to verify your identity, manage your purchased skill library, generate developer API keys, and process creator wallet payouts. We do not share your data with third parties."
+			}
+		]
+	})}
 >
 	<!-- Dynamic Hero Section -->
 	<section style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
