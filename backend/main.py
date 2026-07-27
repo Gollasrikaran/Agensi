@@ -221,6 +221,11 @@ class CheckoutRequest(BaseModel):
 def read_root():
     return {"status": "ok", "message": "Marketplace API is running"}
 
+@app.get("/api/auth/ping")
+def auth_ping(user = Depends(get_current_user)):
+    """Quick auth test — call this to verify your token is valid."""
+    return {"status": "authenticated", "user_id": user.id, "email": user.email}
+
 @app.get("/mcp/config.json")
 @app.get("/api/public/mcp/config.json")
 @app.get("/api/mcp/config.json")

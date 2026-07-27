@@ -17,6 +17,9 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 security = HTTPBearer()
 
+import logging
+logger = logging.getLogger(__name__)
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     """
     FastAPI dependency to extract and verify the Supabase JWT.
@@ -26,9 +29,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         # get_user verifies the JWT with Supabase Auth
         response = supabase.auth.get_user(token)
         if not response.user:
+            logger.error("get_user returned no user for token (first 20 chars): %s", token[:20])
             raise HTTPException(status_code=401, detail="Invalid or expired session. Please log in again.")
         return response.user
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid or expired session. Please log in again.")
+        logger.error("get_current_user exception: %s | token prefix: %s", str(e), token[:20])
+        raise HTTPException(status_code=401, detail=f"Auth error: {str(e)}")

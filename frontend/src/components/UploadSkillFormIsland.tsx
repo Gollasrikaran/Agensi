@@ -178,13 +178,29 @@ export default function UploadSkillFormIsland() {
         reader.readAsText(file);
       });
 
-      // Refresh session first to guarantee a valid, non-expired access token
-      await supabase.auth.refreshSession();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = '/signup';
+      // Get a guaranteed fresh session: try refreshSession first, fall back to getSession
+      let session: any = null;
+      try {
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshData?.session) {
+          session = refreshData.session;
+        } else {
+          console.warn('refreshSession failed or returned no session:', refreshError?.message);
+          const { data: { session: existingSession } } = await supabase.auth.getSession();
+          session = existingSession;
+        }
+      } catch (refreshEx) {
+        console.error('Session refresh threw:', refreshEx);
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        session = existingSession;
+      }
+
+      if (!session?.access_token) {
+        window.location.href = '/login';
         return;
       }
+
+      console.log('[Upload] Using token prefix:', session.access_token.substring(0, 20));
 
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/upload`, {
         method: 'POST',
