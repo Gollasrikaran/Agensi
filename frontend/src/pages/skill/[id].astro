@@ -54,8 +54,14 @@ const jsonLd = skill ? JSON.stringify({
 		<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-xl);">
 			<EditSkillButtonIsland client:load skill={skill} />
 			<div style="margin-bottom: var(--space-xl);">
-				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm);">
+				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm); flex-wrap: wrap;">
 					<span class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;">{skill.category}</span>
+					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--canvas-soft-2, #222); color: var(--accent, #a855f7); border: 1px solid var(--hairline-strong); border-radius: 12px; font-size: 12px; font-weight: 600;">
+						⚡ Level {skill.complexity_level || 1}
+					</span>
+					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600;">
+						💎 {({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
+					</span>
 					{skill.moderation_status === 'approved' ? (
 						<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
 							🛡️ Passed OWASP Security Scan
@@ -113,7 +119,7 @@ const jsonLd = skill ? JSON.stringify({
 
 			<div style="margin-top: var(--space-xl); padding: var(--space-xl); background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px solid var(--border);">
 				<h3 style="font-size: 18px; font-weight: 600; margin-bottom: var(--space-xs); color: var(--ink);">Test Before You Buy</h3>
-				<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-md);">Try out this skill to ensure it meets your needs. Testing costs 10 Bodhic Credits per message.</p>
+				<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-md);">Try out this skill to ensure it meets your needs. Testing consumes <strong>{({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} Bodhic Credits</strong> per interaction based on its Level {skill.complexity_level || 1} complexity rating.</p>
 				
 				<div style="display: flex; flex-direction: column; gap: var(--space-sm);">
 					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 14px; text-decoration: none;">

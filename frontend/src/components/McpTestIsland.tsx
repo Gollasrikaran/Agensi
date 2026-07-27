@@ -14,7 +14,7 @@ export default function McpTestIsland({ skillId }: { skillId: string }) {
           <div className="card" style={{ width: '100%', maxWidth: '500px', padding: 'var(--space-xl)', background: 'var(--canvas)', border: '1px solid var(--hairline)' }}>
             <h2 style={{ fontSize: '24px', marginBottom: 'var(--space-md)' }}>Test with local AI Agent</h2>
             <p style={{ color: 'var(--body)', marginBottom: 'var(--space-md)' }}>
-              You can test this skill directly from Cursor, Claude Desktop, or Windsurf before buying it outright. Testing deducts <strong>dynamic credits (10 to 100)</strong> based on skill complexity per chat.
+              You can test this skill directly from Cursor, Claude Desktop, or Windsurf before buying it outright. Testing consumes <strong>dynamic Bodhic Credits (10 to 100 CR)</strong> per interaction according to the skill's AI Complexity Level (Level 1: 10 CR, Level 2: 20 CR, Level 3: 40 CR, Level 4: 70 CR, Level 5: 100 CR).
             </p>
             
             <div style={{ background: 'var(--canvas-soft)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)' }}>

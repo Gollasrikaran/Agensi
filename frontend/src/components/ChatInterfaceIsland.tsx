@@ -15,7 +15,15 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   const [error, setError] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSession, setUserSession] = useState<any>(null);
+  const [skillData, setSkillData] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/skills/${skillId}`)
+      .then(res => res.json())
+      .then(data => setSkillData(data))
+      .catch(console.error);
+  }, [skillId]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -62,30 +70,35 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ skill_id: skillId, message: userMessage })
+        body: JSON.stringify({
+          skill_id: skillId,
+          message: userMessage,
+          history: messages
+        })
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || 'Server returned an error. Please try again.');
-      }
-      
       const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      if (!res.ok) {
+        throw new Error(data.detail || "Failed to communicate with agent");
+      }
+
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message === 'Failed to fetch' ? 'Network error: Could not reach Bodhic AI server. Please check your connection or try again later.' : err.message);
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', background: 'var(--canvas)' }}>
-      {/* Header */}
-      <header style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--hairline)', background: 'var(--nav-bg)', backdropFilter: 'blur(12px)', zIndex: 10 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--canvas)', color: 'var(--ink)' }}>
+      {/* Top Header */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', borderBottom: '1px solid var(--hairline)', background: 'var(--canvas-elevated)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <img src="/logo.png" alt="Bodhic Logo" style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', boxShadow: 'var(--shadow-glow)' }} />
+          <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+            ← Back to Skill
+          </a>
+          <div style={{ height: '24px', width: '1px', background: 'var(--hairline)' }}></div>
           <div>
             <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--ink)', letterSpacing: '0.5px' }}>{skillTitle}</h1>
             <span style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -94,9 +107,12 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ padding: '6px 12px', background: 'var(--accent-soft)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--accent)', fontWeight: 600 }}>
-                Dynamic Credits / MSG
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ padding: '6px 12px', background: 'var(--canvas-soft-2, #222)', border: '1px solid var(--hairline-strong)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--accent, #a855f7)', fontWeight: 700 }}>
+                ⚡ Level {skillData?.complexity_level || 1}
+            </div>
+            <div style={{ padding: '6px 12px', background: 'var(--success-soft)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--success)', fontWeight: 600 }}>
+                💎 {skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} CR / MSG
             </div>
             <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', padding: '8px 12px', borderRadius: 'var(--radius-sm)', transition: 'color 0.2s' }}>Exit Chat</a>
         </div>
@@ -109,7 +125,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
               <div style={{ textAlign: 'center', color: 'var(--mute)', margin: '100px auto', maxWidth: '400px' }}>
                 <img src="/logo.png" alt="Bodhic" style={{ width: '80px', height: '80px', opacity: 0.5, marginBottom: '24px', filter: 'grayscale(100%) brightness(200%)' }} />
                 <h2 style={{ color: 'var(--ink)', fontSize: '24px', marginBottom: '12px', fontWeight: 500 }}>How can I help you?</h2>
-                <p style={{ lineHeight: 1.6, color: 'var(--body)' }}>Ask any question or test this skill's capabilities. Each message deducts 10 Bodhic Credits.</p>
+                <p style={{ lineHeight: 1.6, color: 'var(--body)' }}>Ask any question or test this skill's capabilities. Each message deducts <strong>{skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} Bodhic Credits</strong> based on its Level {skillData?.complexity_level || 1} rating.</p>
                 {!userSession && (
                   <button
                     type="button"
