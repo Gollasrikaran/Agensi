@@ -26,15 +26,17 @@ export default function BrowseIsland() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [audience, setAudience] = useState('all');
+  const [itemType, setItemType] = useState('all');
   const [upvoteStates, setUpvoteStates] = useState<Record<string, boolean>>({});
   const [upvotingIds, setUpvotingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchSkills();
-  }, []);
+  }, [itemType]);
 
   const fetchSkills = () => {
-    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills`)
+    setLoading(true);
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills?item_type=${itemType}`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -117,8 +119,46 @@ export default function BrowseIsland() {
     return (b.upvotes || 0) - (a.upvotes || 0);
   });
 
+  const getTitle = () => {
+    if (itemType === 'skill') return 'Browse AI Agent Skills';
+    if (itemType === 'prompt') return 'Browse AI Prompts';
+    return 'Browse AI Skills & Prompts';
+  };
+
   return (
     <div>
+      {/* Dynamic Header */}
+      <div style={{ marginBottom: 'var(--space-2xl)', textAlign: 'center' }}>
+        <span className="eyebrow" style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 500, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '2px', padding: '6px 16px', background: 'var(--primary-soft)', borderRadius: 'var(--radius-pill)', border: '1px solid rgba(108, 60, 225, 0.15)', display: 'inline-block', marginBottom: 'var(--space-md)' }}>marketplace</span>
+        <h1 style={{ fontSize: '36px', marginBottom: 'var(--space-xs)' }}>{getTitle()}</h1>
+        <p style={{ color: 'var(--body)', fontSize: '16px' }}>Discover secure, verified prompts and agent workflows by domain.</p>
+      </div>
+
+      {/* Item Type Segmented Pill Bar */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-md)', justifyContent: 'center', background: 'var(--canvas-soft)', padding: '6px', borderRadius: 'var(--radius-pill)', width: 'fit-content', margin: '0 auto var(--space-md) auto', border: '1px solid var(--hairline)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'all' ? 'var(--primary)' : 'transparent', color: itemType === 'all' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setItemType('all')}
+        >
+          ✨ Everything
+        </button>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'skill' ? 'var(--primary)' : 'transparent', color: itemType === 'skill' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setItemType('skill')}
+        >
+          🤖 AI Skills
+        </button>
+        <button 
+          className="btn"
+          style={{ borderRadius: 'var(--radius-pill)', border: 'none', background: itemType === 'prompt' ? 'var(--primary)' : 'transparent', color: itemType === 'prompt' ? '#fff' : 'var(--ink)', padding: '8px 20px', fontWeight: 500, transition: 'all 0.2s' }}
+          onClick={() => setItemType('prompt')}
+        >
+          📝 Prompts
+        </button>
+      </div>
+
       {/* Audience Segmented Pill Bar */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-2xl)', justifyContent: 'center', background: 'var(--canvas-soft)', padding: '6px', borderRadius: 'var(--radius-pill)', width: 'fit-content', margin: '0 auto var(--space-2xl) auto', border: '1px solid var(--hairline)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <button 
