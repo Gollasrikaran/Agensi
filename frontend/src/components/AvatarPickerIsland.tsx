@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AvatarBadge from './AvatarBadge';
+import { loadRazorpay } from '../utils/razorpay';
 
 const FREE_STYLES = [
   { id: 'pixel-art', label: 'Pixel Art' },
@@ -131,8 +132,13 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
         }
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
+      try {
+        const rzp = await loadRazorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error('Razorpay load error:', err);
+        alert('Failed to load payment gateway. Please check your connection.');
+      }
 
     } catch(e) {
       console.error(e);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { loadRazorpay } from '../utils/razorpay';
 
 interface CheckoutIslandProps {
   skillId: string;
@@ -119,62 +120,51 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         return;
     }
     
-    // 2. Real Razorpay SDK Flow
-    const loadScript = () => {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload = () => resolve(true);
-        script.onerror = () => resolve(false);
-        document.body.appendChild(script);
-      });
-    };
+    let rzp: any;
+    try {
+      const options = {
+        key: intent.razorpay_key_id,
+        amount: Math.round(intent.amount_inr * 100),
+        currency: "INR",
+        name: "Bodhic AI",
+        description: "Skill License Purchase",
+        order_id: intent.client_secret,
+        handler: async function (response: any) {
+          try {
+            // Re-fetch session in case token refreshed during Razorpay modal
+            const { data: { session: freshSession } } = await supabase.auth.getSession();
+            const freshAuthHeader = freshSession
+              ? { 'Authorization': `Bearer ${freshSession.access_token}` }
+              : authHeader;
 
-    const isLoaded = await loadScript();
-    if (!isLoaded) {
+            const confirmRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...freshAuthHeader },
+              body: JSON.stringify({ 
+                skill_id: skillId,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            if (!confirmRes.ok) {
+              const errData = await confirmRes.json().catch(() => ({}));
+              throw new Error(errData.detail || 'Payment verification failed');
+            }
+            setSuccess(true);
+          } catch (err: any) {
+            setError(err.message);
+          }
+        },
+        theme: { color: "#6C3CE1" }
+      };
+      rzp = await loadRazorpay(options);
+    } catch (err) {
       setError('Failed to load Razorpay SDK. Please check your connection.');
       setLoading(false);
       return;
     }
 
-    const options = {
-      key: intent.razorpay_key_id,
-      amount: Math.round(intent.amount_inr * 100),
-      currency: "INR",
-      name: "Bodhic AI",
-      description: "Skill License Purchase",
-      order_id: intent.client_secret,
-      handler: async function (response: any) {
-        try {
-          // Re-fetch session in case token refreshed during Razorpay modal
-          const { data: { session: freshSession } } = await supabase.auth.getSession();
-          const freshAuthHeader = freshSession
-            ? { 'Authorization': `Bearer ${freshSession.access_token}` }
-            : authHeader;
-
-          const confirmRes = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...freshAuthHeader },
-            body: JSON.stringify({ 
-              skill_id: skillId,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature
-            })
-          });
-          if (!confirmRes.ok) {
-            const errData = await confirmRes.json().catch(() => ({}));
-            throw new Error(errData.detail || 'Payment verification failed');
-          }
-          setSuccess(true);
-        } catch (err: any) {
-          setError(err.message);
-        }
-      },
-      theme: { color: "#6C3CE1" }
-    };
-
-    const rzp = new (window as any).Razorpay(options);
     rzp.on('payment.failed', function (response: any) {
       setError(response.error.description);
     });
