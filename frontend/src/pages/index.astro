@@ -5,7 +5,7 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 ---
 
 <Layout 
-	title="BodhicAI — Action-Agent Skill & Prompt Marketplace" 
+	title="BodhicAI" 
 	description="Welcome to BodhicAI. The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude. Sign in with Google to manage skills, API keys, and creator wallets."
 	jsonLd={JSON.stringify({
 		"@context": "https://schema.org",
@@ -50,15 +50,21 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 			<span class="eyebrow" style="font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(79, 70, 229, 0.15); display: inline-block; margin-bottom: var(--space-md);">the premier ecosystem</span>
 			
 			<h1 style="font-size: clamp(var(--text-4xl), 8vw, var(--text-5xl)); line-height: 1.1; margin-bottom: var(--space-md); letter-spacing: -3px;">
-				Welcome to <span class="gradient-text">BodhicAI</span> Skill Marketplace
+				Welcome to <span class="gradient-text">BodhicAI</span>
 			</h1>
 			
-			<p style="color: var(--body); font-size: clamp(var(--text-lg), 2vw, var(--text-xl)); max-width: 700px; margin: 0 auto var(--space-md) auto; line-height: 1.5;">
+			<p style="color: var(--body); font-size: clamp(var(--text-lg), 2vw, var(--text-xl)); max-width: 700px; margin: 0 auto var(--space-lg) auto; line-height: 1.5;">
 				Discover, buy, and sell prompt artifacts built for AI agents. Every skill is scanned for prompt injections and security threats before it goes live.
 			</p>
-			<p style="color: var(--mute); font-size: 14px; max-width: 700px; margin: 0 auto var(--space-xl) auto; line-height: 1.6;">
-				BodhicAI uses Google OAuth to securely log in users and authenticate access. We use these permissions solely to verify your identity, manage your purchased skill library, generate developer API keys, and process creator wallet payouts. We do not share your data with third parties.
-			</p>
+
+			<div style="background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: var(--radius-lg); padding: 18px 24px; max-width: 760px; margin: 0 auto var(--space-xl) auto; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+				<h3 style="font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+					<span>🛡️</span> Application Purpose & Google OAuth Disclosure
+				</h3>
+				<p style="color: var(--body); font-size: 14.5px; line-height: 1.6; margin: 0;">
+					<strong>BodhicAI uses Google OAuth to securely log in users and authenticate access.</strong> We use these permissions solely to verify your identity, manage your purchased skill library, generate developer API keys, and process creator wallet payouts. <strong>We do not share your data with third parties.</strong>
+				</p>
+			</div>
 			
 			<div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-4xl);">
 				<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 32px; font-size: var(--text-lg);">Explore Skills →</a>
