@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+	title="About BodhicAI — AI Agent Skill & Prompt Marketplace"
+	description="Learn about BodhicAI, our mission to build the premier action-agent marketplace for coding assistants like Cursor and Windsurf, and why we use Google OAuth Single Sign-On."
+>
+	<div style="max-width: 900px; margin: 0 auto; padding: var(--space-4xl) var(--space-md);">
+		<div style="text-align: center; margin-bottom: var(--space-3xl);">
+			<span style="display: inline-block; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: var(--space-md); text-transform: uppercase;">
+				About Our Platform
+			</span>
+			<h1 style="font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: var(--ink); margin-bottom: var(--space-md); letter-spacing: -1.5px;">
+				The Verified Ecosystem for <span class="gradient-text">Action-Agent Skills</span>
+			</h1>
+			<p style="color: var(--body); font-size: 18px; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+				BodhicAI is an open, secure marketplace designed for software developers, engineers, and AI prompt creators to build, test, and monetize custom agent instructions.
+			</p>
+		</div>
+
+		<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); margin-bottom: var(--space-3xl);">
+			<h2 style="font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: var(--space-md);">
+				What is BodhicAI?
+			</h2>
+			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg);">
+				BodhicAI provides a trusted, standardized platform where developers can publish and acquire specialized Model Context Protocol (MCP) sidecar servers, automated workflows, and complex instruction architectures tailored for modern AI coding assistants like Cursor, Windsurf, and Claude Desktop.
+			</p>
+			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: 0;">
+				Every skill and prompt artifact submitted to BodhicAI undergoes rigorous Tier 1 and Tier 2 automated security scanning to detect prompt injections, malicious subprocess executions, and leaked credentials before it is made available in our public directory.
+			</p>
+		</div>
+
+		<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft); border: 1px solid var(--hairline-strong); border-radius: 24px; margin-bottom: var(--space-3xl);">
+			<h2 style="font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: var(--space-md);">
+				🔐 Why We Request Google Authentication (OAuth)
+			</h2>
+			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg);">
+				To ensure the highest level of security, trust, and frictionless authentication, BodhicAI uses Google Single Sign-On (OAuth 2.0) as our primary authentication mechanism. When you sign in with Google, we use your identity for:
+			</p>
+			<ul style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg); padding-left: 24px;">
+				<li style="margin-bottom: 8px;"><strong>Account Verification:</strong> Establishing a verified developer identity to prevent spam and automated bot uploads.</li>
+				<li style="margin-bottom: 8px;"><strong>API Key Management:</strong> Provisioning secure, personal developer API tokens required for connecting your local IDE and coding assistant via our MCP sidecar.</li>
+				<li style="margin-bottom: 8px;"><strong>Creator Wallet & Payouts:</strong> Maintaining your purchased skill library and tracking your seller earnings (80% revenue share) for seamless UPI and bank transfers.</li>
+			</ul>
+			<div style="padding: 16px 20px; background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); border-radius: 8px;">
+				<p style="margin: 0; font-size: 14px; color: var(--ink); line-height: 1.6;">
+					<strong>Data Privacy Commitment:</strong> BodhicAI only accesses basic profile information (your email address, full name, and profile picture). We never request access to your private Google Drive files, personal emails, or contacts, and we never share or sell your data to third parties.
+				</p>
+			</div>
+		</div>
+
+		<div style="text-align: center; margin-top: var(--space-3xl);">
+			<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 36px; font-size: 16px; font-weight: 700;">
+				Explore Verified Skills →
+			</a>
+		</div>
+	</div>
+</Layout>

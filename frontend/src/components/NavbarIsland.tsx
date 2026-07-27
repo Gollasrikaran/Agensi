@@ -97,7 +97,7 @@ export default function NavbarIsland() {
       {/* Left: Logo */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Bodhic AI Logo" style={{ 
+          <img src="/logo.png" alt="BodhicAI Logo" style={{ 
             width: '32px', 
             height: '32px', 
             borderRadius: '8px', 
@@ -112,6 +112,7 @@ export default function NavbarIsland() {
       
       {/* Center: Links */}
       <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '14px' }}>
+        <a href="/about" style={{ color: currentPath.startsWith('/about') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/about') ? '600' : '500' }}>About</a>
         <a href="/browse" style={{ color: currentPath.startsWith('/browse') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/browse') ? '600' : '500' }}>Browse</a>
         <a href="/requests" style={{ color: currentPath.startsWith('/requests') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/requests') ? '600' : '500' }}>Request for new skill</a>
         <a href="/sell" style={{ color: currentPath.startsWith('/sell') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/sell') ? '600' : '500' }}>Sell a Skill</a>
