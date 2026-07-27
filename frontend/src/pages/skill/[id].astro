@@ -80,7 +80,7 @@ const jsonLd = skill ? JSON.stringify({
 						{skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
 							<video src={skill.media_url} controls playsinline style="width: 100%; max-height: 500px; object-fit: contain; display: block;"></video>
 						) : (
-							<img src={skill.media_url} alt={skill.title} style="width: 100%; max-height: 500px; object-fit: contain; display: block;" />
+							<img src={skill.media_url} alt={skill.title} referrerpolicy="no-referrer" style="width: 100%; max-height: 500px; object-fit: contain; display: block;" />
 						)}
 					</div>
 				)}

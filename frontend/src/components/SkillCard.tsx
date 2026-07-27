@@ -86,20 +86,36 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
               muted 
               loop 
               playsInline
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
             <img 
               src={skill.media_url} 
               alt={skill.title}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              referrerPolicy="no-referrer"
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { 
+                // Hide broken image and show category pills instead
+                e.currentTarget.style.display = 'none';
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  parent.style.background = `linear-gradient(135deg, var(--canvas-soft-2) 0%, ${catColor}22 100%)`;
+                  const fallback = parent.querySelector('[data-fallback]') as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }
+              }}
             />
           )
         )}
-        {/* Clickable Category/Domain Pills - Only show if no media */}
-        {!skill.media_url && (
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', zIndex: 10, padding: '0 16px' }}>
+        {/* Category pills shown when no media OR as fallback if image fails */}
+        <div 
+          data-fallback
+          style={{ 
+            display: skill.media_url ? 'none' : 'flex', 
+            gap: '8px', flexWrap: 'wrap', justifyContent: 'center', 
+            zIndex: 10, padding: '0 16px' 
+          }}
+        >
             {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
             <a 
               key={index}
@@ -135,7 +151,6 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
             </a>
           ))}
           </div>
-        )}
 
         {/* Rank Badge */}
         {showRank && (

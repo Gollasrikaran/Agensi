@@ -311,19 +311,10 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     except Exception as e:
         print(f"[WARN] Plagiarism check failed: {e}")
 
-    # Media URL validation
+    # Media URL validation — only check scheme; HEAD requests are rejected by many CDNs
     if req.media_url:
         if not (req.media_url.startswith("http://") or req.media_url.startswith("https://")):
-            raise HTTPException(status_code=400, detail="media_url must start with http or https")
-        try:
-            import requests
-            head_res = requests.head(req.media_url, timeout=5)
-            if head_res.status_code >= 400:
-                raise HTTPException(status_code=400, detail="media_url could not be reached")
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"media_url validation failed: {str(e)}")
+            raise HTTPException(status_code=400, detail="media_url must start with http:// or https://")
 
     # Tier 1 synchronous scan
     if req.item_type == "prompt":
