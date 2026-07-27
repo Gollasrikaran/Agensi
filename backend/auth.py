@@ -26,7 +26,9 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         # get_user verifies the JWT with Supabase Auth
         response = supabase.auth.get_user(token)
         if not response.user:
-            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+            raise HTTPException(status_code=401, detail="Invalid or expired session. Please log in again.")
         return response.user
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail="Invalid or expired session. Please log in again.")

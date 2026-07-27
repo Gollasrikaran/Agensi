@@ -178,6 +178,8 @@ export default function UploadSkillFormIsland() {
         reader.readAsText(file);
       });
 
+      // Refresh session first to guarantee a valid, non-expired access token
+      await supabase.auth.refreshSession();
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         window.location.href = '/signup';
@@ -218,7 +220,17 @@ export default function UploadSkillFormIsland() {
           )
         });
       } else {
-        if (res.status === 403) {
+        if (res.status === 401) {
+          setResult({
+            success: false,
+            content: (
+              <>
+                <h3 style={{ color: 'var(--error)', marginBottom: 'var(--space-xs)' }}>Session Expired</h3>
+                <p style={{ color: 'var(--body)', fontSize: '14px' }}>Your login session expired. Please <a href="/login" style={{ color: 'var(--primary)' }}>log in again</a> and retry.</p>
+              </>
+            )
+          });
+        } else if (res.status === 403) {
           const blockMsg = data.detail?.message || data.detail || "Account Blocked";
           setIsBlocked(true);
           setResult({
