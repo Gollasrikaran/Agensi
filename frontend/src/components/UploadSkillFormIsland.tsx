@@ -28,6 +28,8 @@ export default function UploadSkillFormIsland() {
   const [pricingModel, setPricingModel] = useState<'free' | 'paid'>('free');
   const [file, setFile] = useState<File | null>(null);
   const [agreedToGuidelines, setAgreedToGuidelines] = useState(false);
+  const [itemType, setItemType] = useState<'skill' | 'prompt'>('skill');
+  const [mediaUrl, setMediaUrl] = useState('');
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; content: React.ReactNode } | null>(null);
@@ -48,15 +50,17 @@ export default function UploadSkillFormIsland() {
         if (draft.pricingModel) setPricingModel(draft.pricingModel);
         if (draft.selectedCategories) setSelectedCategories(draft.selectedCategories);
         if (draft.targetAudience) setTargetAudience(draft.targetAudience);
+        if (draft.itemType) setItemType(draft.itemType);
+        if (draft.mediaUrl) setMediaUrl(draft.mediaUrl);
       } catch(e) {}
     }
   }, []);
 
   // Save draft on change
   useEffect(() => {
-    const draft = { title, description, price, pricingModel, selectedCategories, targetAudience };
+    const draft = { title, description, price, pricingModel, selectedCategories, targetAudience, itemType, mediaUrl };
     localStorage.setItem('skill_upload_draft', JSON.stringify(draft));
-  }, [title, description, price, pricingModel, selectedCategories, targetAudience]);
+  }, [title, description, price, pricingModel, selectedCategories, targetAudience, itemType, mediaUrl]);
 
   useEffect(() => {
     // Check session on load and redirect if not logged in
@@ -153,7 +157,9 @@ export default function UploadSkillFormIsland() {
           base_price_inr: pricingModel === 'free' ? 0 : parseFloat(price) || 0,
           billing_type: 'one-time',
           categories: selectedCategories,
-          target_audience: targetAudience
+          target_audience: targetAudience,
+          item_type: itemType,
+          media_url: mediaUrl || undefined
         })
       });
 
@@ -218,16 +224,27 @@ export default function UploadSkillFormIsland() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '0px' }}>
+        <div onClick={() => setItemType('skill')} style={{ flex: 1, padding: '16px', borderRadius: '12px', border: itemType === 'skill' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'skill' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🤖</div>
+          <strong style={{ color: itemType === 'skill' ? 'var(--primary)' : 'var(--ink)' }}>AI Skill</strong>
+        </div>
+        <div onClick={() => setItemType('prompt')} style={{ flex: 1, padding: '16px', borderRadius: '12px', border: itemType === 'prompt' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'prompt' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>📝</div>
+          <strong style={{ color: itemType === 'prompt' ? 'var(--primary)' : 'var(--ink)' }}>Prompt</strong>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
         {/* Step 1: File Upload */}
         <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '8px', color: 'var(--ink)' }}>1. Skill Content</h3>
+          <h3 style={{ fontSize: '20px', marginBottom: '8px', color: 'var(--ink)' }}>1. Content</h3>
           <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: '24px' }}>
-            Upload your agent code (.zip) or instructions (.md). We will automatically scan it for security vulnerabilities.
+            Upload your agent code (.zip) or {itemType === 'prompt' ? 'prompt text (.md)' : 'instructions (.md)'}. We will automatically scan it for security vulnerabilities.
             <br/><br/>
             <a href="/guides/example-skill-template" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
-              📄 View Example Skill Template &rarr;
+              📄 View Example {itemType === 'skill' ? 'Skill' : 'Prompt'} Template &rarr;
             </a>
           </p>
           
@@ -259,7 +276,7 @@ export default function UploadSkillFormIsland() {
           <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>2. Identity & Details</h3>
           
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Skill Name *</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{itemType === 'prompt' ? 'Prompt Name' : 'Skill Name'} *</label>
             <input 
               type="text" 
               required 
@@ -293,6 +310,18 @@ export default function UploadSkillFormIsland() {
               <option value="student">Students (Assignments, Prep, College)</option>
               <option value="professional">Professionals (Work, Tech, Finance)</option>
             </select>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Media URL (Optional)</label>
+            <input 
+              type="url" 
+              placeholder="https://example.com/image.png"
+              value={mediaUrl}
+              onChange={(e) => setMediaUrl(e.target.value)}
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }}
+            />
+            {itemType === 'prompt' && <p style={{ fontSize: '13px', color: 'var(--mute)', marginTop: '4px' }}>Recommended for prompts to show a preview.</p>}
           </div>
 
           <div className="form-group" style={{ marginBottom: '20px' }} ref={dropdownRef}>
@@ -414,12 +443,12 @@ export default function UploadSkillFormIsland() {
             style={{ marginTop: '4px', cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--error)' }}
           />
           <label htmlFor="guidelines_check" style={{ fontSize: '14px', color: 'var(--ink)', cursor: 'pointer', lineHeight: 1.5 }}>
-            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Bodhic AI Seller Requirements</a> and verify that this skill contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
+            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Bodhic AI Seller Requirements</a> and verify that this {itemType} contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
           </label>
         </div>
 
         <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', padding: '16px', fontSize: '18px', fontWeight: 600 }} disabled={loading}>
-          {loading ? 'Scanning...' : 'Publish Skill →'}
+          {loading ? 'Scanning...' : `Publish ${itemType === 'skill' ? 'Skill' : 'Prompt'} →`}
         </button>
       </form>
 

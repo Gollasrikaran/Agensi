@@ -70,7 +70,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
       {/* 16:9 Thumbnail Header */}
       <div style={{ 
         height: '160px', 
-        background: `linear-gradient(135deg, var(--canvas-soft-2) 0%, ${catColor}22 100%)`, 
+        background: skill.media_url ? 'var(--canvas-elevated)' : `linear-gradient(135deg, var(--canvas-soft-2) 0%, ${catColor}22 100%)`, 
         position: 'relative',
         borderBottom: '1px solid var(--hairline)',
         display: 'flex',
@@ -78,6 +78,25 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         justifyContent: 'center',
         overflow: 'hidden'
       }}>
+        {skill.media_url && (
+          skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
+            <video 
+              src={skill.media_url} 
+              autoPlay 
+              muted 
+              loop 
+              playsInline
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+            />
+          ) : (
+            <img 
+              src={skill.media_url} 
+              alt={skill.title}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          )
+        )}
         {/* Clickable Category/Domain Pills */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', zIndex: 10, padding: '0 16px' }}>
           {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (

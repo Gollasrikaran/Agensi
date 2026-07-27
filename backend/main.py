@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 
-from security_scanner import scan_skill, scan_skill_tier2
+from security_scanner import scan_skill, scan_skill_tier2, scan_prompt, scan_prompt_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
 from routers import admin, users, public, avatars, pulse, agent_actions, oauth
@@ -187,6 +187,8 @@ class SkillUploadRequest(BaseModel):
     billing_type: str = "one-time"
     categories: list[str] = ["development"]
     target_audience: str = "all"
+    item_type: str = "skill"
+    media_url: str = None
 
 class CheckoutRequest(BaseModel):
     skill_id: str
@@ -309,8 +311,25 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     except Exception as e:
         print(f"[WARN] Plagiarism check failed: {e}")
 
+    # Media URL validation
+    if req.media_url:
+        if not (req.media_url.startswith("http://") or req.media_url.startswith("https://")):
+            raise HTTPException(status_code=400, detail="media_url must start with http or https")
+        try:
+            import requests
+            head_res = requests.head(req.media_url, timeout=5)
+            if head_res.status_code >= 400:
+                raise HTTPException(status_code=400, detail="media_url could not be reached")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"media_url validation failed: {str(e)}")
+
     # Tier 1 synchronous scan
-    passed_tier1, scan_result_tier1 = scan_skill(req.content)
+    if req.item_type == "prompt":
+        passed_tier1, scan_result_tier1 = scan_prompt(req.content)
+    else:
+        passed_tier1, scan_result_tier1 = scan_skill(req.content)
     
     tier2_error = False
     passed_tier2 = True
@@ -318,7 +337,10 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     
     if passed_tier1:
         # Tier 2 synchronous scan (Cloudflare Workers AI)
-        passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
+        if req.item_type == "prompt":
+            passed_tier2, scan_result_tier2 = scan_prompt_tier2(req.content)
+        else:
+            passed_tier2, scan_result_tier2 = scan_skill_tier2(req.content)
         
         if not passed_tier2:
             issues = scan_result_tier2.get("issues", [])
@@ -372,7 +394,9 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "moderation_status": moderation_status,
         "scan_summary_json": final_scan_result,
         "declared_capabilities_json": [],
-        "complexity_level": scan_result_tier2.get("complexity_level", 1) if scan_result_tier2 else 1
+        "complexity_level": scan_result_tier2.get("complexity_level", 1) if scan_result_tier2 else 1,
+        "item_type": req.item_type,
+        "media_url": req.media_url
     }
 
     try:

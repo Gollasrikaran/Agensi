@@ -4,7 +4,7 @@ from auth import supabase, get_current_user
 router = APIRouter(prefix="/api/public", tags=["public"])
 
 @router.get("/skills")
-def get_public_skills(audience: str = "all"):
+def get_public_skills(audience: str = "all", item_type: str = "all"):
     try:
         # Fetch approved skills and join with the users table and reviews
         query = supabase.table("skills") \
@@ -13,6 +13,9 @@ def get_public_skills(audience: str = "all"):
             
         if audience != "all":
             query = query.eq("target_audience", audience)
+            
+        if item_type != "all":
+            query = query.eq("item_type", item_type)
             
         res = query.order("published_at", desc=True).execute()
         
