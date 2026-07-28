@@ -102,28 +102,29 @@ def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = De
         res = supabase.table("skills").update(update_data).eq("id", skill_id).execute()
         
         # Trigger notification
-        seller_id = skill_res.data["seller_id"]
-        title = skill_res.data["title"]
-        if req.status == "approved":
-            create_notification(
-                user_id=seller_id,
-                type="success",
-                title="Skill Approved!",
-                message=f"Your skill '{title}' has been approved and is now live.",
-                link="/dashboard/seller",
-                priority="normal"
-            )
-        elif req.status == "rejected":
-            create_notification(
-                user_id=seller_id,
-                type="warning",
-                title="Skill Rejected",
-                message=f"Your skill '{title}' was rejected. Feedback: {req.feedback}",
-                link="/dashboard/seller",
-                priority="high"
-            )
+        if skill_res.data:
+            seller_id = skill_res.data.get("seller_id")
+            title = skill_res.data.get("title")
+            if req.status == "approved" and seller_id:
+                create_notification(
+                    user_id=seller_id,
+                    type="success",
+                    title="Skill Approved!",
+                    message=f"Your skill '{title}' has been approved and is now live.",
+                    link="/dashboard/seller",
+                    priority="normal"
+                )
+            elif req.status == "rejected" and seller_id:
+                create_notification(
+                    user_id=seller_id,
+                    type="warning",
+                    title="Skill Rejected",
+                    message=f"Your skill '{title}' was rejected. Feedback: {req.feedback}",
+                    link="/dashboard/seller",
+                    priority="high"
+                )
 
-        return {"message": f"Skill status updated to {req.status}", "skill": res.data[0]}
+        return {"message": f"Skill status updated to {req.status}", "skill": res.data[0] if res.data else None}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

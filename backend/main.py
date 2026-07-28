@@ -180,6 +180,7 @@ ALLOWED_ORIGINS = [
     "https://www.bodhicai.tech",
     "http://localhost:4321",
     "http://localhost:3000",
+    "https://bodhicai.onrender.com",
 ]
 
 app.add_middleware(
