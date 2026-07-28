@@ -24,6 +24,7 @@ export default function SellerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [skills, setSkills] = useState<any[]>([]);
+  const [bountyClaims, setBountyClaims] = useState<any[]>([]);
   const [balance, setBalance] = useState(0);
   const [upiId, setUpiId] = useState('');
   const [savedUpi, setSavedUpi] = useState<string | null>(null);
@@ -183,18 +184,23 @@ export default function SellerDashboardIsland() {
         return;
       }
 
-      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/skills`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      });
+      const [skillsRes, claimsRes] = await Promise.all([
+        fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/skills`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        }),
+        fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests/claims/my-claims`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        })
+      ]);
       
-      if (!res.ok) {
-        throw new Error('Failed to fetch listed skills');
+      if (!skillsRes.ok) throw new Error('Failed to fetch listed skills');
+      
+      setSkills(await skillsRes.json());
+      
+      if (claimsRes.ok) {
+        const claims = await claimsRes.json();
+        setBountyClaims(claims.filter((c: any) => c.status === 'accepted'));
       }
-      
-      const data = await res.json();
-      setSkills(data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -244,6 +250,10 @@ export default function SellerDashboardIsland() {
         <div className="glass-card" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '13px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Active Skills</h3>
           <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)' }}>{skills.length}</div>
+        </div>
+        <div className="glass-card" style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '13px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Completed Bounties</h3>
+          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)' }}>{bountyClaims.length}</div>
         </div>
       </div>
 
@@ -316,6 +326,37 @@ export default function SellerDashboardIsland() {
                             Report Stolen Skill
                         </button>
                     )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="glass-card" style={{ marginBottom: '2rem' }}>
+        <h2>Approved Bounties</h2>
+        
+        {bountyClaims.length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+            You haven't completed any bounties yet. <a href="/requests" style={{ color: 'var(--accent-color)' }}>Browse Open Bounties</a>
+          </p>
+        ) : (
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
+                <th style={{ padding: '0.5rem' }}>Bounty Title</th>
+                <th style={{ padding: '0.5rem' }}>Earned Amount (80%)</th>
+                <th style={{ padding: '0.5rem' }}>Completed On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bountyClaims.map((claim: any) => (
+                <tr key={claim.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                  <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>{claim.bounty?.title || 'Unknown'}</td>
+                  <td style={{ padding: '0.5rem' }}>₹{(parseFloat(claim.bounty?.bounty_inr || '0') * 0.8).toFixed(2)}</td>
+                  <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                    {new Date(claim.updated_at || claim.created_at).toLocaleDateString()}
                   </td>
                 </tr>
               ))}

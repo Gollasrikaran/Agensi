@@ -72,11 +72,12 @@ export default function StrictAntiCopyView({ code, username, ip = "127.0.0.1" }:
   return (
     <div 
       style={{ 
-        width: '100%', 
-        overflowX: 'auto', 
+        width: '100%',
+        maxHeight: '60vh', 
+        overflowX: 'auto',
+        overflowY: 'auto', 
         userSelect: 'none', 
-        WebkitUserSelect: 'none',
-        pointerEvents: 'none' // Prevents right-click and selection on the canvas
+        WebkitUserSelect: 'none'
       }}
       onContextMenu={(e) => e.preventDefault()} // Block right-click
     >

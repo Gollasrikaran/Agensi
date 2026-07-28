@@ -936,7 +936,7 @@ def create_claim_order(claim_id: str, user = Depends(get_current_user)):
             order = client.order.create({
                 "amount": int(float(amount_inr) * 100),
                 "currency": "INR",
-                "receipt": f"bounty_{claim_id}"
+                "receipt": claim_id[:40]
             })
             
             supabase.table("bounty_claims").update({
