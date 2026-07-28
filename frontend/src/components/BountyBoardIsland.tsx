@@ -35,7 +35,9 @@ export default function BountyBoardIsland() {
 
   const handlePostRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session) {
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    
+    if (!currentSession) {
       alert("Please login to post a bounty.");
       return;
     }
@@ -46,7 +48,7 @@ export default function BountyBoardIsland() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${currentSession.access_token}`
         },
         body: JSON.stringify({
           title,
@@ -60,10 +62,17 @@ export default function BountyBoardIsland() {
         setBountyInr('');
         fetchRequests(); // refresh
       } else {
-        alert("Failed to post request.");
+        const errText = await res.text();
+        let errMsg = "Failed to post request.";
+        try {
+          const errJson = JSON.parse(errText);
+          if (errJson.detail) errMsg = errJson.detail;
+        } catch(e) {}
+        alert(errMsg);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      alert(e.message || "Network error occurred.");
     } finally {
       setIsPosting(false);
     }
