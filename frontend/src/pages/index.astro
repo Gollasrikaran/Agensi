@@ -88,7 +88,7 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 				<p style="color: var(--body); font-size: 16px; line-height: 1.7; margin-bottom: var(--space-lg);">
 					<strong>BodhicAI</strong> requests access to your Google identity information strictly via safe Google OAuth Single Sign-On procedures. We request permission to view your primary profile information solely to authenticate user system access, maintain individual user purchase libraries, generate secure developer API access keys, and process creator wallet monetization balance payouts.
 				</p>
-				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); border-top: 1px solid var(--hairline); padding-top: var(--space-lg);">
+				<div class="responsive-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); border-top: 1px solid var(--hairline); padding-top: var(--space-lg);">
 					<div>
 						<h3 style="font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">🔐 Why users sign in with Google</h3>
 						<p style="color: var(--mute); font-size: 14px; line-height: 1.6; margin: 0;">
@@ -113,7 +113,7 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 			<p style="color: var(--mute); font-size: var(--text-lg);">How BodhicAI protects buyers and rewards creators.</p>
 		</div>
 
-		<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-xl);">
+		<div class="grid responsive-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-xl);">
 			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
 				<div style="margin-bottom: var(--space-md);"><ShieldCheck style={{ width: '32px', height: '32px', color: 'var(--primary)' }} /></div>
 				<h3 style="font-size: var(--text-xl); margin-bottom: var(--space-sm);">Tier 1 Security Scanning</h3>
@@ -136,9 +136,9 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 
 	<!-- Live Marketplace Preview -->
 	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
-		<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-2xl);">
-			<div>
-				<h2 style="font-size: var(--text-4xl); letter-spacing: -1px; margin-bottom: var(--space-xs);">Trending Agent Skills</h2>
+		<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-2xl); flex-wrap: wrap; gap: var(--space-md);">
+			<div style="flex: 1; min-width: 250px;">
+				<h2 style="font-size: clamp(24px, 6vw, var(--text-4xl)); letter-spacing: -1px; margin-bottom: var(--space-xs);">Trending Agent Skills</h2>
 				<p style="color: var(--mute);">The most popular verified skills this week.</p>
 			</div>
 			<a href="/browse" class="btn btn-secondary" style="font-weight: 600;">View All →</a>
@@ -148,7 +148,7 @@ import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
 	</section>
 
 	<!-- Final CTA Band -->
-	<section style="position: relative; margin: var(--space-5xl) 0 var(--space-2xl) 0; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong); border-radius: var(--radius-xl); padding: var(--space-5xl) var(--space-xl); text-align: center; color: var(--ink); overflow: hidden;">
+	<section class="band-soft" style="position: relative; text-align: center; color: var(--ink); overflow: hidden; border: 1px solid var(--hairline-strong);">
 		<div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent));"></div>
 		<h2 style="font-size: var(--text-5xl); letter-spacing: -2px; margin-bottom: var(--space-md); color: var(--ink);">Stop giving away your prompts.</h2>
 		<p style="font-size: var(--text-xl); color: var(--body); max-width: 600px; margin: 0 auto var(--space-xl) auto; opacity: 0.9;">

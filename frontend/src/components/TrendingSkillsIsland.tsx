@@ -112,7 +112,7 @@ export default function TrendingSkillsIsland() {
   return (
     <div style={{ position: 'relative' }}>
       {/* Navigation Controls */}
-      <div style={{ position: 'absolute', top: '-60px', right: '160px', display: 'flex', gap: '8px', zIndex: 10 }}>
+      <div className="desktop-only" style={{ position: 'absolute', top: '-60px', right: '16px', display: 'flex', gap: '8px', zIndex: 10 }}>
         <button 
           onClick={() => scroll('left')}
           className="btn"
