@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from auth import get_current_user, supabase
+from notifications import create_notification
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -78,10 +79,9 @@ def unblock_user(user_id: str, admin_user = Depends(verify_admin)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-from pydantic import BaseModel
-
 class StatusUpdateRequest(BaseModel):
     status: str
+    feedback: Optional[str] = None
 
 @router.post("/skills/{skill_id}/status")
 def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = Depends(verify_admin)):
@@ -89,9 +89,40 @@ def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = De
         raise HTTPException(status_code=400, detail="Invalid status")
         
     try:
-        res = supabase.table("skills").update({"moderation_status": req.status}).eq("id", skill_id).execute()
-        if not res.data:
+        skill_res = supabase.table("skills").select("seller_id, title").eq("id", skill_id).single().execute()
+        if not skill_res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
+        
+        update_data = {"moderation_status": req.status}
+        if req.status == "rejected":
+            update_data["admin_feedback"] = req.feedback
+        else:
+            update_data["admin_feedback"] = None
+            
+        res = supabase.table("skills").update(update_data).eq("id", skill_id).execute()
+        
+        # Trigger notification
+        seller_id = skill_res.data["seller_id"]
+        title = skill_res.data["title"]
+        if req.status == "approved":
+            create_notification(
+                user_id=seller_id,
+                type="success",
+                title="Skill Approved!",
+                message=f"Your skill '{title}' has been approved and is now live.",
+                link="/dashboard/seller",
+                priority="normal"
+            )
+        elif req.status == "rejected":
+            create_notification(
+                user_id=seller_id,
+                type="warning",
+                title="Skill Rejected",
+                message=f"Your skill '{title}' was rejected. Feedback: {req.feedback}",
+                link="/dashboard/seller",
+                priority="high"
+            )
+
         return {"message": f"Skill status updated to {req.status}", "skill": res.data[0]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

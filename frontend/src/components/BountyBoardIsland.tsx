@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+
 export default function BountyBoardIsland() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('open'); // open, closed, my-bounties
   
   // Post state
   const [title, setTitle] = useState('');
@@ -20,11 +22,11 @@ export default function BountyBoardIsland() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
-
     fetchRequests();
   }, []);
 
   const fetchRequests = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests`);
       if (res.ok) {
@@ -110,7 +112,8 @@ export default function BountyBoardIsland() {
         setTitle('');
         setDescription('');
         setBountyInr('');
-        fetchRequests(); // refresh
+        fetchRequests(); 
+        setActiveTab('my-bounties');
       } else {
         const errText = await res.text();
         let errMsg = "Failed to post request.";
@@ -128,26 +131,63 @@ export default function BountyBoardIsland() {
     }
   };
 
+  const filterRequests = () => {
+    switch(activeTab) {
+      case 'open':
+        return requests.filter(r => r.status === 'open');
+      case 'closed':
+        return requests.filter(r => r.status === 'closed');
+      case 'my-bounties':
+        return requests.filter(r => r.buyer_id === session?.user?.id);
+      default:
+        return requests;
+    }
+  };
+
+  const filteredRequests = filterRequests();
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-2xl)', alignItems: 'start' }}>
       
       {/* Left: Bounty List */}
       <div>
-        <h2 style={{ fontSize: '24px', marginBottom: 'var(--space-md)' }}>Open Bounties</h2>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid var(--hairline)' }}>
+          {['open', 'closed', 'my-bounties'].map(tab => (
+            <button 
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: '12px 16px',
+                fontSize: '16px',
+                fontWeight: activeTab === tab ? '600' : '500',
+                color: activeTab === tab ? 'var(--primary)' : 'var(--mute)',
+                borderBottom: activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
+                cursor: 'pointer',
+                textTransform: 'capitalize'
+              }}
+            >
+              {tab.replace('-', ' ')}
+            </button>
+          ))}
+        </div>
         
         {loading ? (
           <p style={{ color: 'var(--mute)' }}>Loading bounties...</p>
-        ) : requests.length === 0 ? (
+        ) : filteredRequests.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: 'var(--space-4xl)' }}>
-            <p style={{ color: 'var(--mute)' }}>No open bounties right now.</p>
+            <p style={{ color: 'var(--mute)' }}>No bounties found in this tab.</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-            {requests.map((req: any) => (
+            {filteredRequests.map((req: any) => (
               <div key={req.id} className="card" style={{ padding: 'var(--space-xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ maxWidth: '70%' }}>
                   <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-xs)', alignItems: 'center' }}>
-                    <span className="badge warning" style={{ textTransform: 'uppercase' }}>{req.status}</span>
+                    <span className={`badge ${req.status === 'closed' ? 'success' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
+                      {req.status}
+                    </span>
                     <span style={{ fontSize: '12px', color: 'var(--mute)' }}>
                       {req.creator?.username ? `Posted by @${req.creator.username}` : ''}
                     </span>
@@ -159,13 +199,22 @@ export default function BountyBoardIsland() {
                   <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-sm)' }}>
                     ₹{req.bounty_inr}
                   </div>
-                  <button 
-                    className="btn btn-primary" 
-                    disabled={req.status !== 'open'}
-                    onClick={() => openClaimModal(req)}
-                  >
-                    {req.status === 'open' ? 'Claim Bounty' : 'Closed'}
-                  </button>
+                  {req.status === 'open' && req.buyer_id !== session?.user?.id && (
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => openClaimModal(req)}
+                    >
+                      Claim Bounty
+                    </button>
+                  )}
+                  {req.buyer_id === session?.user?.id && req.status === 'open' && (
+                     <a href="/dashboard/bounties" className="btn btn-secondary">Manage Claims</a>
+                  )}
+                  {req.status === 'closed' && (
+                     <div style={{ fontSize: '12px', color: 'var(--mute)', marginTop: '8px' }}>
+                       Closed on {new Date(req.created_at).toLocaleDateString()}
+                     </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -205,22 +254,24 @@ export default function BountyBoardIsland() {
                 rows={4}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }} 
-              ></textarea>
+                placeholder="Describe exactly what the agent should do..."
+                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }} 
+              />
             </div>
-            
+
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: 'var(--space-xs)' }}>Bounty Amount (INR)</label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: 'var(--space-xs)' }}>Bounty Amount (₹)</label>
               <input 
                 type="number" 
                 required 
                 min="100"
                 value={bountyInr}
                 onChange={e => setBountyInr(e.target.value)}
+                placeholder="e.g. 500"
                 style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }} 
               />
             </div>
-            
+
             <button type="submit" className="btn btn-primary" disabled={isPosting}>
               {isPosting ? 'Posting...' : 'Post Bounty'}
             </button>
@@ -228,59 +279,27 @@ export default function BountyBoardIsland() {
         )}
       </div>
 
-      {/* Claim Submission Modal */}
+      {/* Claim Modal */}
       {claimModalBounty && (
         <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(4px)'
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
-          <div className="card" style={{ width: '90%', maxWidth: '700px', padding: 'var(--space-xl)', background: 'var(--nav-bg)', border: '1px solid var(--hairline-strong)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
-              <h2 style={{ margin: 0, fontSize: '20px' }}>Submit Skill Solution</h2>
-              <button 
-                onClick={() => setClaimModalBounty(null)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--body)', fontSize: '24px', cursor: 'pointer' }}
-              >
-                &times;
-              </button>
-            </div>
-            
-            <p style={{ color: 'var(--mute)', fontSize: '14px', marginBottom: 'var(--space-md)' }}>
-              You are claiming the bounty <strong>{claimModalBounty.title}</strong>. 
-              Please paste your completed skill code below. This code will only be visible to the bounty creator and will not be published publicly.
+          <div className="card" style={{ width: '90%', maxWidth: '500px', padding: 'var(--space-2xl)' }}>
+            <h3 style={{ marginBottom: '16px' }}>Submit Code for '{claimModalBounty.title}'</h3>
+            <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '24px' }}>
+              Paste the completed skill code here. The bounty owner will review it in a protected environment.
             </p>
-
             <textarea 
+              rows={10} 
+              placeholder="Paste skill code here..." 
               value={claimCode}
               onChange={e => setClaimCode(e.target.value)}
-              placeholder="Paste your skill code here..."
-              style={{
-                width: '100%',
-                height: '300px',
-                padding: 'var(--space-sm)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '13px',
-                background: 'var(--canvas)',
-                color: 'var(--ink)',
-                border: '1px solid var(--hairline-strong)',
-                borderRadius: 'var(--radius-md)',
-                marginBottom: 'var(--space-md)',
-                resize: 'vertical'
-              }}
+              style={{ width: '100%', padding: '12px', background: 'var(--canvas-soft)', color: 'var(--ink)', border: '1px solid var(--hairline)', borderRadius: '8px', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}
             />
-
-            <div style={{ textAlign: 'right' }}>
-              <button 
-                className="btn btn-primary" 
-                onClick={submitClaimBounty}
-                disabled={isClaiming || !claimCode.trim()}
-              >
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={() => setClaimModalBounty(null)}>Cancel</button>
+              <button className="btn btn-primary" onClick={submitClaimBounty} disabled={isClaiming}>
                 {isClaiming ? 'Submitting...' : 'Submit Claim'}
               </button>
             </div>

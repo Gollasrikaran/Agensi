@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavbarIsland from '../components/NavbarIsland';
+import NotificationsIsland from '../components/NotificationsIsland';
+
+const title = "Notifications | BodhicAI";
+const description = "View and manage your notifications.";
+---
+
+<BaseLayout title={title} description={description}>
+  <NavbarIsland client:load />
+  
+  <main class="dashboard-layout">
+    <div class="dashboard-content">
+      <div style="max-width: 800px; margin: 0 auto; padding-top: 40px;">
+        <NotificationsIsland client:only="react" />
+      </div>
+    </div>
+  </main>
+</BaseLayout>

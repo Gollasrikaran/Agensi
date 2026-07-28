@@ -11,6 +11,12 @@ export default function NavbarIsland() {
   const [userData, setUserData] = useState<{username: string, avatar_url: string | null} | null>(null);
   const [currentPath, setCurrentPath] = useState('/');
   const menuRef = useRef<HTMLElement>(null);
+  
+  // Notifications
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     captureReferralFromUrl();
@@ -37,6 +43,7 @@ export default function NavbarIsland() {
       if (session) {
         checkAdminStatus(session.user.id);
         fetchUserData(session.user.id);
+        fetchNotifications(session.access_token);
       }
     });
 
@@ -47,9 +54,12 @@ export default function NavbarIsland() {
       if (session) {
         checkAdminStatus(session.user.id);
         fetchUserData(session.user.id);
+        fetchNotifications(session.access_token);
       } else {
         setIsAdmin(false);
         setUserData(null);
+        setNotifications([]);
+        setUnreadCount(0);
       }
     });
 
@@ -61,18 +71,70 @@ export default function NavbarIsland() {
   }, []);
 
   useEffect(() => {
+    if (!session) return;
+    
+    // Subscribe to realtime notifications
+    const channel = supabase.channel('schema-db-changes')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'notifications', 
+        filter: `user_id=eq.${session.user.id}` 
+      }, payload => {
+        setNotifications(prev => [payload.new, ...prev]);
+        setUnreadCount(prev => prev + 1);
+      })
+      .subscribe();
+      
+    return () => { supabase.removeChannel(channel); }
+  }, [session]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
     };
-    if (isMenuOpen) {
+    if (isMenuOpen || isNotifOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isNotifOpen]);
+
+  const fetchNotifications = async (token: string) => {
+    try {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+        setUnreadCount(data.filter((n: any) => !n.is_read).length);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const markNotificationRead = async (notifId: string, link?: string) => {
+    if (!session) return;
+    try {
+      fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/notifications/${notifId}/read`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, is_read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      if (link) window.location.href = link;
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const checkAdminStatus = async (userId: string) => {
     try {
@@ -203,7 +265,80 @@ export default function NavbarIsland() {
 
               {session ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <span style={{ color: 'var(--mute)', cursor: 'pointer' }}>🔔</span>
+                  
+                  {/* Notification Bell */}
+                  <div style={{ position: 'relative' }} ref={notifRef}>
+                    <button 
+                      onClick={() => setIsNotifOpen(!isNotifOpen)}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '20px', position: 'relative' }}
+                    >
+                      🔔
+                      {unreadCount > 0 && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          right: '-4px',
+                          background: 'var(--error)',
+                          color: '#fff',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          padding: '2px 6px',
+                          borderRadius: '10px',
+                          boxShadow: '0 0 5px var(--error)'
+                        }}>
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {isNotifOpen && (
+                      <div className="glass-card" style={{
+                        position: 'absolute',
+                        top: '40px',
+                        right: '-50px',
+                        width: '320px',
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        padding: '16px',
+                        zIndex: 999
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h3 style={{ margin: 0, fontSize: '16px' }}>Notifications</h3>
+                          <a href="/notifications" style={{ fontSize: '12px', color: 'var(--primary)', textDecoration: 'none' }}>View All</a>
+                        </div>
+                        {notifications.length === 0 ? (
+                          <p style={{ color: 'var(--mute)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>No notifications yet.</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {notifications.slice(0, 10).map((n: any) => (
+                              <div 
+                                key={n.id} 
+                                onClick={() => markNotificationRead(n.id, n.link)}
+                                style={{ 
+                                  padding: '12px', 
+                                  background: n.is_read ? 'transparent' : 'var(--canvas-soft-2)',
+                                  border: '1px solid var(--hairline)',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  gap: '12px'
+                                }}
+                              >
+                                <div style={{ fontSize: '18px' }}>
+                                  {n.type === 'success' ? '🟢' : n.type === 'error' ? '🔴' : n.type === 'bounty' ? '🏆' : '🔵'}
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '14px', fontWeight: n.is_read ? 'normal' : 'bold', color: 'var(--ink)' }}>{n.title}</div>
+                                  <div style={{ fontSize: '12px', color: 'var(--mute)', marginTop: '4px' }}>{n.message}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div style={{ position: 'relative', cursor: 'pointer' }}>
                     <a href="/dashboard/profile">
                       <img 

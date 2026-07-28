@@ -9,6 +9,7 @@ from typing import List, Optional
 from security_scanner import scan_skill, scan_skill_tier2, scan_prompt, scan_prompt_tier2
 from payments import create_payment_intent
 from auth import get_current_user, supabase
+from notifications import create_notification
 from routers import admin, users, public, avatars, pulse, agent_actions, oauth
 from routers.mcp import mcp as fastmcp_server
 from dependencies import current_agent_user_id
@@ -271,6 +272,22 @@ def get_skill(skill_id: str):
         raise
     except Exception:
         raise HTTPException(status_code=404, detail="Skill not found")
+
+@app.get("/api/users/me/notifications")
+def get_my_notifications(user = Depends(get_current_user)):
+    try:
+        res = supabase.table("notifications").select("*").eq("user_id", user.id).order("created_at", desc=True).limit(50).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/users/me/notifications/{notif_id}/read")
+def mark_notification_read(notif_id: str, user = Depends(get_current_user)):
+    try:
+        res = supabase.table("notifications").update({"is_read": True}).eq("id", notif_id).eq("user_id", user.id).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 def send_admin_block_notification(user_id: str):
     print("*" * 50)
@@ -552,6 +569,16 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
             {"user_id": buyer_id, "activity_type": "purchase"}
         ]).execute()
         
+        # Notify seller
+        create_notification(
+            user_id=seller_id,
+            type="success",
+            title="Skill Sold!",
+            message=f"Your skill '{skill_res.data['title']}' was purchased.",
+            link="/dashboard/seller",
+            priority="normal"
+        )
+        
         return {"message": "Purchase completed using credits", "new_balance": new_balance, "skill_id": req.skill_id}
         
     except HTTPException:
@@ -658,6 +685,15 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
             "user_id": buyer_id,
             "activity_type": "purchase"
         }).execute()
+        
+        create_notification(
+            user_id=seller_id,
+            type="success",
+            title="Skill Sold!",
+            message=f"Your skill '{skill_res.data['title']}' was purchased.",
+            link="/dashboard/seller",
+            priority="normal"
+        )
         
     except Exception as e:
         # Activity logging failed — log it but still return success to buyer since purchase is recorded
@@ -861,6 +897,18 @@ def claim_bounty(bounty_id: str, req: ClaimRequest, user = Depends(get_current_u
             "status": "pending",
             "submitted_code": req.submitted_code
         }).execute()
+        
+        # Trigger notification to owner
+        bounty_title = bounty.data[0].get("title", "A bounty")
+        create_notification(
+            user_id=bounty.data[0]["buyer_id"],
+            type="bounty",
+            title="New Bounty Claim",
+            message=f"Someone has submitted a claim for your bounty '{bounty_title}'.",
+            link="/dashboard/buyer",
+            priority="normal"
+        )
+        
         return res.data[0]
     except HTTPException:
         raise
@@ -907,6 +955,17 @@ def reject_claim(claim_id: str, req: RejectClaimRequest, user = Depends(get_curr
             "status": "rejected",
             "rejection_reason": req.reason.strip()
         }).eq("id", claim_id).execute()
+        
+        # Trigger notification to claimant
+        bounty_title = claim["bounty"].get("title", "A bounty")
+        create_notification(
+            user_id=claim["claimer_id"],
+            type="error",
+            title="Bounty Claim Rejected",
+            message=f"Your claim for '{bounty_title}' was rejected. Reason: {req.reason.strip()}",
+            link="/dashboard/bounties",
+            priority="high"
+        )
         
         return res.data[0]
     except HTTPException:
