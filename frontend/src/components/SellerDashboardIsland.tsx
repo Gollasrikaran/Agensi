@@ -367,7 +367,7 @@ export default function SellerDashboardIsland() {
 
       <div className="glass-card" style={{ marginBottom: '2rem' }}>
         <h2>Payouts & Earnings</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1rem' }}>Payouts are processed automatically every week for balances above ₹100. Make sure your UPI ID is saved below.</p>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1rem' }}>Payouts are processed automatically every week for balances above ₹1. Make sure your UPI ID is saved below.</p>
         
         {/* UPI Settings */}
         <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', marginTop: '1.5rem' }}>UPI Settings</h3>
