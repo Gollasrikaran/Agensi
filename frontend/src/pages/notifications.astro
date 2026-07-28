@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import Layout from '../layouts/Layout.astro';
 import NavbarIsland from '../components/NavbarIsland';
 import NotificationsIsland from '../components/NotificationsIsland';
 
@@ -7,7 +7,7 @@ const title = "Notifications | BodhicAI";
 const description = "View and manage your notifications.";
 ---
 
-<BaseLayout title={title} description={description}>
+<Layout title={title} description={description}>
   <NavbarIsland client:load />
   
   <main class="dashboard-layout">
@@ -17,4 +17,4 @@ const description = "View and manage your notifications.";
       </div>
     </div>
   </main>
-</BaseLayout>
+</Layout>
