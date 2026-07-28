@@ -22,7 +22,7 @@ export default function PinnedSkillsGrid({ skills }: { skills: any[] }) {
       </h2>
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
         gap: 'var(--space-xl)' 
       }}>
         {skills.map((skill) => (

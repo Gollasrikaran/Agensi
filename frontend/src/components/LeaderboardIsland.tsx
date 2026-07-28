@@ -93,7 +93,7 @@ export default function LeaderboardIsland() {
           <p style={{ color: 'var(--mute)', fontSize: '16px' }}>No skills ranked yet.</p>
         </div>
       ) : (
-        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
           {skills.map((skill: any, index: number) => {
             return (
               <SkillCard

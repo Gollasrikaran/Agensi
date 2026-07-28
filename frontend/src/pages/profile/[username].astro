@@ -38,7 +38,7 @@ try {
   <main class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-4xl); min-height: 80vh;">
     {error ? (
       <div style="text-align: center; margin-top: 10vh;">
-        <h1 style="font-size: 48px; margin-bottom: var(--space-md);">{error}</h1>
+        <h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-md);">{error}</h1>
         <a href="/" class="btn btn-primary">Return Home</a>
       </div>
     ) : (

@@ -292,7 +292,7 @@ export default function UploadSkillFormIsland() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '0px' }}>
+      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '0px' }}>
         <div onClick={() => setItemType('skill')} style={{ padding: '16px', borderRadius: '12px', border: itemType === 'skill' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'skill' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
           <strong style={{ color: itemType === 'skill' ? 'var(--primary)' : 'var(--ink)', fontSize: '16px', display: 'block' }}>AI Agent Skill</strong>
           <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '4px' }}>MCP tools & instructions</span>
@@ -499,7 +499,7 @@ export default function UploadSkillFormIsland() {
         <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
           <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>3. Pricing Model</h3>
           
-          <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+          <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '20px' }}>
             <div 
               onClick={() => setPricingModel('free')}
               style={{ 

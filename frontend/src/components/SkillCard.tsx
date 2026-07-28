@@ -320,6 +320,8 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
+        flexWrap: 'wrap' as any,
+        gap: '8px',
         padding: '12px 16px',
         background: 'var(--canvas-soft)',
         borderTop: '1px solid var(--hairline)',

@@ -121,7 +121,7 @@ export default function CreditWalletIsland() {
   if (loading) return <div>Loading wallet...</div>;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-xl)' }}>
+    <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
       {/* Balance Column */}
       <div>
         <div className="card" style={{ padding: 'var(--space-xl)', background: 'linear-gradient(135deg, var(--primary) 0%, #4a21af 100%)', color: '#fff', border: 'none' }}>

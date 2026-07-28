@@ -38,7 +38,7 @@ export default function PulseComparisonIsland({ currentUser, targetUser }: { cur
       <h2 style={{ marginTop: 0, marginBottom: '24px', fontSize: '20px' }}>Compare Pulses</h2>
       
       <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
+        <div style={{ flex: 1, minWidth: '200px' }}>
           <h3 style={{ fontSize: '16px', color: 'var(--accent-primary)', marginBottom: '16px' }}>@{currentUser} (You)</h3>
           <SkillPulseGraph username={currentUser} />
         </div>
@@ -47,7 +47,7 @@ export default function PulseComparisonIsland({ currentUser, targetUser }: { cur
           <div style={{ background: 'var(--canvas-strong)', padding: '12px', borderRadius: '50%', fontWeight: 'bold', border: '1px solid var(--hairline-strong)' }}>VS</div>
         </div>
 
-        <div style={{ flex: 1, minWidth: '300px' }}>
+        <div style={{ flex: 1, minWidth: '200px' }}>
           <h3 style={{ fontSize: '16px', color: 'var(--warning)', marginBottom: '16px' }}>@{targetUser}</h3>
           <SkillPulseGraph username={targetUser} />
         </div>

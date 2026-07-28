@@ -111,7 +111,7 @@ export default function BuyerDashboardIsland() {
             You have not purchased any skills yet.
           </p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px', marginTop: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px', marginTop: '1.5rem' }}>
             {purchases.map((purchase: any) => (
               <div key={purchase.id} style={{ 
                 background: 'var(--bg-tertiary)', 

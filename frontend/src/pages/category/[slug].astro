@@ -32,7 +32,7 @@ const displayCategory = originalName.charAt(0).toUpperCase() + originalName.slic
 		<div style="margin-bottom: var(--space-xl); text-align: center;">
 			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">category</span>
 			
-			<h1 style="font-size: 48px; margin-bottom: var(--space-sm); letter-spacing: -1px;">
+			<h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-sm); letter-spacing: -1px;">
 				<span class="gradient-text">{displayCategory}</span> AI Agent Skills
 			</h1>
 			
@@ -50,14 +50,14 @@ const displayCategory = originalName.charAt(0).toUpperCase() + originalName.slic
 				{matchedSkills.map((skill: any) => (
 					<a href={`/skill/${skill.id}`} class="card" style="display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; padding: var(--space-lg);">
 						<div>
-							<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-xs);">
+							<div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-xs);">
 								<h4 style="font-size: 18px; margin-bottom: 0; color: var(--ink);">{skill.title}</h4>
 							</div>
 							<p style="color: var(--body); font-size: 14px; line-height: 20px; margin-bottom: var(--space-lg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
 								{skill.description}
 							</p>
 						</div>
-						<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
+						<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md); border-top: 1px solid var(--hairline); padding-top: var(--space-md);">
 							<div style="display: flex; gap: var(--space-xs);">
 								{skill.moderation_status === 'approved' ? (
 									<span class="badge success">✓ Verified</span>

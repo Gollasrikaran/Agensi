@@ -184,7 +184,7 @@ export default function BrowseIsland() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-2xl)', alignItems: 'start' }}>
       
       {/* Sidebar */}
       <aside style={{ position: 'sticky', top: 'var(--space-2xl)' }}>
@@ -235,7 +235,7 @@ export default function BrowseIsland() {
       {/* Main Content Grid */}
       <div>
         {loading ? (
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {[1,2,3,4].map(i => (
               <div key={i} style={{ background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', height: '250px', animation: 'pulse 1.5s ease-in-out infinite' }} />
             ))}
@@ -245,7 +245,7 @@ export default function BrowseIsland() {
             <p style={{ color: 'var(--mute)', fontSize: '16px' }}>No skills found in this domain.</p>
           </div>
         ) : (
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {filteredSkills.map((skill: any, index: number) => {
               const isTopVoted = index === 0 && (skill.upvotes || 0) > 0 && searchQuery === '';
               const isUpvoted = upvoteStates[skill.id];

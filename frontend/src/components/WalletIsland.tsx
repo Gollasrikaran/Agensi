@@ -77,7 +77,7 @@ export default function WalletIsland() {
     if (loading) return <div style={{ color: 'var(--mute)' }}>Loading wallet...</div>;
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-xl)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
             <div>
                 <div className="card" style={{ padding: 'var(--space-xl)' }}>
                     <h2 style={{ fontSize: '13px', color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</h2>

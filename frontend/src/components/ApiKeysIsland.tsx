@@ -81,7 +81,7 @@ export default function ApiKeysIsland() {
   if (loading) return <div>Loading API keys...</div>;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-xl)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
       <div>
         <div className="card" style={{ padding: 'var(--space-xl)' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 600, marginbottom: 'var(--space-md)' }}>Create New Key</h3>

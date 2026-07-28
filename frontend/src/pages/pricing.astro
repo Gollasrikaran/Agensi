@@ -7,13 +7,13 @@ import Layout from '../layouts/Layout.astro';
 >
 	<div style="max-width: 800px; margin: 0 auto; text-align: center; padding: var(--space-5xl) 0;">
 		<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">pricing</span>
-		<h1 style="font-size: 48px; margin-bottom: var(--space-xs);">Simple, <span class="gradient-text">transparent</span> pricing.</h1>
+		<h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-xs);">Simple, <span class="gradient-text">transparent</span> pricing.</h1>
 		<p style="color: var(--body); font-size: 18px; max-width: 500px; margin: 0 auto;">No surprises. Fair splits for creators, zero markup for buyers.</p>
 
-		<div class="grid" style="margin-top: var(--space-3xl); grid-template-columns: repeat(2, 1fr);">
+		<div class="grid responsive-grid" style="margin-top: var(--space-3xl); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
 			<div class="card" style="padding: var(--space-xl); text-align: left;">
 				<div style="font-size: 13px; font-family: var(--font-mono); color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-md);">For Sellers</div>
-				<div style="font-size: 56px; font-weight: 700; letter-spacing: -2.5px; line-height: 1;">80%</div>
+				<div style="font-size: clamp(36px, 10vw, 56px); font-weight: 700; letter-spacing: -2.5px; line-height: 1;">80%</div>
 				<div style="color: var(--mute); font-size: 14px; margin-top: var(--space-xxs);">revenue per sale</div>
 				<div style="border-top: 1px solid var(--hairline); margin: var(--space-lg) 0; padding-top: var(--space-lg);">
 					<ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); font-size: 14px; color: var(--body);">
@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
 			</div>
 			<div class="card" style="padding: var(--space-xl); text-align: left;">
 				<div style="font-size: 13px; font-family: var(--font-mono); color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-md);">For Buyers</div>
-				<div style="font-size: 56px; font-weight: 700; letter-spacing: -2.5px; line-height: 1;">₹0</div>
+				<div style="font-size: clamp(36px, 10vw, 56px); font-weight: 700; letter-spacing: -2.5px; line-height: 1;">₹0</div>
 				<div style="color: var(--mute); font-size: 14px; margin-top: var(--space-xxs);">markup or hidden fees</div>
 				<div style="border-top: 1px solid var(--hairline); margin: var(--space-lg) 0; padding-top: var(--space-lg);">
 					<ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); font-size: 14px; color: var(--body);">

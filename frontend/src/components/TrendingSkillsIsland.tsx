@@ -99,7 +99,7 @@ export default function TrendingSkillsIsland() {
     return (
       <div style={{ display: 'flex', gap: 'var(--space-lg)', overflowX: 'hidden', padding: '10px 0' }}>
         {[1, 2, 3].map(i => (
-          <div key={i} style={{ minWidth: '300px', height: '280px', background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div key={i} style={{ minWidth: '200px', height: '280px', background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         ))}
       </div>
     );
