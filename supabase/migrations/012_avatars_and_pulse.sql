@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Bodhic AI: Avatar System + Skill Pulse Schema
+-- BodhicAI: Avatar System + Skill Pulse Schema
 -- ==============================================================================
 
 -- 1. AVATAR PACKS

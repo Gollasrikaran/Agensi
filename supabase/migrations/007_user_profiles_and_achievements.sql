@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 
 -- Pre-seed some default achievements
 INSERT INTO achievements (id, title, description, icon_url, is_admin_awarded) VALUES
-('first_sale', 'First Sale', 'Completed your first sale on Bodhic AI.', '🎉', false),
+('first_sale', 'First Sale', 'Completed your first sale on BodhicAI.', '🎉', false),
 ('10_downloads', 'Rising Star', 'Reached 10 total downloads across all your skills.', '🚀', false),
 ('100_downloads', 'Marketplace Favorite', 'Reached 100 total downloads across all your skills.', '💎', false),
 ('1k_earned', 'First ₹1K', 'Earned your first ₹1,000 on the platform.', '💰', false),
