@@ -82,7 +82,7 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
     }
   };
 
-  const handleOAuth = async (provider: 'google' | 'github') => {
+  const handleOAuth = async (provider: 'github') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -193,14 +193,6 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--mute)', fontSize: '14px', marginBottom: '1rem' }}>Or continue with</p>
         <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-          <button 
-            onClick={() => handleOAuth('google')}
-            className="btn" 
-            style={{ width: '100%', background: 'var(--canvas)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)' }}
-            type="button"
-          >
-            Google
-          </button>
           <button 
             onClick={() => handleOAuth('github')}
             className="btn" 
