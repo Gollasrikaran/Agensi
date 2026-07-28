@@ -82,7 +82,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         throw new Error(data.detail || "Failed to communicate with agent");
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
