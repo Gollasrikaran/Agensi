@@ -5,6 +5,7 @@ import ReviewsIsland from '../../components/ReviewsIsland.tsx';
 import McpTestIsland from '../../components/McpTestIsland.tsx';
 import EditSkillButtonIsland from '../../components/EditSkillButtonIsland.tsx';
 import SkillShareBannerIsland from '../../components/SkillShareBannerIsland.tsx';
+import TestBeforeBuyIsland from '../../components/TestBeforeBuyIsland.tsx';
 
 
 
@@ -153,17 +154,7 @@ const jsonLd = skill ? JSON.stringify({
 				<SkillShareBannerIsland client:load skillId={skill.id} skillTitle={skill.title} />
 			</div>
 
-			<div style="margin-top: var(--space-xl); padding: var(--space-xl); background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px solid var(--border);">
-				<h3 style="font-size: 18px; font-weight: 600; margin-bottom: var(--space-xs); color: var(--ink);">Test Before You Buy</h3>
-				<p style="color: var(--body); font-size: 14px; margin-bottom: var(--space-md);">Try out this skill to ensure it meets your needs. Testing consumes <strong>{({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} Bodhic Credits</strong> per interaction based on its Level {skill.complexity_level || 1} complexity rating.</p>
-				
-				<div style="display: flex; flex-direction: column; gap: var(--space-sm);">
-					<a href={`/chat/${skill.id}`} target="_blank" class="btn btn-primary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 14px; text-decoration: none;">
-						Test with Bodhic LLM Web Chat
-					</a>
-					<McpTestIsland client:load skillId={skill.id} />
-				</div>
-			</div>
+			<TestBeforeBuyIsland client:load skillId={skill.id} sellerId={skill.seller_id} complexityLevel={skill.complexity_level || 1} />
 		</div>
 	)}
 </Layout>
