@@ -4,7 +4,7 @@ from email.message import EmailMessage
 from datetime import datetime, time
 import pytz
 import logging
-from dependencies import supabase
+from auth import supabase
 
 logger = logging.getLogger(__name__)
 
