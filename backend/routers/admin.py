@@ -95,10 +95,6 @@ def update_skill_status(skill_id: str, req: StatusUpdateRequest, admin_user = De
             raise HTTPException(status_code=404, detail="Skill not found")
         
         update_data = {"moderation_status": req.status}
-        if req.status == "rejected":
-            update_data["admin_feedback"] = req.feedback
-        else:
-            update_data["admin_feedback"] = None
             
         res = supabase.table("skills").update(update_data).eq("id", skill_id).execute()
         
