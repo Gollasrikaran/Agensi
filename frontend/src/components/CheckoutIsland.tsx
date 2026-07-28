@@ -219,11 +219,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
             <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--surface)', padding: '0 12px', color: 'var(--mute)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>OR PAY WITH CASH</span>
           </div>
 
-          <label>Payment Region (Defaulting to India for INR processing)</label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            <option value="IN">India (Razorpay / UPI)</option>
-            <option value="US">International (PayPal)</option>
-          </select>
+          <input type="hidden" value="IN" />
           
           <button 
             className="btn btn-primary btn-lg" 
