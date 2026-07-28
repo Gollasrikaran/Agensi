@@ -151,7 +151,8 @@ export default function NavbarIsland() {
             <a href="/sell" style={{ color: currentPath.startsWith('/sell') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/sell') ? '600' : '500' }}>Sell a Skill</a>
             <a href="/guides" style={{ color: currentPath.startsWith('/guides') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/guides') ? '600' : '500' }}>Guides</a>
             <a href="/mcp" style={{ color: currentPath.startsWith('/mcp') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/mcp') ? '600' : '500' }}>MCP</a>
-            <a href="/dashboard/buyer" style={{ color: currentPath.startsWith('/dashboard') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/dashboard') ? '600' : '500' }}>Dashboard</a>
+            <a href="/dashboard/buyer" style={{ color: currentPath.startsWith('/dashboard/buyer') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/dashboard/buyer') ? '600' : '500' }}>Dashboard</a>
+            <a href="/dashboard/bounties" style={{ color: currentPath.startsWith('/dashboard/bounties') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/dashboard/bounties') ? '600' : '500' }}>Bounty Panel</a>
             {isAdmin && (
               <a href="/admin" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>Control Panel</a>
             )}
@@ -344,9 +345,10 @@ export default function NavbarIsland() {
             <a href="/sell" onClick={closeMenu} style={{ color: currentPath.startsWith('/sell') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/sell') ? '600' : '500', fontSize: '16px' }}>Sell a Skill</a>
             <a href="/guides" onClick={closeMenu} style={{ color: currentPath.startsWith('/guides') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/guides') ? '600' : '500', fontSize: '16px' }}>Guides</a>
             <a href="/mcp" onClick={closeMenu} style={{ color: currentPath.startsWith('/mcp') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/mcp') ? '600' : '500', fontSize: '16px' }}>MCP</a>
-            <a href="/dashboard/buyer" onClick={closeMenu} style={{ color: currentPath.startsWith('/dashboard') ? 'var(--primary)' : 'var(--body)', textDecoration: 'none', fontWeight: currentPath.startsWith('/dashboard') ? '600' : '500', fontSize: '16px' }}>Dashboard</a>
+            <a href="/dashboard/buyer" onClick={closeMenu} style={{ color: currentPath.startsWith('/dashboard/buyer') ? 'var(--primary)' : 'var(--ink)', textDecoration: 'none', fontWeight: '500', fontSize: '18px' }}>Dashboard</a>
+            <a href="/dashboard/bounties" onClick={closeMenu} style={{ color: currentPath.startsWith('/dashboard/bounties') ? 'var(--primary)' : 'var(--ink)', textDecoration: 'none', fontWeight: '500', fontSize: '18px' }}>Bounty Panel</a>
             {isAdmin && (
-              <a href="/admin" onClick={closeMenu} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600', fontSize: '16px' }}>Control Panel</a>
+              <a href="/admin" onClick={closeMenu} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600', fontSize: '18px' }}>Control Panel</a>
             )}
           </nav>
 

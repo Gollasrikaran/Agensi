@@ -171,28 +171,49 @@ def run_payout_sweep(admin_user = Depends(verify_admin)):
     and creates ONE consolidated payout for sellers with balance >= 100.
     """
     try:
-        # 1. Get all sellers who have skills with completed purchases
+        # 1. Get all sellers who have skills with completed purchases OR accepted bounty claims
         all_skills = supabase.table("skills").select("id, seller_id").execute()
-        if not all_skills.data:
-            return {"message": "No sellers found", "payouts_created": 0}
+        all_claims = supabase.table("bounty_claims").select("claimer_id, bounty:skill_requests(bounty_inr)").eq("status", "accepted").execute()
         
         # Group skill IDs by seller
         seller_skills = {}
-        for skill in all_skills.data:
-            sid = skill["seller_id"]
-            if sid not in seller_skills:
-                seller_skills[sid] = []
-            seller_skills[sid].append(skill["id"])
+        if all_skills.data:
+            for skill in all_skills.data:
+                sid = skill["seller_id"]
+                if sid not in seller_skills:
+                    seller_skills[sid] = []
+                seller_skills[sid].append(skill["id"])
+                
+        # Group bounty earnings by seller
+        seller_bounties = {}
+        if all_claims.data:
+            for claim in all_claims.data:
+                sid = claim["claimer_id"]
+                if sid not in seller_bounties:
+                    seller_bounties[sid] = 0.0
+                if claim.get("bounty"):
+                    seller_bounties[sid] += float(claim["bounty"]["bounty_inr"]) * 0.80
+                    
+        all_seller_ids = set(seller_skills.keys()).union(set(seller_bounties.keys()))
+        if not all_seller_ids:
+            return {"message": "No sellers found", "payouts_created": 0}
         
         payouts_created = 0
         sweep_results = []
         
-        for seller_id, skill_ids in seller_skills.items():
-            # Calculate total earnings (80% of purchases)
-            purchases_res = supabase.table("purchases").select("amount").in_("skill_id", skill_ids).eq("payment_status", "completed").execute()
+        for seller_id in all_seller_ids:
+            skill_ids = seller_skills.get(seller_id, [])
             total_earnings = 0.0
-            if purchases_res.data:
-                total_earnings = sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
+            
+            # Calculate total earnings (80% of purchases)
+            if skill_ids:
+                purchases_res = supabase.table("purchases").select("amount").in_("skill_id", skill_ids).eq("payment_status", "completed").execute()
+                if purchases_res.data:
+                    total_earnings += sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
+                    
+            # Calculate bounty earnings
+            if seller_id in seller_bounties:
+                total_earnings += seller_bounties[seller_id]
             
             # Calculate total ALREADY COMPLETED
             completed_res = supabase.table("payouts").select("amount").eq("seller_id", seller_id).eq("status", "completed").execute()

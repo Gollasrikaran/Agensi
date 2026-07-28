@@ -132,6 +132,13 @@ def get_my_wallet(user = Depends(get_current_user)):
             purchases_res = supabase.table("purchases").select("amount").in_("skill_id", skill_ids).eq("payment_status", "completed").execute()
             if purchases_res.data:
                 total_earnings = sum(float(p["amount"]) * 0.80 for p in purchases_res.data)
+                
+        # 1.5 Calculate bounty earnings
+        claims_res = supabase.table("bounty_claims").select("*, bounty:skill_requests(bounty_inr)").eq("claimer_id", user.id).eq("status", "accepted").execute()
+        if claims_res.data:
+            for claim in claims_res.data:
+                if claim.get("bounty"):
+                    total_earnings += float(claim["bounty"]["bounty_inr"]) * 0.80
         
         # 2. Calculate total withdrawn from payouts table
         payouts_res = supabase.table("payouts").select("amount").eq("seller_id", user.id).execute()

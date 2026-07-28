@@ -33,6 +33,34 @@ export default function BountyBoardIsland() {
     }
   };
 
+  const handleClaimBounty = async (bountyId: string, buyerId: string) => {
+    if (!session) {
+      alert("Please login to claim a bounty.");
+      return;
+    }
+    if (session.user.id === buyerId) {
+      alert("You cannot claim your own bounty.");
+      return;
+    }
+    try {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests/${bountyId}/claim`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      if (res.ok) {
+        alert("Bounty claim submitted successfully! You can track it in your dashboard.");
+        fetchRequests();
+      } else {
+        const err = await res.json();
+        alert(err.detail || "Failed to claim bounty.");
+      }
+    } catch (e: any) {
+      alert(e.message || "Network error occurred.");
+    }
+  };
+
   const handlePostRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -96,8 +124,11 @@ export default function BountyBoardIsland() {
             {requests.map((req: any) => (
               <div key={req.id} className="card" style={{ padding: 'var(--space-xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ maxWidth: '70%' }}>
-                  <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-xs)' }}>
+                  <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-xs)', alignItems: 'center' }}>
                     <span className="badge warning" style={{ textTransform: 'uppercase' }}>{req.status}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--mute)' }}>
+                      {req.creator?.username ? `Posted by @${req.creator.username}` : ''}
+                    </span>
                   </div>
                   <h3 style={{ fontSize: '18px', marginBottom: 'var(--space-xs)' }}>{req.title}</h3>
                   <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '1.5' }}>{req.description}</p>
@@ -106,8 +137,12 @@ export default function BountyBoardIsland() {
                   <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-sm)' }}>
                     ₹{req.bounty_inr}
                   </div>
-                  <button className="btn btn-primary" disabled={req.status !== 'open'}>
-                    {req.status === 'open' ? 'Claim Bounty' : 'Claimed'}
+                  <button 
+                    className="btn btn-primary" 
+                    disabled={req.status !== 'open'}
+                    onClick={() => handleClaimBounty(req.id, req.buyer_id)}
+                  >
+                    {req.status === 'open' ? 'Claim Bounty' : 'Closed'}
                   </button>
                 </div>
               </div>

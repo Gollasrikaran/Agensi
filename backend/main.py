@@ -831,10 +831,137 @@ def create_skill_request(req: SkillRequestModel, user = Depends(get_current_user
 @app.get("/api/requests")
 def get_skill_requests():
     try:
-        res = supabase.table("skill_requests").select("*").order("created_at", desc=True).execute()
+        res = supabase.table("skill_requests").select("*, creator:users(username)").order("created_at", desc=True).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/requests/{bounty_id}/claim")
+def claim_bounty(bounty_id: str, user = Depends(get_current_user)):
+    try:
+        bounty = supabase.table("skill_requests").select("buyer_id").eq("id", bounty_id).execute()
+        if not bounty.data:
+            raise HTTPException(status_code=404, detail="Bounty not found")
+        if bounty.data[0]["buyer_id"] == user.id:
+            raise HTTPException(status_code=400, detail="You cannot claim your own bounty.")
+        
+        existing = supabase.table("bounty_claims").select("id").eq("bounty_id", bounty_id).eq("claimer_id", user.id).execute()
+        if existing.data:
+            raise HTTPException(status_code=400, detail="You have already submitted a claim for this bounty.")
+            
+        res = supabase.table("bounty_claims").insert({
+            "bounty_id": bounty_id,
+            "claimer_id": user.id,
+            "status": "pending"
+        }).execute()
+        return res.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/requests/claims/my-claims")
+def get_my_claims(user = Depends(get_current_user)):
+    try:
+        res = supabase.table("bounty_claims").select("*, bounty:skill_requests(*)").eq("claimer_id", user.id).order("created_at", desc=True).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/requests/claims/my-posted")
+def get_my_posted_claims(user = Depends(get_current_user)):
+    try:
+        res = supabase.table("bounty_claims").select("*, claimer:users(username), bounty:skill_requests!inner(*)").eq("bounty.buyer_id", user.id).order("created_at", desc=True).execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+import razorpay
+
+@app.post("/api/requests/claims/{claim_id}/order")
+def create_claim_order(claim_id: str, user = Depends(get_current_user)):
+    try:
+        claim_res = supabase.table("bounty_claims").select("*, bounty:skill_requests(*)").eq("id", claim_id).execute()
+        if not claim_res.data:
+            raise HTTPException(status_code=404, detail="Claim not found")
+            
+        claim = claim_res.data[0]
+        if claim["bounty"]["buyer_id"] != user.id:
+            raise HTTPException(status_code=403, detail="Not your bounty")
+            
+        amount_inr = claim["bounty"]["bounty_inr"]
+        razorpay_key_id = os.environ.get("RAZORPAY_KEY_ID")
+        razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+        
+        if razorpay_key_id and razorpay_key_secret:
+            client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
+            order = client.order.create({
+                "amount": int(float(amount_inr) * 100),
+                "currency": "INR",
+                "receipt": f"bounty_{claim_id}"
+            })
+            
+            supabase.table("bounty_claims").update({
+                "razorpay_order_id": order["id"]
+            }).eq("id", claim_id).execute()
+            
+            return {
+                "client_secret": order["id"],
+                "amount_inr": amount_inr,
+                "razorpay_key_id": razorpay_key_id
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Razorpay keys missing")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class VerifyBountyPaymentRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+
+@app.post("/api/requests/claims/{claim_id}/verify")
+def verify_claim_payment(claim_id: str, req: VerifyBountyPaymentRequest, user = Depends(get_current_user)):
+    try:
+        claim_res = supabase.table("bounty_claims").select("*, bounty:skill_requests(*)").eq("id", claim_id).execute()
+        if not claim_res.data:
+            raise HTTPException(status_code=404, detail="Claim not found")
+            
+        claim = claim_res.data[0]
+        if claim["bounty"]["buyer_id"] != user.id:
+            raise HTTPException(status_code=403, detail="Not your bounty")
+            
+        razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+        if razorpay_key_secret:
+            client = razorpay.Client(auth=(os.environ.get("RAZORPAY_KEY_ID"), razorpay_key_secret))
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': req.razorpay_order_id,
+                'razorpay_payment_id': req.razorpay_payment_id,
+                'razorpay_signature': req.razorpay_signature
+            })
+            
+        supabase.table("bounty_claims").update({
+            "status": "accepted",
+            "razorpay_payment_id": req.razorpay_payment_id
+        }).eq("id", claim_id).execute()
+        
+        supabase.table("skill_requests").update({
+            "status": "closed"
+        }).eq("id", claim["bounty_id"]).execute()
+        
+        supabase.table("user_activity").insert({
+            "user_id": claim["claimer_id"],
+            "activity_type": "bounty"
+        }).execute()
+        
+        return {"status": "success", "message": "Bounty claimed and paid successfully."}
+    except razorpay.errors.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 class DisputeRequest(BaseModel):
     purchase_id: str

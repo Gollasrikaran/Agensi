@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BountiesDashboardIsland from '../../components/BountiesDashboardIsland.tsx';
+---
+<Layout 
+	title="Bounty Panel — BodhicAI"
+	description="Manage the bounties you've posted and track the status of your claims."
+>
+	<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
+		<div style="margin-bottom: var(--space-xl);">
+			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">Bounties</span>
+			<h1 style="font-size: clamp(24px, 5vw, 36px); margin: 0 0 var(--space-xs) 0;">Bounty Panel</h1>
+			<p style="color: var(--body); font-size: 16px;">Review claims on your bounties or check the status of your own claims.</p>
+		</div>
+		<BountiesDashboardIsland client:load />
+	</div>
+</Layout>
