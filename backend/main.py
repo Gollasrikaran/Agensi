@@ -836,8 +836,11 @@ def get_skill_requests():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ClaimRequest(BaseModel):
+    submitted_code: str
+
 @app.post("/api/requests/{bounty_id}/claim")
-def claim_bounty(bounty_id: str, user = Depends(get_current_user)):
+def claim_bounty(bounty_id: str, req: ClaimRequest, user = Depends(get_current_user)):
     try:
         bounty = supabase.table("skill_requests").select("buyer_id").eq("id", bounty_id).execute()
         if not bounty.data:
@@ -849,10 +852,14 @@ def claim_bounty(bounty_id: str, user = Depends(get_current_user)):
         if existing.data:
             raise HTTPException(status_code=400, detail="You have already submitted a claim for this bounty.")
             
+        if not req.submitted_code or not req.submitted_code.strip():
+            raise HTTPException(status_code=400, detail="You must submit your skill code to claim this bounty.")
+            
         res = supabase.table("bounty_claims").insert({
             "bounty_id": bounty_id,
             "claimer_id": user.id,
-            "status": "pending"
+            "status": "pending",
+            "submitted_code": req.submitted_code
         }).execute()
         return res.data[0]
     except HTTPException:
@@ -873,6 +880,37 @@ def get_my_posted_claims(user = Depends(get_current_user)):
     try:
         res = supabase.table("bounty_claims").select("*, claimer:users(username), bounty:skill_requests!inner(*)").eq("bounty.buyer_id", user.id).order("created_at", desc=True).execute()
         return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class RejectClaimRequest(BaseModel):
+    reason: str
+
+@app.post("/api/requests/claims/{claim_id}/reject")
+def reject_claim(claim_id: str, req: RejectClaimRequest, user = Depends(get_current_user)):
+    try:
+        claim_res = supabase.table("bounty_claims").select("*, bounty:skill_requests(buyer_id)").eq("id", claim_id).execute()
+        if not claim_res.data:
+            raise HTTPException(status_code=404, detail="Claim not found")
+            
+        claim = claim_res.data[0]
+        if claim["bounty"]["buyer_id"] != user.id:
+            raise HTTPException(status_code=403, detail="Not your bounty")
+            
+        if claim["status"] != "pending":
+            raise HTTPException(status_code=400, detail="Claim is not pending")
+            
+        if not req.reason or not req.reason.strip():
+            raise HTTPException(status_code=400, detail="Rejection reason is mandatory")
+            
+        res = supabase.table("bounty_claims").update({
+            "status": "rejected",
+            "rejection_reason": req.reason.strip()
+        }).eq("id", claim_id).execute()
+        
+        return res.data[0]
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

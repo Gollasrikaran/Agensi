@@ -117,6 +117,35 @@ export default function BountiesDashboardIsland() {
     }
   };
 
+  const handleRejectClaim = async (claimId: string) => {
+    if (!session) return;
+    const reason = window.prompt("Please provide a mandatory reason for rejecting this claim:");
+    if (!reason || !reason.trim()) {
+      alert("Rejection reason is mandatory.");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/requests/claims/${claimId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ reason })
+      });
+      if (res.ok) {
+        alert("Claim rejected.");
+        fetchData(session.access_token);
+      } else {
+        const err = await res.json();
+        alert(err.detail || "Failed to reject claim.");
+      }
+    } catch (e: any) {
+      alert(e.message || "Network error occurred.");
+    }
+  };
+
   if (loading) {
     return <p style={{ color: 'var(--mute)' }}>Loading dashboard...</p>;
   }
@@ -200,6 +229,13 @@ export default function BountiesDashboardIsland() {
                         Inspect
                       </button>
                       <button 
+                        className="btn" 
+                        onClick={() => handleRejectClaim(claim.id)}
+                        style={{ padding: '6px 12px', fontSize: '14px', background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)' }}
+                      >
+                        Reject
+                      </button>
+                      <button 
                         className="btn btn-primary" 
                         onClick={() => handleAcceptClaim(claim.id)}
                         style={{ padding: '6px 12px', fontSize: '14px' }}
@@ -226,9 +262,16 @@ export default function BountiesDashboardIsland() {
               <div key={claim.id} className="card" style={{ padding: 'var(--space-lg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ fontSize: '18px', marginBottom: 'var(--space-xs)' }}>{claim.bounty.title}</h3>
-                  <span className={`badge ${claim.status === 'accepted' ? 'success' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
-                    {claim.status}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                    <span className={`badge ${claim.status === 'accepted' ? 'success' : claim.status === 'rejected' ? 'error' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
+                      {claim.status}
+                    </span>
+                    {claim.status === 'rejected' && claim.rejection_reason && (
+                      <span style={{ fontSize: '13px', color: 'var(--error)' }}>
+                        <strong>Reason:</strong> {claim.rejection_reason}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right', fontSize: '20px', fontWeight: 'bold', fontFamily: 'var(--font-mono)' }}>
                   ₹{claim.bounty.bounty_inr}
@@ -267,12 +310,18 @@ export default function BountiesDashboardIsland() {
             </p>
             
             <StrictAntiCopyView 
-              code={inspectClaim.submitted_skill_id ? "// (Code loaded from database...)\n\ndef execute_bounty():\n    return 'Success'\n" : "// No explicit skill attached. Displaying generic bounty submission text.\n\nfunction verifyBounty() {\n    return true;\n}\n"} 
+              code={inspectClaim.submitted_code || "// No code submitted."} 
               username={session.user.email || session.user.id} 
               ip="Client IP" 
             />
 
-            <div style={{ marginTop: 'var(--space-lg)', textAlign: 'right' }}>
+            <div style={{ marginTop: 'var(--space-lg)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-sm)' }}>
+              <button className="btn" style={{ background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)' }} onClick={() => {
+                setInspectClaim(null);
+                handleRejectClaim(inspectClaim.id);
+              }}>
+                Reject Claim
+              </button>
               <button className="btn btn-primary" onClick={() => {
                 setInspectClaim(null);
                 handleAcceptClaim(inspectClaim.id);

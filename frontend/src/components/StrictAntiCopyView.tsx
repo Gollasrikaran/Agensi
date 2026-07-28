@@ -31,14 +31,14 @@ export default function StrictAntiCopyView({ code, username, ip = "127.0.0.1" }:
 
     // Draw Code
     ctx.font = '14px "Fira Code", monospace';
-    ctx.fillStyle = '#d4d4d4';
+    ctx.fillStyle = '#ffffff'; // Bright white for max contrast
     lines.forEach((line, i) => {
       ctx.fillText(line, padding, padding + (i + 1) * lineHeight);
     });
 
     // Draw Forensic Watermark
     ctx.save();
-    ctx.globalAlpha = 0.05; // Very faint
+    ctx.globalAlpha = 0.015; // Extremely faint, readable code
     ctx.font = '24px sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.rotate(-Math.PI / 4); // Diagonal
@@ -46,9 +46,9 @@ export default function StrictAntiCopyView({ code, username, ip = "127.0.0.1" }:
     const timestamp = new Date().toISOString();
     const watermarkText = `ID: ${username} | IP: ${ip} | TIME: ${timestamp}`;
     
-    // Repeat watermark across the canvas
-    for (let x = -canvas.height; x < canvas.width * 2; x += 300) {
-      for (let y = -canvas.width; y < canvas.height * 2; y += 150) {
+    // Repeat watermark across the canvas with wide spacing
+    for (let x = -canvas.height; x < canvas.width * 2; x += 400) {
+      for (let y = -canvas.width; y < canvas.height * 2; y += 250) {
         ctx.fillText(watermarkText, x, y);
       }
     }
