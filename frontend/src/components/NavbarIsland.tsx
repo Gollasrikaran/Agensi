@@ -128,7 +128,7 @@ export default function NavbarIsland() {
       <div style={innerContainerStyle}>
         {/* Left: Logo */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <a href="/" aria-label="BodhicAI" title="BodhicAI" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <img src="/logo.png" alt="BodhicAI Logo" style={{ 
               width: '32px', 
               height: '32px', 
@@ -136,7 +136,7 @@ export default function NavbarIsland() {
               objectFit: 'cover',
               boxShadow: 'var(--shadow-glow)' 
             }} />
-            <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--ink)', letterSpacing: '-0.5px' }}>
+            <span aria-hidden="true" style={{ fontSize: '20px', fontWeight: '700', color: 'var(--ink)', letterSpacing: '-0.5px' }}>
               Bodhic<span style={{ color: 'var(--primary)' }}>AI</span>
             </span>
           </a>
