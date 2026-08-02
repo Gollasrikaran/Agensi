@@ -16,6 +16,8 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userSession, setUserSession] = useState<any>(null);
   const [skillData, setSkillData] = useState<any>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,11 +49,19 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!input.trim() || loading) return;
+    if ((!input.trim() && selectedFiles.length === 0) || loading) return;
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    const currentFiles = [...selectedFiles];
+    setSelectedFiles([]);
+    
+    let contentStr = userMessage;
+    if (currentFiles.length > 0) {
+      contentStr += `\n[Attached ${currentFiles.length} file(s)]`;
+    }
+    
+    setMessages(prev => [...prev, { role: 'user', content: contentStr }]);
     setLoading(true);
     setError('');
 
@@ -64,17 +74,21 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         return;
       }
 
+      const formData = new FormData();
+      formData.append('skill_id', skillId);
+      formData.append('message', userMessage);
+      formData.append('history', JSON.stringify(messages));
+      
+      currentFiles.forEach(f => {
+        formData.append('files', f);
+      });
+
       const res = await fetch(`${API_BASE}/api/agents/web-chat`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({
-          skill_id: skillId,
-          message: userMessage,
-          history: messages
-        })
+        body: formData
       });
 
       const data = await res.json();
@@ -208,27 +222,58 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
               </div>
             )}
             
+            {selectedFiles.length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px', padding: '0 16px' }}>
+                {selectedFiles.map((file, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--canvas-elevated)', padding: '6px 12px', borderRadius: 'var(--radius-pill)', fontSize: '12px', border: '1px solid var(--hairline)', color: 'var(--ink)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</span>
+                    <button type="button" onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))} style={{ background: 'none', border: 'none', color: 'var(--mute)', cursor: 'pointer', display: 'flex', padding: 0 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <form onSubmit={handleSend} style={{ display: 'flex', position: 'relative', alignItems: 'center' }}>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  multiple 
+                  style={{ display: 'none' }} 
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                    }
+                    e.target.value = '';
+                  }} 
+                />
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ position: 'absolute', left: '16px', background: 'none', border: 'none', color: 'var(--mute)', cursor: 'pointer', display: 'flex', padding: '4px', transition: 'color 0.2s', zIndex: 2 }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                </button>
                 <input 
                     type="text" 
                     value={input} 
                     onChange={e => setInput(e.target.value)} 
                     placeholder="Message BodhicAI..." 
-                    style={{ flex: 1, padding: '18px 60px 18px 24px', borderRadius: 'var(--radius-pill)', border: '1.5px solid var(--hairline)', background: 'var(--canvas-soft-2)', color: 'var(--ink)', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'var(--shadow-md)' }}
+                    style={{ flex: 1, padding: '18px 60px 18px 48px', borderRadius: 'var(--radius-pill)', border: '1.5px solid var(--hairline)', background: 'var(--canvas-soft-2)', color: 'var(--ink)', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'var(--shadow-md)' }}
                     disabled={loading}
                     onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
                     onBlur={(e) => e.target.style.borderColor = 'var(--hairline)'}
                 />
                 <button 
                     type="submit" 
-                    disabled={loading || !input.trim()}
+                    disabled={loading || (!input.trim() && selectedFiles.length === 0)}
                     style={{ 
                         position: 'absolute', right: '8px', 
                         width: '44px', height: '44px', 
                         borderRadius: '50%', border: 'none', 
-                        background: input.trim() ? 'var(--primary)' : 'var(--canvas-elevated)', 
-                        color: input.trim() ? 'var(--on-primary)' : 'var(--mute)',
-                        cursor: input.trim() ? 'pointer' : 'default',
+                        background: (input.trim() || selectedFiles.length > 0) ? 'var(--primary)' : 'var(--canvas-elevated)', 
+                        color: (input.trim() || selectedFiles.length > 0) ? 'var(--on-primary)' : 'var(--mute)',
+                        cursor: (input.trim() || selectedFiles.length > 0) ? 'pointer' : 'default',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 0.2s'
                     }}
