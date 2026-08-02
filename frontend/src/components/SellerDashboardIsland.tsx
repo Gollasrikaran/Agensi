@@ -208,13 +208,13 @@ export default function SellerDashboardIsland() {
     }
   };
 
-  if (loading) return <div>Loading seller dashboard...</div>;
+  if (loading) return <div>Loading creator dashboard...</div>;
   if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
 
   return (
     <div className="seller-dashboard">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '28px' }}>Seller Dashboard</h1>
+        <h1 style={{ margin: 0, fontSize: '28px' }}>Creator Dashboard</h1>
         <a 
           href="/dashboard/buyer" 
           style={{ 

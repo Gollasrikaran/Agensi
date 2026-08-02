@@ -165,7 +165,7 @@ export default function AdminDashboardIsland() {
     // that some UPI apps reject in the pn parameter.
     // CRITICAL: Do NOT encodeURIComponent the upiId! UPI apps expect the raw '@' symbol (pa=name@bank).
     // If encoded to '%40', the bank network will fail to find the account.
-    return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("BodhicAI Seller")}&am=${amount.toFixed(2)}&cu=INR`;
+    return `upi://pay?pa=${upiId}&pn=${encodeURIComponent("BodhicAI Creator")}&am=${amount.toFixed(2)}&cu=INR`;
   };
 
   const fetchPreview = async (skillId: string) => {
@@ -342,7 +342,7 @@ export default function AdminDashboardIsland() {
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                <th style={{ padding: '0.5rem' }}>Seller</th>
+                <th style={{ padding: '0.5rem' }}>Creator</th>
                 <th style={{ padding: '0.5rem' }}>UPI ID</th>
                 <th style={{ padding: '0.5rem' }}>Amount</th>
                 <th style={{ padding: '0.5rem' }}>Actions</th>
@@ -402,7 +402,7 @@ export default function AdminDashboardIsland() {
               {(!data.pending_payouts || data.pending_payouts.length === 0) && (
                 <tr>
                   <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: 'var(--mute)' }}>
-                    No pending payouts. Click "Run Weekly Sweep" to generate payouts for eligible sellers.
+                    No pending payouts. Click "Run Weekly Sweep" to generate payouts for eligible creators.
                   </td>
                 </tr>
               )}

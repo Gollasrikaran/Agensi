@@ -185,7 +185,7 @@ export default function ProfileSettingsIsland() {
               {currentUsername ? `@${currentUsername}` : 'No username set yet'}
             </h2>
             <p style={{ margin: '4px 0 0', color: backgroundUrl ? 'rgba(255,255,255,0.7)' : 'var(--mute)', fontSize: '14px' }}>
-              {currentUsername ? 'This is how sellers and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
+              {currentUsername ? 'This is how creators and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
             </p>
           </div>
 

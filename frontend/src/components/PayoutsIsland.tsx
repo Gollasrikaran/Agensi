@@ -63,7 +63,7 @@ export default function PayoutsIsland() {
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Seller Email</th>
+                            <th>Creator Email</th>
                             <th>UPI ID</th>
                             <th>Amount (₹)</th>
                             <th>Status</th>
