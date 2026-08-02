@@ -11,7 +11,7 @@ from payments import create_payment_intent
 from auth import get_current_user, supabase
 from notifications import create_notification
 from routers import admin, users, public, avatars, pulse, agent_actions, oauth
-from routers.mcp import mcp as fastmcp_server
+from routers.mcp import mcp as fastmcp_server, auto_assign_category
 from dependencies import current_agent_user_id
 import hashlib
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -420,12 +420,15 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
 
     skill_slug = req.title.lower().replace(" ", "-") + "-" + uuid.uuid4().hex[:6]
 
+    raw_cats = ",".join(req.categories)
+    final_cat = auto_assign_category(req.title, req.description, req.content) if raw_cats == "development" else raw_cats
+    
     new_skill = {
         "seller_id": seller_id,
         "title": req.title,
         "slug": skill_slug,
         "description": req.description,
-        "category": ",".join(req.categories),
+        "category": final_cat,
         "target_audience": req.target_audience,
         "base_price_inr": req.base_price_inr,
         "is_free": req.base_price_inr == 0,

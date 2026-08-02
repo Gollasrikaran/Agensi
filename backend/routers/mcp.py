@@ -12,6 +12,36 @@ from dependencies import current_agent_user_id
 # Import FastMCP
 from fastmcp import FastMCP
 
+CATEGORY_KEYWORDS = {
+    "development": ["code", "api", "debug", "deploy", "react", "python", "javascript", "backend", "frontend", "git", "docker", "test", "ci/cd", "database", "sql"],
+    "copywriting": ["copy", "headline", "email", "blog", "content", "writing", "seo", "landing page", "cta", "persuasion", "tone"],
+    "productivity": ["task", "workflow", "calendar", "automate", "organize", "efficiency", "time", "meeting", "notes", "project management"],
+    "data-science": ["data", "ml", "machine learning", "model", "dataset", "pandas", "tensorflow", "statistics", "visualization", "analytics"],
+    "marketing": ["campaign", "ads", "social media", "branding", "growth", "funnel", "conversion", "audience", "engagement"],
+    "finance": ["budget", "investment", "revenue", "accounting", "tax", "financial", "portfolio", "stocks", "crypto"],
+    "design": ["ui", "ux", "figma", "wireframe", "prototype", "layout", "typography", "color", "illustration", "design system"],
+    "automation": ["automate", "workflow", "trigger", "webhook", "scrape", "bot", "schedule", "pipeline", "integration"],
+    "customer-support": ["support", "ticket", "faq", "chatbot", "helpdesk", "escalation", "customer", "feedback", "onboarding"],
+    "healthcare": ["medical", "patient", "diagnosis", "clinical", "health", "drug", "pharma", "treatment", "symptoms"],
+    "education": ["teach", "learn", "course", "student", "curriculum", "quiz", "tutor", "exam", "lesson", "academic"],
+    "security": ["security", "vulnerability", "pentest", "firewall", "encryption", "auth", "owasp", "malware", "compliance"],
+    "legal": ["legal", "contract", "compliance", "regulation", "intellectual property", "gdpr", "terms", "policy", "law"]
+}
+
+def auto_assign_category(title: str, description: str, content: str) -> str:
+    text = f"{title} {description} {content[:2000]}".lower()
+    
+    scores = {}
+    for cat, keywords in CATEGORY_KEYWORDS.items():
+        score = sum(text.count(kw) for kw in keywords)
+        scores[cat] = score
+    
+    if not scores:
+        return "general"
+        
+    best = max(scores, key=scores.get)
+    return best if scores[best] >= 3 else "general"
+
 # Initialize FastMCP Server
 mcp = FastMCP("Bodhic-MCP")
 
@@ -180,7 +210,7 @@ def upload_skill_to_bodhic(
     category: str = "development",
     target_audience: str = "all"
 ) -> str:
-    """Upload a new AI agent skill or prompt workflow directly to the BodhicAI Marketplace. The content MUST be formatted in Markdown with clear instructions for AI agents."""
+    """Upload a new AI agent skill or prompt workflow directly to the BodhicAI Marketplace. The content MUST be formatted in Markdown with clear instructions for AI agents. Category will be auto-detected from your content. You can override it with one of: development, copywriting, productivity, data-science, marketing, finance, design, automation, customer-support, healthcare, education, security, legal, general."""
     user_id = current_agent_user_id.get()
     if not user_id:
         return "Error: Unauthorized. Missing user context. Please provide a valid Bodhic API key."
@@ -253,7 +283,7 @@ def upload_skill_to_bodhic(
         "title": title,
         "slug": skill_slug,
         "description": description,
-        "category": category,
+        "category": auto_assign_category(title, description, content) if category == "development" else category,
         "target_audience": target_audience,
         "base_price_inr": float(price_inr),
         "is_free": float(price_inr) == 0,
