@@ -4,20 +4,20 @@ import SkillCard from './SkillCard';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Domains' },
-  { id: 'development', label: 'Development' },
-  { id: 'copywriting', label: 'Copywriting' },
-  { id: 'productivity', label: 'Productivity' },
-  { id: 'data-science', label: 'Data Science' },
-  { id: 'marketing', label: 'Marketing' },
-  { id: 'finance', label: 'Finance' },
-  { id: 'design', label: 'Design' },
   { id: 'automation', label: 'Automation' },
+  { id: 'copywriting', label: 'Copywriting' },
   { id: 'customer-support', label: 'Customer Support' },
-  { id: 'healthcare', label: 'Healthcare' },
+  { id: 'data-science', label: 'Data Science' },
+  { id: 'design', label: 'Design' },
+  { id: 'development', label: 'Development' },
   { id: 'education', label: 'Education' },
-  { id: 'security', label: 'Security' },
+  { id: 'finance', label: 'Finance' },
+  { id: 'general', label: 'General' },
+  { id: 'healthcare', label: 'Healthcare' },
   { id: 'legal', label: 'Legal' },
-  { id: 'general', label: 'General' }
+  { id: 'marketing', label: 'Marketing' },
+  { id: 'productivity', label: 'Productivity' },
+  { id: 'security', label: 'Security' }
 ];
 
 export default function BrowseIsland() {

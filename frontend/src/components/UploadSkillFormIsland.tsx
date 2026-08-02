@@ -3,20 +3,20 @@ import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
 
 const CATEGORIES = [
-  { value: 'development', label: 'Development' },
-  { value: 'copywriting', label: 'Copywriting' },
-  { value: 'productivity', label: 'Productivity' },
-  { value: 'data-science', label: 'Data Science' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'design', label: 'Design' },
   { value: 'automation', label: 'Automation' },
+  { value: 'copywriting', label: 'Copywriting' },
   { value: 'customer-support', label: 'Customer Support' },
-  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'data-science', label: 'Data Science' },
+  { value: 'design', label: 'Design' },
+  { value: 'development', label: 'Development' },
   { value: 'education', label: 'Education' },
-  { value: 'security', label: 'Security' },
-  { value: 'legal', label: 'Legal' },
+  { value: 'finance', label: 'Finance' },
   { value: 'general', label: 'General' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'legal', label: 'Legal' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'productivity', label: 'Productivity' },
+  { value: 'security', label: 'Security' }
 ];
 
 export default function UploadSkillFormIsland() {
