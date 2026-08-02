@@ -702,7 +702,19 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
 
     return {"message": "Purchase recorded successfully", "credited": seller_share, "skill_id": req.skill_id}
 
-
+@app.get("/api/skills/{skill_id}/purchase-status")
+def get_purchase_status(skill_id: str, user = Depends(get_current_user)):
+    try:
+        # Check if user is the seller
+        skill_res = supabase.table("skills").select("seller_id").eq("id", skill_id).single().execute()
+        if skill_res.data and skill_res.data["seller_id"] == user.id:
+            return {"purchased": True, "is_seller": True}
+            
+        # Check for completed purchase
+        purchase = supabase.table("purchases").select("id").eq("buyer_id", user.id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
+        return {"purchased": len(purchase.data) > 0 if purchase.data else False, "is_seller": False}
+    except Exception as e:
+        return {"purchased": False, "is_seller": False, "error": str(e)}
 
 @app.get("/api/skills/{skill_id}/download")
 def download_skill(skill_id: str, user = Depends(get_current_user)):

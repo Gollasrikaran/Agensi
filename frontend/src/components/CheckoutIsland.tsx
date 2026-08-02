@@ -13,27 +13,70 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
   const [intent, setIntent] = useState<any>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchCredits = async () => {
+    const fetchCreditsAndStatus = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
         
-        const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits`, {
+        // Fetch credits
+        const resCredits = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/credits`, {
           headers: { 'Authorization': `Bearer ${session.access_token}` }
         });
-        if (res.ok) {
-          const data = await res.json();
+        if (resCredits.ok) {
+          const data = await resCredits.json();
           setCreditBalance(data.balance || 0);
         }
+
+        // Fetch purchase status
+        const resStatus = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${skillId}/purchase-status`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+        if (resStatus.ok) {
+          const statusData = await resStatus.json();
+          if (statusData.purchased) {
+            setHasPurchased(true);
+          }
+        }
       } catch (e) {
-        console.error('Failed to fetch credits', e);
+        console.error('Failed to fetch user data', e);
       }
     };
-    fetchCredits();
-  }, []);
+    fetchCreditsAndStatus();
+  }, [skillId]);
+
+  const handleDownload = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Must be logged in');
+
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${skillId}/download`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+
+      if (!res.ok) throw new Error('Download failed');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `skill_${skillId}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreditPayment = async () => {
     setLoading(true);
@@ -60,6 +103,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
       }
       
       setSuccess(true);
+      setHasPurchased(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -112,6 +156,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
           });
           if (!res.ok) throw new Error('Payment confirmation failed');
           setSuccess(true);
+          setHasPurchased(true);
         } catch (err: any) {
           setError(err.message);
         } finally {
@@ -152,6 +197,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
               throw new Error(errData.detail || 'Payment verification failed');
             }
             setSuccess(true);
+            setHasPurchased(true);
           } catch (err: any) {
             setError(err.message);
           }
@@ -173,12 +219,20 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
     setLoading(false);
   };
 
-  if (success) {
+  if (hasPurchased) {
     return (
       <div className="card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)', background: 'var(--success-soft)', padding: 'var(--space-2xl)' }}>
-        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>✓ Payment Successful</h3>
-        <p style={{ color: 'var(--body)', fontSize: '16px' }}>You now have access to this artifact. The creator has been credited.</p>
-        <button className="btn btn-primary btn-lg" style={{ marginTop: 'var(--space-lg)' }} onClick={() => window.location.reload()}>View Artifact →</button>
+        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>✓ Access Granted</h3>
+        <p style={{ color: 'var(--body)', fontSize: '16px' }}>You own this skill and can download its instructions.</p>
+        <button 
+          className="btn btn-primary btn-lg" 
+          style={{ marginTop: 'var(--space-lg)', width: '100%', maxWidth: '300px' }} 
+          onClick={handleDownload}
+          disabled={loading}
+        >
+          {loading ? 'Downloading...' : 'Download Instructions (.md)'}
+        </button>
+        {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
       </div>
     );
   }
