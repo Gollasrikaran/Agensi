@@ -210,24 +210,45 @@ export default function BrowseIsland() {
         <h3 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--mute)', marginBottom: 'var(--space-md)' }}>Domains</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
           {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              style={{
-                textAlign: 'left',
-                padding: '10px 16px',
-                borderRadius: 'var(--radius-md)',
-                background: activeCategory === cat.id ? 'var(--primary-soft)' : 'transparent',
-                color: activeCategory === cat.id ? 'var(--primary)' : 'var(--body)',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: activeCategory === cat.id ? '600' : '400',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              {cat.label}
-            </button>
+            cat.id === 'all' ? (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory('all')}
+                style={{
+                  textAlign: 'left',
+                  padding: '10px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: activeCategory === 'all' ? 'var(--primary-soft)' : 'transparent',
+                  color: activeCategory === 'all' ? 'var(--primary)' : 'var(--body)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  fontWeight: activeCategory === 'all' ? '600' : '400',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {cat.label}
+              </button>
+            ) : (
+              <a
+                key={cat.id}
+                href={`/category/${cat.id}`}
+                style={{
+                  textAlign: 'left',
+                  padding: '10px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'transparent',
+                  color: 'var(--body)',
+                  textDecoration: 'none',
+                  fontSize: '15px',
+                  fontWeight: '400',
+                  transition: 'all 0.2s ease',
+                  display: 'block',
+                }}
+              >
+                {cat.label}
+              </a>
+            )
           ))}
         </div>
       </aside>
