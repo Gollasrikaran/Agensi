@@ -189,46 +189,67 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
       
       {!intent ? (
         <div className="form-group">
-          {creditBalance !== null && (
-            <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(108, 60, 225, 0.1) 0%, rgba(74, 33, 175, 0.1) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary)' }}>
-              <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                <span>Pay with Bodhic Credits</span>
-                <span>Balance: {creditBalance} CR</span>
+          {Number(basePrice || 0) === 0 ? (
+            <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--success)', textAlign: 'center' }}>
+              <h4 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--success)', marginBottom: '8px' }}>
+                Free Skill
               </h4>
               <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
-                Cost: <strong>{Math.round(Number(basePrice || 0) * 10)} CR</strong>
+                This skill is available for free.
               </p>
               <button 
                 className="btn btn-primary btn-lg" 
-                style={{ width: '100%' }}
+                style={{ width: '100%', background: 'var(--success)', borderColor: 'var(--success)' }}
                 onClick={handleCreditPayment}
-                disabled={loading || creditBalance < Math.round(Number(basePrice || 0) * 10)}
+                disabled={loading}
               >
-                {loading ? 'Processing...' : (creditBalance < Math.round(Number(basePrice || 0) * 10) ? 'Insufficient Credits' : `Pay ${Math.round(Number(basePrice || 0) * 10)} Credits`)}
+                {loading ? 'Processing...' : 'Download for Free'}
               </button>
-              {creditBalance < Math.round(Number(basePrice || 0) * 10) && (
-                <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
-                  <a href="/dashboard/credits" style={{ color: 'var(--primary)' }}>Top up your wallet</a>
-                </p>
-              )}
             </div>
-          )}
-          
-          <div style={{ position: 'relative', textAlign: 'center', margin: 'var(--space-lg) 0' }}>
-            <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)' }} />
-            <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--surface)', padding: '0 12px', color: 'var(--mute)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>OR PAY WITH CASH</span>
-          </div>
+          ) : (
+            <>
+              {creditBalance !== null && (
+                <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(108, 60, 225, 0.1) 0%, rgba(74, 33, 175, 0.1) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary)' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Pay with Bodhic Credits</span>
+                    <span>Balance: {creditBalance} CR</span>
+                  </h4>
+                  <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
+                    Cost: <strong>{Math.round(Number(basePrice || 0) * 10)} CR</strong>
+                  </p>
+                  <button 
+                    className="btn btn-primary btn-lg" 
+                    style={{ width: '100%' }}
+                    onClick={handleCreditPayment}
+                    disabled={loading || creditBalance < Math.round(Number(basePrice || 0) * 10)}
+                  >
+                    {loading ? 'Processing...' : (creditBalance < Math.round(Number(basePrice || 0) * 10) ? 'Insufficient Credits' : `Pay ${Math.round(Number(basePrice || 0) * 10)} Credits`)}
+                  </button>
+                  {creditBalance < Math.round(Number(basePrice || 0) * 10) && (
+                    <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
+                      <a href="/dashboard/credits" style={{ color: 'var(--primary)' }}>Top up your wallet</a>
+                    </p>
+                  )}
+                </div>
+              )}
+              
+              <div style={{ position: 'relative', textAlign: 'center', margin: 'var(--space-lg) 0' }}>
+                <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)' }} />
+                <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--surface)', padding: '0 12px', color: 'var(--mute)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>OR PAY WITH CASH</span>
+              </div>
 
-          <input type="hidden" value="IN" />
-          
-          <button 
-            className="btn btn-primary btn-lg" 
-            style={{ marginTop: 'var(--space-md)', width: '100%' }}
-            onClick={handleCheckout}
-            disabled={loading}
-          >
-            {loading ? 'Processing...' : `Proceed to Checkout (₹${Number(basePrice || 0).toFixed(2)})`}
-          </button>
+              <input type="hidden" value="IN" />
+              
+              <button 
+                className="btn btn-primary btn-lg" 
+                style={{ marginTop: 'var(--space-md)', width: '100%' }}
+                onClick={handleCheckout}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : `Proceed to Checkout (₹${Number(basePrice || 0).toFixed(2)})`}
+              </button>
+            </>
+          )}
           
           {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
         </div>
