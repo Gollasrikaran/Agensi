@@ -109,9 +109,14 @@ export default function ApiKeysIsland() {
           <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--success-soft)', border: '1px solid var(--success)', marginBottom: 'var(--space-lg)' }}>
             <h3 style={{ color: 'var(--success)', marginBottom: '8px' }}>API Key Generated!</h3>
             <p style={{ fontSize: '14px', marginBottom: '16px' }}>Please copy this key now. For security reasons, you will <strong>not be able to see it again</strong>.</p>
-            <div style={{ background: '#000', color: '#0f0', padding: '12px', fontFamily: 'monospace', borderRadius: '4px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{generatedKey}</span>
-              <button onClick={() => navigator.clipboard.writeText(generatedKey)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>Copy</button>
+            <div style={{ background: '#000', color: '#0f0', padding: '12px', fontFamily: 'monospace', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: 1 }}>{generatedKey}</span>
+              <button
+                onClick={() => { navigator.clipboard.writeText(generatedKey); showToast('API key copied!', 'success'); }}
+                style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', borderRadius: '4px', padding: '4px 10px', fontSize: '12px', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+              >
+                Copy
+              </button>
             </div>
           </div>
         )}
