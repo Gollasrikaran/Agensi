@@ -38,7 +38,7 @@ export default function BrowseByCategoryIsland({ slug, displayCategory }: Props)
 
   const fetchSkills = () => {
     setLoading(true);
-    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills`)
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills`)
       .then(res => res.json())
       .then(data => {
         const filtered = data.filter((s: any) => {
