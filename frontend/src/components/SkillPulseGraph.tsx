@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../lib/config';
 
-type ActivityType = 'all' | 'upload' | 'sale' | 'upvote' | 'review' | 'bounty';
+type ActivityType = 'all' | 'upload' | 'sale' | 'purchase' | 'upvote' | 'bounty';
 
 interface PulseData {
   date: string;
@@ -18,7 +19,7 @@ export default function SkillPulseGraph({ username }: { username: string }) {
   const [streaks, setStreaks] = useState({ current: 0, longest: 0 });
 
   useEffect(() => {
-    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/users/${username}/activity`)
+    fetch(`${API_BASE}/api/public/users/${username}/activity`)
       .then(res => res.json())
       .then(data => {
         // Aggregate activity by date and type
@@ -66,8 +67,8 @@ export default function SkillPulseGraph({ username }: { username: string }) {
     const colors: Record<string, string> = {
       'upload': 'var(--pulse-upload)',
       'sale': 'var(--pulse-sale)',
+      'purchase': 'var(--pulse-sale)',
       'upvote': 'var(--pulse-upvote)',
-      'review': 'var(--pulse-review)',
       'bounty': 'var(--pulse-bounty)',
       'all': 'var(--primary)' // Fallback if mixed (using --primary instead of undefined --accent-primary)
     };
@@ -172,7 +173,7 @@ export default function SkillPulseGraph({ username }: { username: string }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         
         <div style={{ display: 'flex', gap: '8px' }}>
-          {(['all', 'upload', 'sale', 'upvote', 'review'] as ActivityType[]).map(t => (
+          {(['all', 'upload', 'sale', 'purchase', 'upvote', 'bounty'] as ActivityType[]).map(t => (
             <button
               key={t}
               onClick={() => setFilter(t)}
@@ -200,8 +201,8 @@ export default function SkillPulseGraph({ username }: { username: string }) {
         </div>
 
         <div style={{ textAlign: 'right', fontSize: '13px' }}>
-          <div style={{ color: 'var(--text-secondary)' }}>Current Streak: <strong style={{ color: '#fff' }}>14 days</strong></div>
-          <div style={{ color: 'var(--text-secondary)' }}>Longest Streak: <strong>42 days</strong></div>
+          <div style={{ color: 'var(--text-secondary)' }}>Current Streak: <strong style={{ color: '#fff' }}>{streaks.current} days</strong></div>
+          <div style={{ color: 'var(--text-secondary)' }}>Longest Streak: <strong>{streaks.longest} days</strong></div>
         </div>
 
       </div>

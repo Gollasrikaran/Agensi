@@ -139,6 +139,9 @@ def vote_skill(skill_id: str, req: VoteRequest, current_user = Depends(get_curre
                 "activity_type": "upvote",
                 "skill_id": skill_id
             }).execute()
+            
+            from achievement_engine import check_and_award_achievements
+            check_and_award_achievements(skill_res.data["seller_id"])
         
         return {"status": "success", "upvotes": upvotes}
     except Exception as e:

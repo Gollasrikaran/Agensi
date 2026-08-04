@@ -95,11 +95,19 @@ export default function ProfileStatsHero({ profile }: { profile: UserProfile }) 
           
           {/* Actions */}
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button style={{ background: 'var(--bg-tertiary)', border: 'var(--glass-border)', color: 'var(--text-primary)', padding: '10px 20px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer', fontWeight: 'bold' }}>
-              Follow
-            </button>
-            <button style={{ background: 'var(--accent-gradient)', border: 'none', color: '#fff', padding: '10px 20px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer', fontWeight: 'bold' }}>
-              Sponsor
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                const btn = document.getElementById('share-profile-btn');
+                if (btn) {
+                  const original = btn.innerText;
+                  btn.innerText = 'Copied!';
+                  setTimeout(() => btn.innerText = original, 2000);
+                }
+              }}
+              id="share-profile-btn"
+              style={{ background: 'var(--bg-tertiary)', border: 'var(--glass-border)', color: 'var(--text-primary)', padding: '10px 20px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer', fontWeight: 'bold' }}>
+              Share Profile
             </button>
           </div>
         </div>

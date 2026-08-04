@@ -13,6 +13,7 @@ from notifications import create_notification
 from routers import admin, users, public, avatars, pulse, agent_actions, oauth
 from routers.mcp import mcp as fastmcp_server, auto_assign_category
 from dependencies import current_agent_user_id
+from achievement_engine import check_and_award_achievements
 import hashlib
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -479,6 +480,9 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
             "user_id": seller_id,
             "activity_type": "upload"
         }).execute()
+        
+        # Check achievements
+        check_and_award_achievements(seller_id)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
@@ -572,6 +576,9 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
             {"user_id": seller_id, "activity_type": "sale"},
             {"user_id": buyer_id, "activity_type": "purchase"}
         ]).execute()
+        
+        check_and_award_achievements(seller_id)
+        check_and_award_achievements(buyer_id)
         
         # Notify seller
         create_notification(
@@ -689,6 +696,9 @@ def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_use
             "user_id": buyer_id,
             "activity_type": "purchase"
         }).execute()
+        
+        check_and_award_achievements(seller_id)
+        check_and_award_achievements(buyer_id)
         
         create_notification(
             user_id=seller_id,
@@ -846,6 +856,7 @@ def upvote_skill(skill_id: str, current_user = Depends(get_current_user)):
                     "user_id": seller_id,
                     "activity_type": "upvote"
                 }).execute()
+                check_and_award_achievements(seller_id)
             return {"message": "Upvoted", "upvotes": new_upvotes, "upvoted": True}
             
     except Exception as e:
@@ -1068,6 +1079,8 @@ def verify_claim_payment(claim_id: str, req: VerifyBountyPaymentRequest, user = 
             "user_id": claim["claimer_id"],
             "activity_type": "bounty"
         }).execute()
+        
+        check_and_award_achievements(claim["claimer_id"])
         
         return {"status": "success", "message": "Bounty claimed and paid successfully."}
     except razorpay.errors.SignatureVerificationError:
