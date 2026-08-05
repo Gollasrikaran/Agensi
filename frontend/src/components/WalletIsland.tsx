@@ -110,7 +110,7 @@ export default function WalletIsland() {
                     }}>
                         <strong style={{ color: 'var(--primary)' }}>🔄 Auto-Payouts</strong>
                         <p style={{ margin: 0, marginTop: '4px', fontSize: '14px', color: 'var(--mute)' }}>
-                            Payouts are processed automatically every week for balances above ₹1. Make sure your UPI ID is saved below.
+                            Payouts are processed automatically every week for balances above ₹100. Make sure your UPI ID is saved below.
                         </p>
                     </div>
                     
@@ -143,7 +143,7 @@ export default function WalletIsland() {
                 <div className="card" style={{ padding: 'var(--space-xl)' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Payout History</h3>
                     {history.length === 0 ? (
-                        <p style={{ color: 'var(--mute)', fontSize: '14px' }}>No payouts yet. Once your balance reaches ₹1, payouts will be processed automatically.</p>
+                        <p style={{ color: 'var(--mute)', fontSize: '14px' }}>No payouts yet. Once your balance reaches ₹100, payouts will be processed automatically.</p>
                     ) : (
                         <table className="data-table">
                             <thead>

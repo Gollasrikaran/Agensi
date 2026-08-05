@@ -272,7 +272,7 @@ def run_payout_sweep(admin_user = Depends(verify_admin)):
                     sweep_results.append({"seller": username, "amount": target_pending, "upi": upi_id or "NOT SET", "action": "updated"})
                 else:
                     # Only insert a NEW payout if they cross the 1 INR minimum threshold
-                    if target_pending >= 1.0:
+                    if target_pending >= 100.0:
                         if upi_id:
                             supabase.table("payouts").insert({
                                 "seller_id": seller_id,
