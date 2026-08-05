@@ -76,6 +76,31 @@ const {
 			}
 		</script>
 
+		<!-- Google Consent Mode v2 (must load BEFORE gtag.js) -->
+		<script is:inline>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+
+		  // Default: deny all until user consents
+		  gtag('consent', 'default', {
+		    'analytics_storage': 'denied',
+		    'ad_storage': 'denied',
+		    'ad_user_data': 'denied',
+		    'ad_personalization': 'denied',
+		    'wait_for_update': 500
+		  });
+
+		  // Check if user already consented
+		  if (localStorage.getItem('cookie_consent') === 'accepted') {
+		    gtag('consent', 'update', {
+		      'analytics_storage': 'granted',
+		      'ad_storage': 'granted',
+		      'ad_user_data': 'granted',
+		      'ad_personalization': 'granted'
+		    });
+		  }
+		</script>
+
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ70S6EJ3W"></script>
 		<script is:inline>
@@ -102,10 +127,66 @@ const {
 				<a href="/refund" class="footer-link">Refund Policy</a>
 				<a href="/dmca" class="footer-link">DMCA</a>
 				<a href="/security" class="footer-link">Security Scanning</a>
+				<a href="/creator-agreement" class="footer-link">Creator Agreement</a>
+				<a href="/acceptable-use" class="footer-link">Acceptable Use</a>
 				<a href="/contact" class="footer-link">Contact Us</a>
 			</div>
 			<p style="color: var(--mute); font-size: 14px;">&copy; {new Date().getFullYear()} BodhicAI. All rights reserved.</p>
 		</footer>
+
+		<!-- Cookie Consent Banner -->
+		<div id="cookie-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: rgba(10, 10, 14, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 24px; font-size: 14px;">
+			<div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+				<p style="margin: 0; color: rgba(255,255,255,0.7); flex: 1; min-width: 280px; line-height: 1.5;">
+					We use cookies and Google Analytics to understand how you use our site and improve your experience. 
+					<a href="/privacy" style="color: var(--primary); text-decoration: underline;">Privacy Policy</a>
+				</p>
+				<div style="display: flex; gap: 10px; flex-shrink: 0;">
+					<button id="cookie-decline" style="padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+						Decline
+					</button>
+					<button id="cookie-accept" style="padding: 8px 20px; border-radius: 8px; border: none; background: var(--primary); color: #fff; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+						Accept Cookies
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<script is:inline>
+		  (function() {
+		    var consent = localStorage.getItem('cookie_consent');
+		    var banner = document.getElementById('cookie-banner');
+		    if (!consent && banner) {
+		      banner.style.display = 'block';
+		    }
+
+		    var acceptBtn = document.getElementById('cookie-accept');
+		    var declineBtn = document.getElementById('cookie-decline');
+
+		    if (acceptBtn) {
+		      acceptBtn.addEventListener('click', function() {
+		        localStorage.setItem('cookie_consent', 'accepted');
+		        banner.style.display = 'none';
+		        // Update Google Consent Mode
+		        if (typeof gtag === 'function') {
+		          gtag('consent', 'update', {
+		            'analytics_storage': 'granted',
+		            'ad_storage': 'granted',
+		            'ad_user_data': 'granted',
+		            'ad_personalization': 'granted'
+		          });
+		        }
+		      });
+		    }
+
+		    if (declineBtn) {
+		      declineBtn.addEventListener('click', function() {
+		        localStorage.setItem('cookie_consent', 'declined');
+		        banner.style.display = 'none';
+		      });
+		    }
+		  })();
+		</script>
 	</body>
 </html>
 
