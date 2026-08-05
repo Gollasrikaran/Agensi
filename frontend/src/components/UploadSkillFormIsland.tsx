@@ -339,7 +339,7 @@ export default function UploadSkillFormIsland() {
         </div>
 
         {/* Step 2: Details */}
-        <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
+        <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)', position: 'relative', zIndex: 20 }}>
           <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>2. Identity & Details</h3>
           
           <div className="form-group" style={{ marginBottom: '20px' }}>
@@ -437,7 +437,7 @@ export default function UploadSkillFormIsland() {
             )}
           </div>
 
-          <div className="form-group" style={{ marginBottom: '20px' }} ref={dropdownRef}>
+          <div className="form-group" style={{ marginBottom: '20px', position: 'relative' }} ref={dropdownRef}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Categories</label>
             <div 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
