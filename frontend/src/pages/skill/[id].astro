@@ -6,7 +6,9 @@ import McpTestIsland from '../../components/McpTestIsland.tsx';
 import EditSkillButtonIsland from '../../components/EditSkillButtonIsland.tsx';
 import SkillShareBannerIsland from '../../components/SkillShareBannerIsland.tsx';
 import TestBeforeBuyIsland from '../../components/TestBeforeBuyIsland.tsx';
-import { ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck } from 'lucide-react';
+import FileExplorerIsland from '../../components/FileExplorerIsland.tsx';
+import InstallationCardIsland from '../../components/InstallationCardIsland.tsx';
+import { ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck, Code2, GitFork, FolderArchive } from 'lucide-react';
 
 const { id } = Astro.params;
 
@@ -102,6 +104,52 @@ const jsonLd = skill ? JSON.stringify({
 				<h3 class="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-500">Description</h3>
 				<p class="text-base leading-relaxed text-zinc-300 whitespace-pre-wrap">{skill.description}</p>
 			</div>
+
+			{skill.item_type === 'agent-tool' && (
+				<>
+					{/* Agent Tool Stats Bar */}
+					<div class="flex flex-wrap gap-4 mb-8">
+						<div class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-zinc-300">
+							<FolderArchive class="h-5 w-5 text-indigo-400" />
+							<span class="font-medium">{skill.total_files || 0} Files</span>
+						</div>
+						{(skill.stars_count > 0 || skill.forks_count > 0) && (
+							<>
+								<div class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-zinc-300">
+									<Code2 class="h-5 w-5 text-zinc-400" />
+									<span class="font-medium">{skill.stars_count} Stars</span>
+								</div>
+								<div class="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-zinc-300">
+									<GitFork class="h-5 w-5 text-zinc-400" />
+									<span class="font-medium">{skill.forks_count} Forks</span>
+								</div>
+							</>
+						)}
+					</div>
+
+					{/* File Explorer & Install */}
+					{skill.file_manifest && skill.file_manifest.length > 0 && (
+						<div class="mb-8">
+							<FileExplorerIsland 
+								client:load 
+								skillId={skill.id} 
+								manifest={skill.file_manifest} 
+								archiveUrl={skill.archive_url} 
+							/>
+						</div>
+					)}
+					
+					{(skill.install_command || skill.source_url) && (
+						<div class="mb-8">
+							<InstallationCardIsland 
+								client:load 
+								installCommand={skill.install_command} 
+								sourceUrl={skill.source_url} 
+							/>
+						</div>
+					)}
+				</>
+			)}
 
 			<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 mb-8 backdrop-blur-sm">
 				<h3 class="mb-6 text-sm font-bold uppercase tracking-widest text-zinc-500">Domains & Compatibility</h3>

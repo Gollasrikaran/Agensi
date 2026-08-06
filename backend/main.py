@@ -1,10 +1,14 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+import zipfile
+import io
+import time
+import requests
 
 from security_scanner import scan_skill, scan_skill_tier2, scan_prompt, scan_prompt_tier2
 from payments import create_payment_intent
@@ -218,6 +222,15 @@ class SkillUploadRequest(BaseModel):
     target_audience: str = "all"
     item_type: str = "skill"
     media_url: str = None
+    # New fields for agent tools
+    source_url: str = None
+    source_branch: str = "main"
+    source_path: str = None
+    install_command: str = None
+    license: str = "MIT"
+    archive_url: str = None
+    file_manifest: list[dict] = []
+    readme_content: str = None
 
 class CheckoutRequest(BaseModel):
     skill_id: str
@@ -331,6 +344,206 @@ def autofill_skill_metadata(req: AutofillRequest, user = Depends(get_current_use
     from security_scanner import generate_skill_metadata
     metadata = generate_skill_metadata(req.content)
     return metadata
+
+from fastapi import Response
+
+@app.post("/api/skills/upload-archive")
+async def upload_skill_archive(file: UploadFile = File(...), user = Depends(get_current_user)):
+    if not file.filename.endswith('.zip'):
+        raise HTTPException(status_code=400, detail="Only .zip files are allowed.")
+    
+    file_bytes = await file.read()
+    if len(file_bytes) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds 25MB limit.")
+        
+    try:
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as zip_ref:
+            file_manifest = []
+            readme_content = ""
+            total_files = 0
+            
+            for info in zip_ref.infolist():
+                if info.is_dir():
+                    continue
+                total_files += 1
+                
+                path = info.filename
+                
+                if "__MACOSX" in path or path.startswith("."):
+                    continue
+                    
+                file_manifest.append({
+                    "path": path,
+                    "size": info.file_size,
+                    "type": "file"
+                })
+                
+                lower_name = os.path.basename(path).lower()
+                if lower_name in ["readme.md", "skill.md"]:
+                    try:
+                        content_bytes = zip_ref.read(info)
+                        readme_content = content_bytes.decode('utf-8', errors='ignore')
+                    except Exception:
+                        pass
+                        
+            timestamp = int(time.time())
+            storage_path = f"{user.id}/{timestamp}.zip"
+            
+            res = supabase.storage.from_("skill_archives").upload(
+                file=file_bytes,
+                path=storage_path,
+                file_options={"content-type": "application/zip"}
+            )
+            
+            public_url = supabase.storage.from_("skill_archives").get_public_url(storage_path)
+            
+            return {
+                "archive_url": public_url,
+                "file_manifest": file_manifest,
+                "readme_content": readme_content,
+                "total_files": total_files
+            }
+            
+    except zipfile.BadZipFile:
+        raise HTTPException(status_code=400, detail="Invalid ZIP file.")
+    except Exception as e:
+        import traceback
+        print(f"Error uploading archive: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+class GithubImportRequest(BaseModel):
+    url: str
+
+@app.post("/api/skills/import-github")
+async def import_from_github(req: GithubImportRequest, user = Depends(get_current_user)):
+    url = req.url.strip()
+    if not url.startswith("https://github.com/"):
+        raise HTTPException(status_code=400, detail="Must be a valid GitHub URL.")
+        
+    parts = url.replace("https://github.com/", "").split("/")
+    if len(parts) < 2:
+        raise HTTPException(status_code=400, detail="Invalid GitHub URL structure.")
+        
+    owner = parts[0]
+    repo = parts[1]
+    
+    branch = "main"
+    sub_path = ""
+    if len(parts) >= 4 and parts[2] == "tree":
+        branch = parts[3]
+        sub_path = "/".join(parts[4:])
+        
+    try:
+        repo_api_url = f"https://api.github.com/repos/{owner}/{repo}"
+        repo_res = requests.get(repo_api_url, timeout=10)
+        repo_data = repo_res.json()
+        stars_count = repo_data.get("stargazers_count", 0)
+        forks_count = repo_data.get("forks_count", 0)
+    except Exception:
+        stars_count = 0
+        forks_count = 0
+
+    try:
+        zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
+        zip_res = requests.get(zip_url, timeout=30)
+        if zip_res.status_code != 200:
+            raise Exception("Failed to download from GitHub")
+            
+        file_bytes = zip_res.content
+        
+        file_manifest = []
+        readme_content = ""
+        total_files = 0
+        filtered_zip_io = io.BytesIO()
+        
+        with zipfile.ZipFile(io.BytesIO(file_bytes)) as source_zip:
+            with zipfile.ZipFile(filtered_zip_io, 'w', zipfile.ZIP_DEFLATED) as target_zip:
+                root_prefix = source_zip.infolist()[0].filename.split('/')[0] + "/"
+                target_prefix = root_prefix + sub_path
+                if sub_path and not target_prefix.endswith('/'):
+                    target_prefix += '/'
+                    
+                for info in source_zip.infolist():
+                    if info.is_dir():
+                        continue
+                        
+                    if sub_path and not info.filename.startswith(target_prefix):
+                        continue
+                        
+                    rel_path = info.filename[len(target_prefix):] if sub_path else info.filename[len(root_prefix):]
+                    
+                    if not rel_path or "__MACOSX" in rel_path or rel_path.startswith("."):
+                        continue
+                        
+                    total_files += 1
+                    file_manifest.append({
+                        "path": rel_path,
+                        "size": info.file_size,
+                        "type": "file"
+                    })
+                    
+                    content_bytes = source_zip.read(info)
+                    target_zip.writestr(rel_path, content_bytes)
+                    
+                    lower_name = os.path.basename(rel_path).lower()
+                    if lower_name in ["readme.md", "skill.md"]:
+                        try:
+                            readme_content = content_bytes.decode('utf-8', errors='ignore')
+                        except Exception:
+                            pass
+                            
+        filtered_zip_bytes = filtered_zip_io.getvalue()
+        
+        if len(filtered_zip_bytes) > 25 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Repository size exceeds 25MB limit.")
+            
+        timestamp = int(time.time())
+        storage_path = f"{user.id}/{timestamp}_github.zip"
+        
+        res = supabase.storage.from_("skill_archives").upload(
+            file=filtered_zip_bytes,
+            path=storage_path,
+            file_options={"content-type": "application/zip"}
+        )
+        
+        public_url = supabase.storage.from_("skill_archives").get_public_url(storage_path)
+        
+        return {
+            "archive_url": public_url,
+            "file_manifest": file_manifest,
+            "readme_content": readme_content,
+            "total_files": total_files,
+            "stars_count": stars_count,
+            "forks_count": forks_count
+        }
+
+    except Exception as e:
+        import traceback
+        print(f"Error importing from github: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/skills/{skill_id}/file/{file_path:path}")
+def get_skill_file(skill_id: str, file_path: str):
+    skill_res = supabase.table("skills").select("archive_url").eq("id", skill_id).execute()
+    if not skill_res.data or not skill_res.data[0].get("archive_url"):
+        raise HTTPException(status_code=404, detail="Archive not found.")
+        
+    archive_url = skill_res.data[0]["archive_url"]
+    
+    try:
+        zip_res = requests.get(archive_url, timeout=15)
+        if zip_res.status_code != 200:
+            raise Exception("Failed to fetch archive.")
+            
+        with zipfile.ZipFile(io.BytesIO(zip_res.content)) as zip_ref:
+            try:
+                content = zip_ref.read(file_path)
+                return Response(content=content, media_type="text/plain")
+            except KeyError:
+                raise HTTPException(status_code=404, detail="File not found in archive.")
+                
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/skills/upload")
 def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
@@ -449,7 +662,15 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
         "declared_capabilities_json": [],
         "complexity_level": scan_result_tier2.get("complexity_level", 1) if scan_result_tier2 else 1,
         "item_type": req.item_type,
-        "media_url": req.media_url
+        "media_url": req.media_url,
+        "source_url": req.source_url,
+        "source_branch": req.source_branch,
+        "source_path": req.source_path,
+        "install_command": req.install_command,
+        "license": req.license,
+        "archive_url": req.archive_url,
+        "file_manifest": req.file_manifest,
+        "readme_content": req.readme_content
     }
 
     try:

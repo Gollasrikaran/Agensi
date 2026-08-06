@@ -60,10 +60,10 @@ export default function BrowseMarketplaceIsland() {
           AI Skills
         </button>
         <button 
-          className={`rounded-full border-none px-5 py-2 font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${itemType === 'mcp' ? 'bg-indigo-600 text-white' : 'bg-transparent text-zinc-300 hover:text-white hover:bg-zinc-800'}`}
-          onClick={() => setItemType('mcp')}
+          className={`rounded-full border-none px-5 py-2 font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${itemType === 'agent-tool' ? 'bg-indigo-600 text-white' : 'bg-transparent text-zinc-300 hover:text-white hover:bg-zinc-800'}`}
+          onClick={() => setItemType('agent-tool')}
         >
-          MCP Tools
+          Agent Tools (MCP)
         </button>
         <button 
           className={`rounded-full border-none px-5 py-2 font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${itemType === 'prompt' ? 'bg-indigo-600 text-white' : 'bg-transparent text-zinc-300 hover:text-white hover:bg-zinc-800'}`}

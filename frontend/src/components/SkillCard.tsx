@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, TrendingUp, Download, UserCircle2 } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Download, UserCircle2, FolderArchive } from 'lucide-react';
 import { getReferralId } from '../lib/referral';
 import SocialShareButtonsIsland from './SocialShareButtonsIsland';
 import { Card, CardContent, CardFooter } from './ui/card';
@@ -105,6 +105,13 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         <p className="mb-4 line-clamp-2 text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors">
           {skill.description}
         </p>
+
+        {skill.item_type === 'agent-tool' && (
+          <div className="mb-4 flex items-center gap-1.5 text-xs font-medium text-indigo-400 bg-indigo-500/10 w-fit px-2 py-1 rounded-md border border-indigo-500/20">
+            <FolderArchive size={14} />
+            {skill.total_files || 0} Files
+          </div>
+        )}
 
         {/* Creator Info */}
         {(() => {
