@@ -40,7 +40,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
   return (
     <Card 
       onClick={() => window.location.href = `/skill/${skill.id}`}
-      className="group relative flex h-full min-h-[340px] cursor-pointer flex-col overflow-hidden transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10"
+      className="group relative flex h-full min-h-[340px] cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:bg-indigo-900/40 hover:border-indigo-400/50 hover:shadow-xl hover:shadow-indigo-500/20"
     >
       {/* 16:9 Thumbnail Header */}
       <div className="relative flex h-40 items-center justify-center overflow-hidden border-b border-white/5 bg-zinc-900/50">
@@ -99,10 +99,10 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
       </div>
 
       <CardContent className="flex flex-1 flex-col p-5">
-        <h3 className="mb-2 line-clamp-1 text-lg font-semibold tracking-tight text-zinc-100 group-hover:text-indigo-400 transition-colors">
+        <h3 className="mb-2 line-clamp-1 text-lg font-semibold tracking-tight text-zinc-100 group-hover:text-white transition-colors">
           {skill.title}
         </h3>
-        <p className="mb-4 line-clamp-2 text-sm text-zinc-400">
+        <p className="mb-4 line-clamp-2 text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors">
           {skill.description}
         </p>
 
@@ -122,7 +122,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
                   <UserCircle2 className="h-5 w-5 text-zinc-500" />
                 )}
               </div>
-              <span className="text-sm font-medium text-zinc-300 group-hover:text-indigo-400 transition-colors">
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-indigo-200 transition-colors">
                 @{profile?.username || 'Anonymous'}
                 {/* Verified badge placeholder */}
                 {profile?.is_verified && <span className="ml-1 text-indigo-400">✓</span>}
@@ -132,7 +132,7 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         })()}
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between border-t border-white/5 bg-zinc-950/30 p-4">
+      <CardFooter className="flex items-center justify-between border-t border-white/5 bg-zinc-950/30 group-hover:bg-transparent transition-colors duration-300 p-4">
         {isFree ? (
           <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20">
             Free
