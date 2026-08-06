@@ -23,33 +23,26 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
   const shareTitle = `${skillTitle} — BodhicAI Agent Skill`;
 
   return (
-    <div className="card" style={{ 
-      padding: 'var(--space-lg)', 
-      background: 'linear-gradient(135deg, rgba(37, 211, 102, 0.08), rgba(10, 102, 194, 0.08), rgba(108, 60, 225, 0.1))', 
-      border: '1px solid rgba(108, 60, 225, 0.25)', 
-      borderRadius: '16px', 
-      marginBottom: 'var(--space-lg)',
-      color: 'var(--ink)'
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+    <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden mb-6">
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-center flex-wrap gap-2">
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(108, 60, 225, 0.15)', color: 'var(--primary)', padding: '2px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>
+            <div className="inline-flex items-center gap-1.5 bg-indigo-500/10 text-indigo-400 px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1 border border-indigo-500/20">
               INSTANT REFER & EARN
             </div>
-            <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>
+            <h4 className="m-0 text-lg font-bold text-zinc-100">
               Share This Skill & Earn 20% Kickbacks!
             </h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--body)' }}>
-              Share your invite link via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone signs up, you automatically earn a <strong style={{ color: '#10b981' }}>20% Affiliate Kickback</strong> on all credits they utilize for life!
+            <p className="m-0 mt-1 text-sm text-zinc-300">
+              Share your invite link via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone signs up, you automatically earn a <strong className="text-emerald-500">20% Affiliate Kickback</strong> on all credits they utilize for life!
             </p>
           </div>
-          <div style={{ fontFamily: 'monospace', fontSize: '12px', background: 'var(--canvas-soft)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--hairline)' }}>
-            Code: <strong style={{ color: 'var(--primary)' }}>{refId}</strong>
+          <div className="font-mono text-xs bg-black/50 px-2 py-1 rounded-md border border-zinc-800 text-zinc-300">
+            Code: <strong className="text-indigo-400">{refId}</strong>
           </div>
         </div>
         
-        <div style={{ paddingTop: '8px', borderTop: '1px solid var(--hairline)' }}>
+        <div className="pt-2 border-t border-zinc-800/50 mt-2">
           <SocialShareButtonsIsland 
             url={shareUrl || `https://bodhicai.onrender.com/skill/${skillId}`} 
             title={shareTitle} 

@@ -3,21 +3,21 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="404: Not Found | BodhicAI">
-  <div style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-2xl);">
+  <div class="min-h-[80vh] flex flex-col items-center justify-center text-center p-16">
     
-    <div style="font-size: clamp(48px, 15vw, 120px); font-weight: 800; letter-spacing: -5px; line-height: 1; margin-bottom: var(--space-md); background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+    <div class="text-[clamp(48px,15vw,120px)] font-extrabold tracking-[-5px] leading-none mb-6 bg-gradient-to-br from-indigo-500 to-emerald-500 bg-clip-text text-transparent">
       404
     </div>
     
-    <h1 style="font-size: clamp(22px, 4.5vw, 32px); letter-spacing: -1px; margin-bottom: var(--space-sm);">Skill Not Found</h1>
+    <h1 class="text-[clamp(22px,4.5vw,32px)] tracking-[-1px] mb-4 text-zinc-100">Skill Not Found</h1>
     
-    <p style="color: var(--mute); font-size: 18px; max-width: 500px; margin-bottom: var(--space-2xl);">
+    <p class="text-zinc-400 text-lg max-w-[500px] mb-16">
       The agent skill, creator profile, or endpoint you're looking for has been moved, deleted, or never existed in the BodhicAI ecosystem.
     </p>
     
-    <div style="display: flex; gap: var(--space-md);">
-      <a href="/" class="btn btn-primary" style="padding: 12px 24px;">Return Home</a>
-      <a href="/browse" class="btn btn-secondary" style="padding: 12px 24px;">Browse Skills</a>
+    <div class="flex gap-6">
+      <a href="/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50">Return Home</a>
+      <a href="/browse" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">Browse Skills</a>
     </div>
     
   </div>

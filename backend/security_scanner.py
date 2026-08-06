@@ -150,7 +150,70 @@ If the skill is well-formed and benign on BOTH the STRUCTURE and SECURITY axes, 
         return False, {"passed": False, "issues": [{"rule": "tier2_error", "description": error_info}], "tier": 2}
 
 
-# --- PROMPT SCANNING ---
+# --- AI METADATA AUTO-FILL ---
+
+def generate_skill_metadata(content: str) -> Dict[str, Any]:
+    """
+    Uses Cloudflare Workers AI Llama-3.1-8B-Instruct to automatically
+    generate a title, description, and categories for an uploaded skill file.
+    Returns: Dict containing 'title', 'description', and 'category'
+    """
+    account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+    api_token = os.getenv("CLOUDFLARE_API_TOKEN")
+    
+    # Fallback if no credentials
+    if not account_id or not api_token:
+        return {
+            "title": "Untitled AI Skill",
+            "description": "An AI agent skill.",
+            "category": "ai, frontend"
+        }
+        
+    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
+    headers = {"Authorization": f"Bearer {api_token}"}
+    
+    system_prompt = """You are an expert AI marketplace metadata generator. Given the raw content of an AI skill script or prompt, generate an optimized, engaging Title, a short Description (max 150 chars), and up to 3 Categories.
+    
+Valid Categories are ONLY: 'frontend', 'testing', 'devops', 'docs', 'productivity', 'data', 'api', 'ai'.
+
+You MUST output ONLY valid JSON in this exact format:
+{"title": "The Title", "description": "The short description", "category": "category1, category2"}
+Do not output anything other than JSON."""
+
+    sandwiched_content = f"--- START OF USER SKILL ---\n{content}\n--- END OF USER SKILL ---"
+    
+    payload = {
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": sandwiched_content}
+        ]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        result_obj = data.get("result", {})
+        llm_response = result_obj.get("response", "")
+        
+        if isinstance(llm_response, dict):
+            return llm_response
+            
+        import json
+        llm_output = str(llm_response).strip()
+        json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(0))
+            
+    except Exception as e:
+        print(f"Error generating metadata: {e}")
+        
+    return {
+        "title": "Untitled AI Skill",
+        "description": "An AI agent skill.",
+        "category": "ai"
+    }# --- PROMPT SCANNING ---
 
 def scan_prompt(content: str) -> Tuple[bool, Dict[str, Any]]:
     """

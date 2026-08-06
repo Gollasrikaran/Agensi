@@ -71,23 +71,12 @@ export default function StrictAntiCopyView({ code, username, ip = "127.0.0.1" }:
 
   return (
     <div 
-      style={{ 
-        width: '100%',
-        maxHeight: '60vh', 
-        overflowX: 'auto',
-        overflowY: 'auto', 
-        userSelect: 'none', 
-        WebkitUserSelect: 'none'
-      }}
+      className="w-full max-h-[60vh] overflow-auto select-none"
       onContextMenu={(e) => e.preventDefault()} // Block right-click
     >
       <canvas 
         ref={canvasRef} 
-        style={{ 
-          borderRadius: '8px', 
-          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-          maxWidth: '100%'
-        }} 
+        className="rounded-lg shadow-xl max-w-full"
       />
     </div>
   );

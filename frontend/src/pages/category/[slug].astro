@@ -11,7 +11,7 @@ const displayCategory = originalName.split('-').map((w: string) => w.charAt(0).t
 	title={`Buy ${displayCategory} AI Agent Skills & Prompts — BodhicAI`}
 	description={`Browse the best verified ${displayCategory} AI agent skills and prompts on BodhicAI. No buyer markup, instant downloads, and 100% security scanned.`}
 >
-	<div style="max-width: 1200px; margin: 0 auto; padding-top: var(--space-2xl);">
+	<div class="max-w-[1200px] mx-auto pt-16">
 		<BrowseByCategoryIsland client:load slug={slug} displayCategory={displayCategory} />
 	</div>
 </Layout>

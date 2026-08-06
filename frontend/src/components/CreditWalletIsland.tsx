@@ -107,7 +107,7 @@ export default function CreditWalletIsland() {
             showToast('Error verifying payment.', 'error');
           }
         },
-        theme: { color: "#6C3CE1" }
+        theme: { color: "#6366f1" } // indigo-500
       });
       
       rzp.open();
@@ -118,18 +118,18 @@ export default function CreditWalletIsland() {
     }
   };
 
-  if (loading) return <div>Loading wallet...</div>;
+  if (loading) return <div className="text-zinc-300">Loading wallet...</div>;
 
   return (
-    <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
       {/* Balance Column */}
       <div>
-        <div className="card" style={{ padding: 'var(--space-xl)', background: 'linear-gradient(135deg, var(--primary) 0%, #4a21af 100%)', color: '#fff', border: 'none' }}>
-          <h2 style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-mono)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</h2>
-          <div style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-2px', marginTop: 'var(--space-xs)' }}>
-            {balance.toLocaleString()} <span style={{ fontSize: '20px', fontWeight: 500, opacity: 0.8 }}>CR</span>
+        <div className="group flex flex-col p-6 md:p-8 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-900 border-none text-white shadow-xl hover:-translate-y-1 transition-all">
+          <h2 className="text-[13px] text-white/70 font-mono font-medium uppercase tracking-[1px]">Available Balance</h2>
+          <div className="text-5xl font-bold tracking-tight mt-2">
+            {balance.toLocaleString()} <span className="text-xl font-medium opacity-80">CR</span>
           </div>
-          <p style={{ marginTop: 'var(--space-sm)', fontSize: '14px', color: 'rgba(255,255,255,0.8)' }}>
+          <p className="mt-4 text-sm text-white/80">
             Equivalent to ~{Math.floor(balance / 10)} chats.
           </p>
         </div>
@@ -137,10 +137,10 @@ export default function CreditWalletIsland() {
       
       {/* Top Up Column */}
       <div>
-        <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Top up your wallet</h3>
+        <h3 className="text-xl font-semibold mb-6 text-zinc-100">Top up your wallet</h3>
         
-        <div className="card" style={{ padding: 'var(--space-xl)', border: '1px solid var(--hairline)' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--mute)', marginBottom: '8px' }}>
+        <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+          <label className="block text-sm font-medium text-zinc-400 mb-2">
             Number of Credits (Min 100)
           </label>
           <input 
@@ -148,15 +148,15 @@ export default function CreditWalletIsland() {
             min="100" 
             value={customCredits} 
             onChange={(e) => setCustomCredits(e.target.value === '' ? '' : parseInt(e.target.value))}
-            style={{ width: '100%', padding: '12px 16px', fontSize: '18px', borderRadius: '8px', border: '1px solid var(--hairline)', background: 'var(--surface)', color: 'var(--ink)', marginBottom: '16px' }}
+            className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-lg text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors mb-4"
           />
           
-          <div style={{ fontSize: '22px', fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--space-lg)' }}>
+          <div className="text-[22px] font-semibold text-zinc-100 mb-8">
             Total: ₹{(typeof customCredits === 'number' ? customCredits * 0.10 : 0).toFixed(2)}
           </div>
 
           {(typeof customCredits === 'number' && customCredits < 100) && (
-            <div style={{ color: 'var(--error)', fontSize: '13px', marginBottom: '16px' }}>
+            <div className="text-red-500 text-[13px] mb-4">
               Minimum 100 credits required.
             </div>
           )}
@@ -164,14 +164,13 @@ export default function CreditWalletIsland() {
           <button 
             disabled={processing || customCredits === '' || customCredits < 100} 
             onClick={() => buyCredits()} 
-            className="btn btn-primary" 
-            style={{ width: '100%', padding: '14px' }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 w-full"
           >
             {processing ? 'Processing...' : 'Top Up →'}
           </button>
         </div>
         
-        <p style={{ fontSize: '13px', color: 'var(--mute)', marginTop: 'var(--space-lg)', textAlign: 'center' }}>
+        <p className="text-[13px] text-zinc-500 mt-6 text-center">
           Payments processed securely via Razorpay UPI & Cards.
         </p>
       </div>

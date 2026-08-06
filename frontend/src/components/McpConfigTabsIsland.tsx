@@ -53,68 +53,35 @@ export default function McpConfigTabsIsland({
   };
 
   return (
-    <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--canvas-soft)', border: '1px solid var(--border)', borderRadius: '16px', marginTop: 'var(--space-md)' }}>
-      <div style={{ marginBottom: '16px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden mt-6">
+      <div className="mb-4">
+        <h3 className="text-lg font-bold mb-1.5 text-zinc-100 flex items-center gap-2">
           Connect Your AI Agent Environment
         </h3>
-        <p style={{ fontSize: '14px', color: 'var(--body)' }}>
+        <p className="text-sm text-zinc-300">
           We provide separated configurations for desktop IDEs, VS Code Copilot, and cloud/web-based agents. Choose your setup:
         </p>
       </div>
       
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--hairline-strong)', paddingBottom: '12px', flexWrap: 'wrap' }}>
+      <div className="flex gap-2 mb-5 border-b border-zinc-800/50 pb-3 flex-wrap">
         <button
           type="button"
           onClick={() => setActiveTab('ide')}
-          style={{ 
-            padding: '8px 16px', 
-            borderRadius: '8px', 
-            border: 'none', 
-            background: activeTab === 'ide' ? 'var(--primary)' : 'var(--bg-tertiary)', 
-            color: activeTab === 'ide' ? '#fff' : 'var(--text-secondary)', 
-            fontWeight: 600, 
-            cursor: 'pointer', 
-            fontSize: '13px',
-            boxShadow: activeTab === 'ide' ? '0 4px 12px rgba(108, 60, 225, 0.3)' : 'none',
-            transition: 'all 0.2s' 
-          }}
+          className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${activeTab === 'ide' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800'}`}
         >
           Cursor / Claude Desktop / Windsurf
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('copilot')}
-          style={{ 
-            padding: '8px 16px', 
-            borderRadius: '8px', 
-            border: 'none', 
-            background: activeTab === 'copilot' ? 'var(--primary)' : 'var(--bg-tertiary)', 
-            color: activeTab === 'copilot' ? '#fff' : 'var(--text-secondary)', 
-            fontWeight: 600, 
-            cursor: 'pointer', 
-            fontSize: '13px',
-            boxShadow: activeTab === 'copilot' ? '0 4px 12px rgba(108, 60, 225, 0.3)' : 'none',
-            transition: 'all 0.2s' 
-          }}
+          className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${activeTab === 'copilot' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800'}`}
         >
           VS Code (GitHub Copilot)
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('web')}
-          style={{ 
-            padding: '8px 16px', 
-            borderRadius: '8px', 
-            border: 'none', 
-            background: activeTab === 'web' ? 'var(--primary)' : 'var(--bg-tertiary)', 
-            color: activeTab === 'web' ? '#fff' : 'var(--text-secondary)', 
-            fontWeight: 600, 
-            cursor: 'pointer', 
-            fontSize: '13px',
-            boxShadow: activeTab === 'web' ? '0 4px 12px rgba(108, 60, 225, 0.3)' : 'none',
-            transition: 'all 0.2s' 
-          }}
+          className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${activeTab === 'web' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800'}`}
         >
           Claude Web UI / Web Agents
         </button>
@@ -122,20 +89,19 @@ export default function McpConfigTabsIsland({
 
       {activeTab === 'ide' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--ink)', fontWeight: 600 }}>
-              Add to your editor's MCP JSON config (e.g., Cursor Settings → MCP or <code>claude_desktop_config.json</code>):
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-zinc-100 font-semibold">
+              Add to your editor's MCP JSON config (e.g., Cursor Settings → MCP or <code className="bg-black px-1 py-0.5 rounded">claude_desktop_config.json</code>):
             </span>
             <button 
               type="button" 
               onClick={() => copyToClipboard(cursorClaudeSnippet, 'Cursor / Claude setup')}
-              className="btn btn-secondary" 
-              style={{ padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-2.5 py-1 text-xs font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               Copy JSON
             </button>
           </div>
-          <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>
+          <pre className="bg-black text-zinc-300 p-4 rounded-xl text-sm overflow-x-auto border border-zinc-800 font-mono leading-relaxed">
             {cursorClaudeSnippet}
           </pre>
         </div>
@@ -143,20 +109,19 @@ export default function McpConfigTabsIsland({
 
       {activeTab === 'copilot' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--ink)', fontWeight: 600 }}>
-              Add to your VS Code workspace <code>.vscode/mcp.json</code> or global Settings under GitHub Copilot Chat:
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-zinc-100 font-semibold">
+              Add to your VS Code workspace <code className="bg-black px-1 py-0.5 rounded">.vscode/mcp.json</code> or global Settings under GitHub Copilot Chat:
             </span>
             <button 
               type="button" 
               onClick={() => copyToClipboard(copilotSnippet, 'GitHub Copilot setup')}
-              className="btn btn-secondary" 
-              style={{ padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-2.5 py-1 text-xs font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               Copy JSON
             </button>
           </div>
-          <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>
+          <pre className="bg-black text-zinc-300 p-4 rounded-xl text-sm overflow-x-auto border border-zinc-800 font-mono leading-relaxed">
             {copilotSnippet}
           </pre>
         </div>
@@ -164,39 +129,37 @@ export default function McpConfigTabsIsland({
 
       {activeTab === 'web' && (
         <div>
-          <p style={{ fontSize: '13px', color: 'var(--body)', marginBottom: '12px', lineHeight: 1.6 }}>
+          <p className="text-sm text-zinc-300 mb-3 leading-relaxed">
             For <strong>Claude Web UI</strong>, Custom GPTs, or cloud assistants where you cannot set HTTP authorization headers, your API key is securely authenticated via the URL path:
           </p>
           
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase' }}>Direct SSE Endpoint URL</span>
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Direct SSE Endpoint URL</span>
               <button 
                 type="button" 
                 onClick={() => copyToClipboard(webUrl, 'Direct Web URL')}
-                className="btn btn-secondary" 
-                style={{ padding: '2px 8px', fontSize: '11px', cursor: 'pointer' }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-2.5 py-1 text-xs font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Copy URL
               </button>
             </div>
-            <div style={{ background: 'rgba(108, 60, 225, 0.1)', border: '1px solid var(--primary)', padding: '12px 14px', borderRadius: '8px', fontSize: '13px', wordBreak: 'break-all', color: 'var(--primary)', fontWeight: 600, fontFamily: 'monospace' }}>
+            <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl text-sm break-all text-indigo-400 font-semibold font-mono">
               {webUrl}
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase' }}>Web Agent JSON Config</span>
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Web Agent JSON Config</span>
             <button 
               type="button" 
               onClick={() => copyToClipboard(webAgentSnippet, 'Web Agent JSON')}
-              className="btn btn-secondary" 
-              style={{ padding: '2px 8px', fontSize: '11px', cursor: 'pointer' }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-2.5 py-1 text-xs font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               Copy JSON
             </button>
           </div>
-          <pre style={{ background: '#0d0d12', color: '#e2e8f0', padding: '16px', borderRadius: '10px', fontSize: '13px', overflowX: 'auto', border: '1px solid #222', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6 }}>
+          <pre className="bg-black text-zinc-300 p-4 rounded-xl text-sm overflow-x-auto border border-zinc-800 font-mono leading-relaxed">
             {webAgentSnippet}
           </pre>
         </div>

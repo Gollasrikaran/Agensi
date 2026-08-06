@@ -31,71 +31,73 @@ export default function PulseComparisonIsland({ currentUser, targetUser }: { cur
     }, 1000);
   }, [currentUser, targetUser]);
 
-  if (loading) return <div style={{ color: 'var(--mute)', padding: '24px' }}>Loading comparison...</div>;
+  if (loading) return <div className="text-zinc-500 p-6 text-center">Loading comparison...</div>;
 
   return (
-    <div style={{ background: 'var(--canvas)', border: '1px solid var(--hairline-strong)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
-      <h2 style={{ marginTop: 0, marginBottom: '24px', fontSize: '20px' }}>Compare Pulses</h2>
+    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 className="mt-0 mb-6 text-xl font-bold text-zinc-100">Compare Pulses</h2>
       
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <h3 style={{ fontSize: '16px', color: 'var(--accent-primary)', marginBottom: '16px' }}>@{currentUser} (You)</h3>
+      <div className="flex gap-6 flex-wrap">
+        <div className="flex-1 min-w-[200px]">
+          <h3 className="text-base font-bold text-indigo-400 mb-4">@{currentUser} (You)</h3>
           <SkillPulseGraph username={currentUser} />
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--canvas-strong)', padding: '12px', borderRadius: '50%', fontWeight: 'bold', border: '1px solid var(--hairline-strong)' }}>VS</div>
+        <div className="flex items-center justify-center">
+          <div className="bg-zinc-950 p-3 rounded-full font-bold text-zinc-400 border border-zinc-800 shadow-inner">VS</div>
         </div>
 
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <h3 style={{ fontSize: '16px', color: 'var(--warning)', marginBottom: '16px' }}>@{targetUser}</h3>
+        <div className="flex-1 min-w-[200px]">
+          <h3 className="text-base font-bold text-amber-500 mb-4">@{targetUser}</h3>
           <SkillPulseGraph username={targetUser} />
         </div>
       </div>
 
-      <div style={{ marginTop: '40px' }}>
-        <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Head-to-Head Stats</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-              <th style={{ padding: '12px 8px', color: 'var(--mute)', fontWeight: 500 }}>Metric</th>
-              <th style={{ padding: '12px 8px', color: 'var(--mute)', fontWeight: 500 }}>You</th>
-              <th style={{ padding: '12px 8px', color: 'var(--mute)', fontWeight: 500 }}>@{targetUser}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-              <td style={{ padding: '12px 8px' }}>Skills Published</td>
-              <td style={{ padding: '12px 8px' }}>{stats.currentUser.skillsPublished}</td>
-              <td style={{ padding: '12px 8px' }}>{stats.targetUser.skillsPublished}</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-              <td style={{ padding: '12px 8px' }}>Total Sales</td>
-              <td style={{ padding: '12px 8px' }}>{stats.currentUser.totalSales}</td>
-              <td style={{ padding: '12px 8px' }}>{stats.targetUser.totalSales}</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-              <td style={{ padding: '12px 8px' }}>Avg Rating</td>
-              <td style={{ padding: '12px 8px' }}>{stats.currentUser.avgRating} ★</td>
-              <td style={{ padding: '12px 8px' }}>{stats.targetUser.avgRating} ★</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-              <td style={{ padding: '12px 8px' }}>Current Streak</td>
-              <td style={{ padding: '12px 8px' }}>{stats.currentUser.currentStreak} days</td>
-              <td style={{ padding: '12px 8px' }}>{stats.targetUser.currentStreak} days</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
-              <td style={{ padding: '12px 8px' }}>Longest Streak</td>
-              <td style={{ padding: '12px 8px' }}>{stats.currentUser.longestStreak} days</td>
-              <td style={{ padding: '12px 8px' }}>{stats.targetUser.longestStreak} days</td>
-            </tr>
-            <tr>
-              <td style={{ padding: '12px 8px' }}>Rank (This Month)</td>
-              <td style={{ padding: '12px 8px' }}>#{stats.currentUser.rank}</td>
-              <td style={{ padding: '12px 8px' }}>#{stats.targetUser.rank}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="mt-10">
+        <h3 className="text-lg font-bold text-zinc-100 mb-4">Head-to-Head Stats</h3>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider border-b border-zinc-800">
+              <tr>
+                <th className="px-6 py-4">Metric</th>
+                <th className="px-6 py-4">You</th>
+                <th className="px-6 py-4">@{targetUser}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-800/50">
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Skills Published</td>
+                <td className="px-6 py-4 text-zinc-100">{stats.currentUser.skillsPublished}</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold">{stats.targetUser.skillsPublished}</td>
+              </tr>
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Total Sales</td>
+                <td className="px-6 py-4 text-zinc-100">{stats.currentUser.totalSales}</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold">{stats.targetUser.totalSales}</td>
+              </tr>
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Avg Rating</td>
+                <td className="px-6 py-4 text-zinc-100">{stats.currentUser.avgRating} ★</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold">{stats.targetUser.avgRating} ★</td>
+              </tr>
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Current Streak</td>
+                <td className="px-6 py-4 text-zinc-100">{stats.currentUser.currentStreak} days</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold">{stats.targetUser.currentStreak} days</td>
+              </tr>
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Longest Streak</td>
+                <td className="px-6 py-4 text-zinc-100">{stats.currentUser.longestStreak} days</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold">{stats.targetUser.longestStreak} days</td>
+              </tr>
+              <tr className="hover:bg-zinc-800/20 transition-colors">
+                <td className="px-6 py-4 text-zinc-300 font-medium">Rank (This Month)</td>
+                <td className="px-6 py-4 text-zinc-100">#{stats.currentUser.rank}</td>
+                <td className="px-6 py-4 text-zinc-100 font-bold text-indigo-400">#{stats.targetUser.rank}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

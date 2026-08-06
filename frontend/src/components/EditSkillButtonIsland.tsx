@@ -88,66 +88,55 @@ export default function EditSkillButtonIsland({ skill }: Props) {
 
   return (
     <>
-      <div style={{ background: 'var(--primary-soft)', border: '1px solid rgba(108, 60, 225, 0.3)', padding: '12px 18px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', boxShadow: '0 4px 15px rgba(108, 60, 225, 0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: 600, fontSize: '14px' }}>
-          <span style={{ fontSize: '18px' }}>👑</span>
+      <div className="bg-indigo-500/10 border border-indigo-500/30 px-5 py-3 rounded-2xl flex justify-between items-center mb-6 shadow-lg shadow-indigo-500/5">
+        <div className="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
+          <span className="text-lg">👑</span>
           <span>You are the creator of this skill</span>
         </div>
         <button 
           onClick={() => setEditing(true)} 
-          className="btn btn-primary" 
-          style={{ padding: '6px 16px', fontSize: '13px', cursor: 'pointer' }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
         >
           Edit Skill Details ✏️
         </button>
       </div>
 
       {editing && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.7)',
-          backdropFilter: 'blur(5px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '550px', background: 'var(--bg-secondary)', padding: '2rem', position: 'relative', border: '1px solid var(--hairline-strong)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', borderRadius: '16px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900 w-full max-w-xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setEditing(false)}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.5rem', lineHeight: 1 }}
+              className="absolute top-4 right-4 bg-transparent border-none text-zinc-400 hover:text-zinc-100 cursor-pointer text-2xl leading-none transition-colors"
             >
               ×
             </button>
-            <h2 style={{ fontSize: '22px', marginBottom: '0.5rem', color: 'var(--ink)' }}>Edit Skill Details</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '1.5rem' }}>Update marketing metadata for "{skill.title}". Note: Skill code file cannot be modified to protect buyer security and maintain scan integrity.</p>
+            <h2 className="text-2xl mb-2 text-zinc-100 font-semibold">Edit Skill Details</h2>
+            <p className="text-zinc-400 text-sm mb-6">Update marketing metadata for "{skill.title}". Note: Skill code file cannot be modified to protect buyer security and maintain scan integrity.</p>
             
-            <form onSubmit={saveEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <form onSubmit={saveEdit} className="flex flex-col gap-5">
               <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Title</label>
+                <label className="block mb-2 text-sm font-semibold text-zinc-100">Title</label>
                 <input 
                   type="text" 
                   value={editForm.title} 
                   onChange={(e) => setEditForm({...editForm, title: e.target.value})} 
                   required 
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                  className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Description</label>
+                <label className="block mb-2 text-sm font-semibold text-zinc-100">Description</label>
                 <textarea 
                   value={editForm.description} 
                   onChange={(e) => setEditForm({...editForm, description: e.target.value})} 
                   required 
                   rows={4}
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px', resize: 'vertical' }}
+                  className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors resize-y"
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
                 <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Price (INR ₹)</label>
+                  <label className="block mb-2 text-sm font-semibold text-zinc-100">Price (INR ₹)</label>
                   <input 
                     type="number" 
                     min="0"
@@ -155,15 +144,15 @@ export default function EditSkillButtonIsland({ skill }: Props) {
                     value={editForm.base_price_inr} 
                     onChange={(e) => setEditForm({...editForm, base_price_inr: parseFloat(e.target.value) || 0})} 
                     required 
-                    style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                    className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Category</label>
+                  <label className="block mb-2 text-sm font-semibold text-zinc-100">Category</label>
                   <select 
                     value={editForm.category} 
                     onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                    style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                    className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                   >
                     {CATEGORIES.map(cat => (
                       <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -172,11 +161,11 @@ export default function EditSkillButtonIsland({ skill }: Props) {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Target Audience</label>
+                <label className="block mb-2 text-sm font-semibold text-zinc-100">Target Audience</label>
                 <select 
                   value={editForm.target_audience} 
                   onChange={(e) => setEditForm({...editForm, target_audience: e.target.value})}
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                  className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                 >
                   <option value="all">All (General Audience)</option>
                   <option value="student">Students</option>
@@ -184,19 +173,18 @@ export default function EditSkillButtonIsland({ skill }: Props) {
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '0.5rem' }}>
+              <div className="flex gap-3 mt-2">
                 <button 
                   type="button" 
                   onClick={() => setEditing(false)}
-                  style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-3 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="btn btn-primary" 
                   disabled={saving}
-                  style={{ flex: 2, padding: '12px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
+                  className="flex-[2] inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50"
                 >
                   {saving ? 'Saving Changes...' : 'Save Changes'}
                 </button>

@@ -35,14 +35,14 @@ try {
   description={profile ? `Check out AI agent skills created by ${profile.username} on BodhicAI.` : "User profile on BodhicAI."}
 >
   
-  <main class="container" style="padding-top: var(--space-3xl); padding-bottom: var(--space-4xl); min-height: 80vh;">
+  <main class="max-w-[1200px] mx-auto px-6 pt-16 pb-32 min-h-[80vh]">
     {error ? (
-      <div style="text-align: center; margin-top: 10vh;">
-        <h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-md);">{error}</h1>
-        <a href="/" class="btn btn-primary">Return Home</a>
+      <div class="text-center mt-[10vh]">
+        <h1 class="text-[clamp(28px,6vw,48px)] mb-6 text-zinc-100 font-bold">{error}</h1>
+        <a href="/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 no-underline">Return Home</a>
       </div>
     ) : (
-      <div style="display: flex; flex-direction: column; gap: var(--space-3xl);">
+      <div class="flex flex-col gap-12">
         
         <!-- Stats Hero -->
         <ProfileStatsHero 
@@ -63,7 +63,7 @@ try {
         
         {/* Achievement Showcase */}
         {profile.seller?.is_private ? (
-          <div style="text-align: center; padding: 40px; background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px dashed var(--hairline-strong); color: var(--mute);">
+          <div class="text-center p-10 bg-zinc-900/50 rounded-2xl border border-dashed border-zinc-700 text-zinc-400">
             🔒 @{profile.seller?.username || username} has chosen to keep their achievements private.
           </div>
         ) : (
@@ -71,20 +71,20 @@ try {
         )}
 
         <!-- Uploaded Skills Grid (GitHub Style) -->
-        <div style="margin-top: var(--space-md);">
-          <h2 style="font-size: 24px; color: var(--text-primary); margin-bottom: var(--space-lg); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--hairline-strong); padding-bottom: 16px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+        <div class="mt-6">
+          <h2 class="text-2xl text-zinc-100 mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4 font-bold">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
             Uploaded Skills
-            <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 2px 10px; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600;">{profile.skills?.length || 0}</span>
+            <span class="bg-zinc-800 text-zinc-300 px-2.5 py-0.5 rounded-full text-sm font-semibold">{profile.skills?.length || 0}</span>
           </h2>
           {profile.skills && profile.skills.length > 0 ? (
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-xl);">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8">
               {profile.skills.map((skill: any) => (
                 <SkillCard skill={{...skill, seller: profile.seller}} client:load />
               ))}
             </div>
           ) : (
-            <div style="text-align: center; padding: 40px; background: var(--canvas-soft); border-radius: var(--radius-lg); border: 1px dashed var(--hairline-strong); color: var(--mute);">
+            <div class="text-center p-10 bg-zinc-900/50 rounded-2xl border border-dashed border-zinc-700 text-zinc-400">
               @{profile.seller?.username || username} hasn't uploaded any skills yet.
             </div>
           )}

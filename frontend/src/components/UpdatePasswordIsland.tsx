@@ -48,12 +48,12 @@ export default function UpdatePasswordIsland() {
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <div style={{ color: 'var(--error)', marginBottom: '1rem' }}>{error}</div>}
-      {success && <div style={{ color: 'var(--success)', marginBottom: '1rem' }}>{success}</div>}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {success && <div className="text-emerald-500 mb-4">{success}</div>}
       
-      <div className="form-group">
-        <label>New Password</label>
-        <div style={{ position: 'relative' }}>
+      <div className="mb-4">
+        <label className="block text-zinc-300 text-sm font-bold mb-2">New Password</label>
+        <div className="relative">
           <input 
             type={showPassword ? "text" : "password"} 
             placeholder="••••••••" 
@@ -61,25 +61,12 @@ export default function UpdatePasswordIsland() {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading || !!success || error === 'Your password reset link is invalid or has expired.'}
-            style={{ paddingRight: '40px' }}
+            className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 pr-10 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors disabled:opacity-50"
           />
           <button 
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            style={{ 
-              position: 'absolute', 
-              right: '10px', 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              background: 'none', 
-              border: 'none', 
-              cursor: 'pointer',
-              color: 'var(--mute)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px'
-            }}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-zinc-500 flex items-center justify-center p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded hover:text-zinc-300 transition-colors"
             title={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
@@ -93,8 +80,7 @@ export default function UpdatePasswordIsland() {
       
       <button 
         type="submit" 
-        className="btn btn-primary" 
-        style={{ width: '100%', marginTop: '1rem' }}
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 w-full mt-4" 
         disabled={loading || !!success || error === 'Your password reset link is invalid or has expired.'}
       >
         {loading ? 'Processing...' : 'Update Password'}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { loadRazorpay } from '../utils/razorpay';
+import { CheckCircle2, Download, CreditCard, Wallet, AlertCircle } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface CheckoutIslandProps {
   skillId: string;
@@ -146,7 +148,6 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
     const authHeader = { 'Authorization': `Bearer ${session.access_token}` };
 
-    // 1. Mock Fallback Flow
     if (!intent.is_live) {
         try {
           const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/checkout/success`, {
@@ -176,7 +177,6 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
         order_id: intent.client_secret,
         handler: async function (response: any) {
           try {
-            // Re-fetch session in case token refreshed during Razorpay modal
             const { data: { session: freshSession } } = await supabase.auth.getSession();
             const freshAuthHeader = freshSession
               ? { 'Authorization': `Bearer ${freshSession.access_token}` }
@@ -202,7 +202,7 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
             setError(err.message);
           }
         },
-        theme: { color: "#6C3CE1" }
+        theme: { color: "#4f46e5" }
       };
       rzp = await loadRazorpay(options);
     } catch (err) {
@@ -221,132 +221,149 @@ export default function CheckoutIsland({ skillId, basePrice }: CheckoutIslandPro
 
   if (hasPurchased) {
     return (
-      <div className="card" style={{ marginTop: 'var(--space-xl)', textAlign: 'center', borderColor: 'var(--success)', background: 'var(--success-soft)', padding: 'var(--space-2xl)' }}>
-        <h3 style={{ color: 'var(--success)', fontSize: '24px', marginBottom: 'var(--space-sm)' }}>✓ Access Granted</h3>
-        <p style={{ color: 'var(--body)', fontSize: '16px' }}>You own this skill and can download its instructions.</p>
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-8 text-center backdrop-blur-sm shadow-[0_0_40px_rgba(16,185,129,0.05)]">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+          <CheckCircle2 className="h-8 w-8" />
+        </div>
+        <h3 className="mb-2 text-2xl font-bold text-emerald-400">Access Granted</h3>
+        <p className="mb-8 text-zinc-400">You own this skill and can download its instructions.</p>
         <button 
-          className="btn btn-primary btn-lg" 
-          style={{ marginTop: 'var(--space-lg)', width: '100%', maxWidth: '300px' }} 
+          className="mx-auto flex w-full max-w-[300px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-emerald-500/25 disabled:opacity-50"
           onClick={handleDownload}
           disabled={loading}
         >
+          <Download className="h-4 w-4" />
           {loading ? 'Downloading...' : 'Download Instructions (.md)'}
         </button>
-        {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
+        {error && <p className="mt-4 text-sm font-medium text-red-400">{error}</p>}
       </div>
     );
   }
 
   return (
-    <div className="card" style={{ marginTop: 'var(--space-xl)', padding: 'var(--space-xl)' }}>
-      <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Purchase License</h3>
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 backdrop-blur-sm">
+      <h3 className="mb-6 text-xl font-bold text-zinc-100">Purchase License</h3>
       
       {!intent ? (
-        <div className="form-group">
+        <div className="space-y-6">
           {Number(basePrice || 0) === 0 ? (
-            <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--success)', textAlign: 'center' }}>
-              <h4 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--success)', marginBottom: '8px' }}>
-                Free Skill
-              </h4>
-              <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
-                This skill is available for free.
-              </p>
+            <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 p-6 text-center">
+              <h4 className="mb-2 text-lg font-bold text-emerald-400">Free Skill</h4>
+              <p className="mb-6 text-sm text-zinc-400">This skill is available for free.</p>
               <button 
-                className="btn btn-primary btn-lg" 
-                style={{ width: '100%', background: 'var(--success)', borderColor: 'var(--success)' }}
+                className="w-full flex justify-center items-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:bg-emerald-500 disabled:opacity-50"
                 onClick={handleCreditPayment}
                 disabled={loading}
               >
+                <Download className="h-4 w-4" />
                 {loading ? 'Processing...' : 'Download for Free'}
               </button>
             </div>
           ) : (
             <>
               {creditBalance !== null && (
-                <div style={{ marginBottom: 'var(--space-xl)', padding: 'var(--space-md)', background: 'linear-gradient(135deg, rgba(108, 60, 225, 0.1) 0%, rgba(74, 33, 175, 0.1) 100%)', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary)' }}>
-                  <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--primary)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Pay with Bodhic Credits</span>
-                    <span>Balance: {creditBalance} CR</span>
-                  </h4>
-                  <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '16px' }}>
-                    Cost: <strong>{Math.round(Number(basePrice || 0) * 10)} CR</strong>
+                <div className="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h4 className="text-base font-bold text-indigo-400 flex items-center gap-2">
+                      <Wallet className="h-4 w-4" /> Pay with Bodhic Credits
+                    </h4>
+                    <span className="rounded-full bg-zinc-950/50 px-3 py-1 text-xs font-semibold text-zinc-300 border border-zinc-800">
+                      Balance: {creditBalance} CR
+                    </span>
+                  </div>
+                  <p className="mb-6 text-sm text-zinc-400">
+                    Cost: <strong className="text-zinc-200">{Math.round(Number(basePrice || 0) * 10)} CR</strong>
                   </p>
                   <button 
-                    className="btn btn-primary btn-lg" 
-                    style={{ width: '100%' }}
+                    className="w-full rounded-xl bg-indigo-600 px-6 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50 flex items-center justify-center gap-2"
                     onClick={handleCreditPayment}
                     disabled={loading || creditBalance < Math.round(Number(basePrice || 0) * 10)}
                   >
+                    <Wallet className="h-4 w-4" />
                     {loading ? 'Processing...' : (creditBalance < Math.round(Number(basePrice || 0) * 10) ? 'Insufficient Credits' : `Pay ${Math.round(Number(basePrice || 0) * 10)} Credits`)}
                   </button>
                   {creditBalance < Math.round(Number(basePrice || 0) * 10) && (
-                    <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
-                      <a href="/dashboard/credits" style={{ color: 'var(--primary)' }}>Top up your wallet</a>
+                    <p className="mt-4 text-center text-xs text-zinc-500">
+                      <a href="/dashboard/credits" className="text-indigo-400 hover:text-indigo-300 hover:underline">Top up your wallet</a>
                     </p>
                   )}
                 </div>
               )}
               
-              <div style={{ position: 'relative', textAlign: 'center', margin: 'var(--space-lg) 0' }}>
-                <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)' }} />
-                <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'var(--surface)', padding: '0 12px', color: 'var(--mute)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>OR PAY WITH CASH</span>
+              <div className="relative py-4 text-center">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
+                <div className="relative flex justify-center"><span className="bg-zinc-900 px-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Or pay with cash</span></div>
               </div>
 
               <input type="hidden" value="IN" />
               
               <button 
-                className="btn btn-primary btn-lg" 
-                style={{ marginTop: 'var(--space-md)', width: '100%' }}
+                className="w-full flex justify-center items-center gap-2 rounded-xl bg-zinc-100 px-6 py-4 text-sm font-semibold text-zinc-900 shadow-lg transition-all hover:bg-white disabled:opacity-50"
                 onClick={handleCheckout}
                 disabled={loading}
               >
+                <CreditCard className="h-4 w-4" />
                 {loading ? 'Processing...' : `Proceed to Checkout (₹${Number(basePrice || 0).toFixed(2)})`}
               </button>
             </>
           )}
           
-          {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)' }}>{error}</p>}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-4 text-sm font-medium text-red-400 border border-red-500/20">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p>{error}</p>
+            </div>
+          )}
         </div>
       ) : (
-        <div>
-          <div style={{ background: 'var(--canvas-soft-2)', padding: 'var(--space-lg)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-lg)' }}>
-            <p style={{ margin: 0, color: 'var(--mute)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Amount</p>
-            <h2 style={{ margin: '8px 0 0 0', color: 'var(--ink)', fontSize: '48px', letterSpacing: '-2px' }}>
+        <div className="space-y-6">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 sm:p-8">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">Total Amount</p>
+            <h2 className="mb-8 text-5xl font-black tracking-tight text-zinc-100">
               ₹{intent.amount_inr?.toFixed(2)}
             </h2>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-                <span style={{ color: 'var(--mute)' }}>Base Price</span>
-                <span style={{ fontWeight: '600' }}>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-zinc-400">Base Price</span>
+                <span className="font-semibold text-zinc-200">
                   ₹{(intent.base_price_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
                 </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-                <span style={{ color: 'var(--mute)' }}>Buyer Fee</span>
-                <span style={{ fontWeight: '600', color: 'var(--success)' }}>₹0.00</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-zinc-400">Buyer Fee</span>
+                <span className="font-semibold text-emerald-400">₹0.00</span>
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid var(--hairline-strong)', margin: 'var(--space-lg) 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '20px', fontWeight: '700' }}>
-                <span>Total</span>
-                <span>
-                  ₹{(intent.amount_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
-                </span>
+              <div className="border-t border-zinc-800 pt-4">
+                <div className="flex items-center justify-between text-lg font-bold">
+                  <span className="text-zinc-200">Total</span>
+                  <span className="text-zinc-100">
+                    ₹{(intent.amount_inr || 0).toFixed(2)} {intent.billing_type === 'monthly' ? '/ month' : ''}
+                  </span>
+                </div>
               </div>
+            </div>
             {!intent.is_live && (
-              <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--mute)', fontFamily: 'var(--font-mono)' }}>
-                Mock Order: {intent.client_secret}
-              </p>
+              <div className="mt-6 flex items-center justify-center rounded-lg bg-amber-500/10 px-4 py-2 border border-amber-500/20">
+                <p className="font-mono text-xs text-amber-400 break-all">
+                  Mock Order: {intent.client_secret}
+                </p>
+              </div>
             )}
           </div>
           
           <button 
-            className="btn btn-primary btn-lg" 
-            style={{ marginTop: 'var(--space-xl)', width: '100%' }}
+            className="w-full flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50"
             onClick={handlePayment}
             disabled={loading}
           >
             {loading ? 'Processing...' : `Pay Now with ${intent.provider} →`}
           </button>
-          {error && <p style={{ color: 'var(--error)', marginTop: 'var(--space-sm)', fontSize: '14px' }}>{error}</p>}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-500/10 p-4 text-sm font-medium text-red-400 border border-red-500/20">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p>{error}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

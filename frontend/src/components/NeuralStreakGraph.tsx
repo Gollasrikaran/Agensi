@@ -50,37 +50,23 @@ export default function NeuralStreakGraph({ username }: Props) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--space-md)' }}>
-        <h2 style={{ fontSize: '24px', margin: 0, color: 'var(--ink)' }}>Neural Pulse</h2>
-        <div style={{ display: 'flex', gap: 'var(--space-xl)', textAlign: 'right' }}>
+      <div className="flex justify-between items-end mb-6">
+        <h2 className="text-2xl m-0 text-zinc-100 font-bold">Neural Pulse</h2>
+        <div className="flex gap-8 text-right">
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Streak</div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--ink)' }}>{streaks.current_streak} <span style={{fontSize: '16px'}}>days</span></div>
+            <div className="text-xs text-zinc-500 uppercase tracking-widest">Current Streak</div>
+            <div className="text-2xl font-bold text-zinc-100">{streaks.current_streak} <span className="text-base font-normal">days</span></div>
           </div>
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px' }}>Longest</div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--ink)' }}>{streaks.longest_streak} <span style={{fontSize: '16px'}}>days</span></div>
+            <div className="text-xs text-zinc-500 uppercase tracking-widest">Longest</div>
+            <div className="text-2xl font-bold text-zinc-100">{streaks.longest_streak} <span className="text-base font-normal">days</span></div>
           </div>
         </div>
       </div>
 
-      <div style={{ 
-        background: 'rgba(255, 255, 255, 0.02)', 
-        border: '1px solid var(--hairline)', 
-        borderRadius: 'var(--radius-lg)', 
-        padding: 'var(--space-xl)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-      }}>
+      <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 flex flex-col gap-2">
         {/* The Graph */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(12px, 1fr))', 
-          gap: '4px',
-          alignItems: 'end',
-          height: '60px'
-        }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(12px,1fr))] gap-1 items-end h-[60px]">
           {days.map((day, idx) => {
             const height = day.count === 0 ? '4px' : `${Math.min(100, Math.max(20, day.count * 20))}%`;
             const opacity = day.count === 0 ? 0.1 : Math.min(1, 0.4 + (day.count * 0.2));
@@ -90,21 +76,17 @@ export default function NeuralStreakGraph({ username }: Props) {
               <div 
                 key={day.date}
                 title={`${day.date}: ${day.count} activities`}
+                className={`rounded-sm rounded-t-md transition-all duration-300 ease-in-out ${isToday && day.count > 0 ? 'border-b-2 border-amber-500' : ''}`}
                 style={{
                   height,
-                  background: day.count > 0 ? 'linear-gradient(0deg, #6C3CE1, #a78bfa)' : 'var(--hairline)',
-                  opacity,
-                  borderRadius: '2px',
-                  borderTopLeftRadius: '4px',
-                  borderTopRightRadius: '4px',
-                  borderBottom: isToday && day.count > 0 ? '2px solid #fbbf24' : 'none',
-                  transition: 'height 0.3s ease'
+                  background: day.count > 0 ? 'linear-gradient(0deg, #4f46e5, #818cf8)' : '#27272a',
+                  opacity
                 }}
               />
             )
           })}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--mute)' }}>
+        <div className="flex justify-between text-[11px] text-zinc-500 font-medium">
           <span>90 Days Ago</span>
           <span>Today</span>
         </div>

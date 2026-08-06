@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import SkillCard from './SkillCard';
+import Marquee from './ui/marquee';
 import { supabase } from '../lib/supabase';
 
 export default function TrendingSkillsIsland() {
@@ -7,7 +8,6 @@ export default function TrendingSkillsIsland() {
   const [loading, setLoading] = useState(true);
   const [upvoteStates, setUpvoteStates] = useState<Record<string, boolean>>({});
   const [upvotingIds, setUpvotingIds] = useState<Set<string>>(new Set());
-  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchTrendingSkills();
@@ -17,7 +17,6 @@ export default function TrendingSkillsIsland() {
     fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/public/skills`)
       .then(res => res.json())
       .then(data => {
-        // Sort by upvotes (descending) and take top 8
         const sorted = data.sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0)).slice(0, 8);
         setSkills(sorted);
         setLoading(false);
@@ -43,9 +42,7 @@ export default function TrendingSkillsIsland() {
           const data = await res.json();
           states[skill.id] = data.upvoted;
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     }
     setUpvoteStates(states);
   };
@@ -85,73 +82,25 @@ export default function TrendingSkillsIsland() {
     }
   };
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const scrollAmount = 320; // card width + gap
-      carouselRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   if (loading) {
     return (
-      <div style={{ display: 'flex', gap: 'var(--space-lg)', overflowX: 'hidden', padding: '10px 0' }}>
-        {[1, 2, 3].map(i => (
-          <div key={i} style={{ minWidth: '200px', height: '280px', background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div className="flex gap-6 overflow-hidden py-4">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="h-[340px] w-[320px] shrink-0 animate-pulse rounded-xl bg-zinc-900/50" />
         ))}
       </div>
     );
   }
 
   if (skills.length === 0) {
-    return <p style={{ color: 'var(--mute)' }}>No skills available right now.</p>;
+    return <p className="text-zinc-500">No skills available right now.</p>;
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Navigation Controls */}
-      <div className="desktop-only" style={{ position: 'absolute', top: '-60px', right: '160px', display: 'flex', gap: '8px', zIndex: 10 }}>
-        <button 
-          onClick={() => scroll('left')}
-          className="btn"
-          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-elevated)', border: '1px solid var(--primary-soft)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}
-          aria-label="Scroll left"
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--ink)'; }}
-        >
-          ←
-        </button>
-        <button 
-          onClick={() => scroll('right')}
-          className="btn"
-          style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', background: 'var(--canvas-elevated)', border: '1px solid var(--primary-soft)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)' }}
-          aria-label="Scroll right"
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--ink)'; }}
-        >
-          →
-        </button>
-      </div>
-
-      {/* CSS Snap Carousel */}
-      <div 
-        ref={carouselRef}
-        style={{ 
-          display: 'flex', 
-          gap: 'var(--space-lg)', 
-          overflowX: 'auto', 
-          scrollSnapType: 'x mandatory',
-          paddingBottom: '20px',
-          paddingTop: '10px',
-          scrollbarWidth: 'none', // hide scrollbar Firefox
-          msOverflowStyle: 'none', // hide scrollbar IE/Edge
-        }}
-        className="hide-scrollbar"
-      >
+    <div className="relative flex w-full flex-col items-center justify-center overflow-hidden py-4">
+      <Marquee pauseOnHover className="[--duration:50s]">
         {skills.map((skill: any, index: number) => (
-          <div key={skill.id} style={{ scrollSnapAlign: 'start', flex: '0 0 auto', width: 'min(320px, 85vw)' }}>
+          <div key={skill.id} className="w-[300px] sm:w-[320px]">
             <SkillCard 
               skill={skill}
               isUpvoted={upvoteStates[skill.id]}
@@ -161,14 +110,9 @@ export default function TrendingSkillsIsland() {
             />
           </div>
         ))}
-      </div>
-      <style>
-        {`
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
+      </Marquee>
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-background dark:from-zinc-950"></div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-background dark:from-zinc-950"></div>
     </div>
   );
 }

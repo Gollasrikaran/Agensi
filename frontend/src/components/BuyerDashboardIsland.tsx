@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import ReferralShareCardIsland from './ReferralShareCardIsland';
+import { Download, Star, ExternalLink, ArrowRight, PackageOpen } from 'lucide-react';
+import { cn } from '../lib/utils';
+
 export default function BuyerDashboardIsland() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,24 +47,13 @@ export default function BuyerDashboardIsland() {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setError('Not authenticated');
-        return;
-      }
+      if (!session) { setError('Not authenticated'); return; }
 
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/purchases`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
-      
-      if (!res.ok) {
-        throw new Error('Failed to fetch purchases');
-      }
-      
-      const data = await res.json();
-      setPurchases(data);
+      if (!res.ok) throw new Error('Failed to fetch purchases');
+      setPurchases(await res.json());
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -69,88 +61,75 @@ export default function BuyerDashboardIsland() {
     }
   };
 
-  if (loading) return <div>Loading buyer dashboard...</div>;
-  if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+      <div className="h-8 w-8 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin mb-4" />
+      <p className="text-sm font-medium">Loading purchases...</p>
+    </div>
+  );
+  if (error) return <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-red-400">Error: {error}</div>;
 
   return (
-    <div className="buyer-dashboard">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '28px' }}>Buyer Dashboard</h1>
+    <div className="space-y-10 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6">
+        <div>
+          <h2 className="text-3xl font-black text-zinc-100 tracking-tight">Your Purchases</h2>
+          <p className="text-zinc-400 mt-1">Manage and download the skills you've acquired.</p>
+        </div>
         <a 
           href="/dashboard/seller" 
-          style={{ 
-            background: 'var(--bg-tertiary)', 
-            border: '1px solid var(--accent-deep)', 
-            padding: '8px 16px', 
-            borderRadius: '8px', 
-            color: 'var(--accent)',
-            textDecoration: 'none',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'var(--transition-smooth)'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-soft)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+          className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white hover:border-zinc-700 shadow-sm"
         >
           <span>Switch to Creator Dashboard</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <ArrowRight className="h-4 w-4" />
         </a>
       </div>
       
       <ReferralShareCardIsland />
       
-      <div className="glass-card" style={{ marginBottom: '2rem' }}>
-        <h2>Your Purchased Skills</h2>
-        
+      <div className="space-y-6">
+        <h3 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
+          <PackageOpen className="h-5 w-5 text-indigo-400" /> Collection
+        </h3>
         {purchases.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-            You have not purchased any skills yet.
-          </p>
+          <div className="text-center py-20 rounded-3xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+            <PackageOpen className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-zinc-200 mb-2">No purchases yet</h3>
+            <p className="text-zinc-500 mb-8 max-w-sm mx-auto">Discover powerful AI skills and prompts to supercharge your workflow.</p>
+            <a href="/browse" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5">
+              Browse Marketplace <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px', marginTop: '1.5rem' }}>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {purchases.map((purchase: any) => (
-              <div key={purchase.id} style={{ 
-                background: 'var(--bg-tertiary)', 
-                border: 'var(--glass-border)', 
-                borderRadius: '16px', 
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                boxShadow: 'var(--shadow-sm)',
-                transition: 'transform 0.2s, box-shadow 0.2s'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>
+              <div key={purchase.id} className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <h3 className="text-lg font-bold text-zinc-100 group-hover:text-indigo-400 transition-colors line-clamp-2">
                     {purchase.skills?.title || 'Unknown Skill'}
                   </h3>
-                  <span style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: 'var(--radius-pill)', 
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                    background: purchase.payment_status === 'completed' ? 'var(--success-soft)' : 'var(--warning-soft)',
-                    color: purchase.payment_status === 'completed' ? 'var(--success)' : 'var(--warning)'
-                  }}>
+                  <span className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider",
+                    purchase.payment_status === 'completed' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                  )}>
                     {purchase.payment_status}
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', fontSize: '14px' }}>
-                  <span>Price Paid: <strong style={{ color: 'var(--text-primary)' }}>₹{purchase.amount}</strong></span>
-                  <span>{new Date(purchase.created_at).toLocaleDateString()}</span>
+                <div className="flex justify-between items-center text-sm mb-6 flex-1">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">Paid</span>
+                    <strong className="text-xl font-black text-zinc-200 font-mono">₹{purchase.amount}</strong>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">Date</span>
+                    <span className="text-zinc-400 font-medium">{new Date(purchase.created_at).toLocaleDateString()}</span>
+                  </div>
                 </div>
 
-                <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)', margin: '4px 0' }} />
-
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div className="flex gap-3 mt-auto pt-4 border-t border-zinc-800/50">
                   <button 
-                    className="btn btn-primary" 
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-indigo-500 hover:shadow-indigo-500/20"
                     onClick={async () => {
                       try {
                         const { data: { session } } = await supabase.auth.getSession();
@@ -172,37 +151,41 @@ export default function BuyerDashboardIsland() {
                         alert(err.message);
                       }
                     }}
-                    style={{ flex: 1, justifyContent: 'center' }}
                   >
-                    ↓ Download
+                    <Download className="h-4 w-4" /> Download
                   </button>
                   
-                  {reviewingId === purchase.skill_id ? (
-                    null // handled below
-                  ) : (
-                    <button className="btn btn-secondary" onClick={() => { setReviewingId(purchase.skill_id); setRating(5); setComment(''); }} style={{ flex: 1, justifyContent: 'center' }}>
-                      Rate Skill
+                  {reviewingId !== purchase.skill_id && (
+                    <button 
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white"
+                      onClick={() => { setReviewingId(purchase.skill_id); setRating(5); setComment(''); }}
+                    >
+                      <Star className="h-4 w-4" /> Rate
                     </button>
                   )}
                 </div>
 
                 {reviewingId === purchase.skill_id && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--canvas-soft)', padding: '16px', borderRadius: '12px', border: '1px solid var(--primary-soft)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <div className="mt-4 flex flex-col gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 animate-in slide-in-from-top-2">
+                    <div className="flex justify-center gap-2 mb-1">
                       {[1,2,3,4,5].map(star => (
-                        <span key={star} onClick={() => setRating(star)} style={{ color: rating >= star ? '#fbbf24' : 'var(--hairline-strong)', fontSize: '28px', transition: 'color 0.2s' }}>★</span>
+                        <Star 
+                          key={star} 
+                          onClick={() => setRating(star)} 
+                          className={cn("h-7 w-7 cursor-pointer transition-all hover:scale-110", rating >= star ? "fill-amber-400 text-amber-400" : "text-zinc-600 hover:text-zinc-500")}
+                        />
                       ))}
                     </div>
                     <textarea 
-                      placeholder="Leave a review..." 
+                      placeholder="Share your experience (optional)..." 
                       value={comment} 
                       onChange={(e) => setComment(e.target.value)}
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }}
-                      rows={2}
+                      className="w-full resize-none rounded-xl border border-zinc-700 bg-black/50 p-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      rows={3}
                     />
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-primary" onClick={() => submitReview(purchase.skill_id)} disabled={submittingReview} style={{ flex: 1 }}>Submit</button>
-                      <button className="btn btn-secondary" onClick={() => setReviewingId(null)} style={{ flex: 1 }}>Cancel</button>
+                    <div className="flex gap-2">
+                      <button onClick={() => setReviewingId(null)} className="flex-1 rounded-xl bg-zinc-800 py-2.5 text-sm font-bold text-zinc-300 hover:bg-zinc-700 transition-colors">Cancel</button>
+                      <button onClick={() => submitReview(purchase.skill_id)} disabled={submittingReview} className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors shadow-lg shadow-emerald-500/20">Submit</button>
                     </div>
                   </div>
                 )}
@@ -210,12 +193,6 @@ export default function BuyerDashboardIsland() {
             ))}
           </div>
         )}
-      </div>
-      
-      <div className="glass-card">
-        <h2>Disputes & Refunds</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>No active disputes.</p>
-        <a href="/disputes" className="btn btn-secondary" style={{ marginTop: '1rem', display: 'inline-block' }}>Open a Dispute</a>
       </div>
     </div>
   );

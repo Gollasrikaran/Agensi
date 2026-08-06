@@ -7,28 +7,28 @@ const { error } = Astro.props;
 ---
 
 <Layout title="500: System Error | BodhicAI">
-  <div style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-2xl);">
+  <div class="min-h-[80vh] flex flex-col items-center justify-center text-center p-16">
     
-    <div style="font-size: clamp(48px, 15vw, 120px); font-weight: 800; letter-spacing: -5px; line-height: 1; margin-bottom: var(--space-md); color: var(--error); opacity: 0.8;">
+    <div class="text-[clamp(48px,15vw,120px)] font-extrabold tracking-[-5px] leading-none mb-6 text-red-500/80">
       500
     </div>
     
-    <h1 style="font-size: clamp(22px, 4.5vw, 32px); letter-spacing: -1px; margin-bottom: var(--space-sm);">System Overload</h1>
+    <h1 class="text-[clamp(22px,4.5vw,32px)] tracking-[-1px] mb-4 text-zinc-100">System Overload</h1>
     
-    <p style="color: var(--mute); font-size: 18px; max-width: 500px; margin-bottom: var(--space-xl);">
+    <p class="text-zinc-400 text-lg max-w-[500px] mb-12">
       Our servers encountered an unexpected fault while processing your request. The engineering team has been notified.
     </p>
 
     {import.meta.env.DEV && error && (
-      <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: var(--space-md); text-align: left; max-width: 800px; overflow-x: auto; margin-bottom: var(--space-2xl);">
-        <p style="color: var(--error); font-family: var(--font-mono); font-size: 14px; margin-bottom: 8px; font-weight: bold;">Developer Details (Not visible in Prod):</p>
-        <pre style="color: var(--body); font-family: var(--font-mono); font-size: 13px;"><code>{error instanceof Error ? error.message : String(error)}</code></pre>
+      <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-left max-w-[800px] overflow-x-auto mb-16">
+        <p class="text-red-500 font-mono text-sm mb-2 font-bold">Developer Details (Not visible in Prod):</p>
+        <pre class="text-zinc-300 font-mono text-sm"><code>{error instanceof Error ? error.message : String(error)}</code></pre>
       </div>
     )}
     
-    <div style="display: flex; gap: var(--space-md);">
-      <button onclick="window.location.reload()" class="btn btn-primary" style="padding: 12px 24px; background: var(--error); border-color: var(--error);">Retry Request</button>
-      <a href="/" class="btn btn-secondary" style="padding: 12px 24px;">Return Home</a>
+    <div class="flex gap-6">
+      <button onclick="window.location.reload()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-red-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50">Retry Request</button>
+      <a href="/" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">Return Home</a>
     </div>
     
   </div>

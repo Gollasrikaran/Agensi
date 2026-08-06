@@ -60,62 +60,47 @@ export default function SkillPulseGraph({ username }: { username: string }) {
       .catch(err => console.error("Failed to fetch pulse activity", err));
   }, [username]);
 
-  const getColorForType = (type: ActivityType, intensity: number) => {
-    if (intensity === 0) return 'var(--pulse-empty)';
+  const getColorClassForType = (type: ActivityType, intensity: number) => {
+    if (intensity === 0) return 'bg-zinc-800';
     
-    // Base colors from CSS variables
     const colors: Record<string, string> = {
-      'upload': 'var(--pulse-upload)',
-      'sale': 'var(--pulse-sale)',
-      'purchase': 'var(--pulse-sale)',
-      'upvote': 'var(--pulse-upvote)',
-      'bounty': 'var(--pulse-bounty)',
-      'all': 'var(--primary)' // Fallback if mixed (using --primary instead of undefined --accent-primary)
+      'upload': 'bg-emerald-500',
+      'sale': 'bg-amber-500',
+      'purchase': 'bg-amber-500',
+      'upvote': 'bg-indigo-500',
+      'bounty': 'bg-red-500',
+      'all': 'bg-indigo-500'
     };
     
     return colors[type] || colors['all'];
   };
+  
+  const getBorderColorClassForType = (type: ActivityType) => {
+    const colors: Record<string, string> = {
+      'upload': 'border-emerald-500',
+      'sale': 'border-amber-500',
+      'purchase': 'border-amber-500',
+      'upvote': 'border-indigo-500',
+      'bounty': 'border-red-500',
+      'all': 'border-indigo-500'
+    };
+    return colors[type] || colors['all'];
+  };
 
   return (
-    <div style={{
-      background: 'var(--bg-secondary)',
-      border: 'var(--glass-border)',
-      borderRadius: 'var(--border-radius-card)',
-      padding: '24px',
-      position: 'relative',
-      overflowX: 'auto'
-    }}>
+    <div className="group flex flex-col p-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 relative overflow-x-auto">
       
       {hoveredCell?.data && (
         <div style={{
-          position: 'absolute',
           left: hoveredCell.x - 60,
           top: hoveredCell.y - 40,
-          background: 'var(--bg-tertiary)',
-          border: '1px solid var(--accent-deep)',
-          padding: '6px 12px',
-          borderRadius: '4px',
-          fontSize: '12px',
-          color: '#fff',
-          zIndex: 10,
-          pointerEvents: 'none',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          whiteSpace: 'nowrap'
-        }}>
+        }} className="absolute bg-zinc-900 border border-indigo-500/20 px-3 py-1.5 rounded-md text-xs text-white z-10 shadow-lg whitespace-nowrap pointer-events-none">
           {hoveredCell.data.rawTypes?.[filter] || 0} {filter}s on {hoveredCell.data.date}
         </div>
       )}
 
       {/* Grid: 52 columns, 7 rows */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(52, 12px)',
-        gridTemplateRows: 'repeat(7, 12px)',
-        gridAutoFlow: 'column',
-        gap: '4px',
-        marginBottom: '20px',
-        minWidth: 'max-content'
-      }}>
+      <div className="grid grid-flow-col gap-1 mb-5 min-w-max" style={{ gridTemplateColumns: 'repeat(52, 12px)', gridTemplateRows: 'repeat(7, 12px)' }}>
         {pulseData.map((cell, idx) => {
           const filterCount = cell.rawTypes?.[filter] || 0;
           const isVisible = filter === 'all' ? cell.count > 0 : filterCount > 0;
@@ -140,22 +125,10 @@ export default function SkillPulseGraph({ username }: { username: string }) {
                 }
               }}
               onMouseLeave={() => setHoveredCell(null)}
+              className={`w-3 h-3 rounded-[3px] transition-transform duration-200 ${getColorClassForType(filter, displayIntensity)} ${displayIntensity > 0 ? 'cursor-pointer hover:scale-150' : 'cursor-default'} animate-[fadeIn_0.5s_ease-out_forwards]`}
               style={{
-                width: '12px',
-                height: '12px',
-                borderRadius: '3px',
-                background: getColorForType(filter, displayIntensity),
                 opacity: displayIntensity === 0 ? 1 : (0.4 + displayIntensity * 0.15),
-                transition: 'var(--transition-smooth)',
-                cursor: displayIntensity > 0 ? 'pointer' : 'default',
-                animation: `fadeIn 0.5s ease-out forwards`,
                 animationDelay: `${(idx % 52) * 5}ms`
-              }}
-              onMouseOver={(e) => {
-                if(displayIntensity > 0) e.currentTarget.style.transform = 'scale(1.5)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
               }}
             />
           );
@@ -170,39 +143,27 @@ export default function SkillPulseGraph({ username }: { username: string }) {
       `}} />
 
       {/* Footer Controls & Legend */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="flex justify-between items-start flex-wrap gap-4">
         
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex gap-2">
           {(['all', 'upload', 'sale', 'purchase', 'upvote', 'bounty'] as ActivityType[]).map(t => (
             <button
               key={t}
               onClick={() => setFilter(t)}
-              onMouseEnter={(e) => {
-                if (filter !== t) e.currentTarget.style.background = 'var(--bg-tertiary)';
-              }}
-              onMouseLeave={(e) => {
-                if (filter !== t) e.currentTarget.style.background = 'transparent';
-              }}
-              style={{
-                background: filter === t ? 'var(--bg-tertiary)' : 'transparent',
-                border: filter === t ? `1px solid ${getColorForType(t, 4)}` : '1px solid transparent',
-                color: filter === t ? '#fff' : 'var(--text-muted)',
-                padding: '4px 10px',
-                borderRadius: 'var(--border-radius-pill)',
-                fontSize: '12px',
-                cursor: 'pointer',
-                textTransform: 'capitalize',
-                transition: 'all 0.2s ease'
-              }}
+              className={`px-3 py-1 rounded-full text-xs cursor-pointer capitalize transition-all border ${
+                filter === t 
+                  ? `bg-zinc-800 text-white ${getBorderColorClassForType(t)}` 
+                  : 'bg-transparent border-transparent text-zinc-400 hover:bg-zinc-800'
+              } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950`}
             >
               {t}
             </button>
           ))}
         </div>
 
-        <div style={{ textAlign: 'right', fontSize: '13px' }}>
-          <div style={{ color: 'var(--text-secondary)' }}>Current Streak: <strong style={{ color: '#fff' }}>{streaks.current} days</strong></div>
-          <div style={{ color: 'var(--text-secondary)' }}>Longest Streak: <strong>{streaks.longest} days</strong></div>
+        <div className="text-right text-[13px]">
+          <div className="text-zinc-400">Current Streak: <strong className="text-white">{streaks.current} days</strong></div>
+          <div className="text-zinc-400">Longest Streak: <strong>{streaks.longest} days</strong></div>
         </div>
 
       </div>

@@ -1,59 +1,56 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
 ---
 
-<Layout 
+<LegalLayout 
 	title="About BodhicAI — AI Agent Skill & Prompt Marketplace"
 	description="Learn about BodhicAI and our mission to build the premier action-agent skill marketplace for coding assistants like Cursor, Windsurf, and Claude."
 >
-	<div style="max-width: 900px; margin: 0 auto; padding: var(--space-4xl) var(--space-md);">
-		<div style="text-align: center; margin-bottom: var(--space-3xl);">
-			<span style="display: inline-block; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: var(--space-md); text-transform: uppercase;">
+	<div class="space-y-8">
+		<div>
+			<span class="inline-block text-indigo-400 font-bold tracking-wider uppercase mb-2">
 				About Our Platform
 			</span>
-			<h1 style="font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: var(--ink); margin-bottom: var(--space-md); letter-spacing: -1.5px;">
-				The Verified Ecosystem for <span class="gradient-text">Action-Agent Skills</span>
-			</h1>
-			<p style="color: var(--body); font-size: 18px; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+			<p class="text-zinc-300 text-lg leading-relaxed">
 				BodhicAI is an open, secure marketplace designed for software developers, engineers, and AI prompt creators to build, test, and monetize custom agent instructions.
 			</p>
 		</div>
 
-		<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft-2); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); margin-bottom: var(--space-3xl);">
-			<h2 style="font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: var(--space-md);">
+		<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
+			<h2 class="text-2xl font-bold text-zinc-100 mb-4">
 				What is BodhicAI?
 			</h2>
-			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg);">
+			<p class="text-zinc-400 mb-4 leading-relaxed">
 				BodhicAI provides a trusted, standardized platform where developers can publish and acquire specialized Model Context Protocol (MCP) sidecar servers, automated workflows, and complex instruction architectures tailored for modern AI coding assistants like Cursor, Windsurf, and Claude Desktop.
 			</p>
-			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: 0;">
+			<p class="text-zinc-400 leading-relaxed">
 				Every skill and prompt artifact submitted to BodhicAI undergoes rigorous Tier 1 and Tier 2 automated security scanning to detect prompt injections, malicious subprocess executions, and leaked credentials before it is made available in our public directory.
 			</p>
 		</div>
 
-		<div class="card" style="padding: var(--space-2xl); background: var(--canvas-soft); border: 1px solid var(--hairline-strong); border-radius: 24px; margin-bottom: var(--space-3xl);">
-			<h2 style="font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: var(--space-md);">
+		<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
+			<h2 class="text-2xl font-bold text-zinc-100 mb-4">
 				🔐 Security, Trust & Developer Accounts
 			</h2>
-			<p style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg);">
+			<p class="text-zinc-400 mb-4 leading-relaxed">
 				To ensure the highest level of security, trust, and frictionless authentication, BodhicAI provides secure authentication for all user accounts. When you register or sign in, we use your account to:
 			</p>
-			<ul style="color: var(--body); font-size: 16px; line-height: 1.8; margin-bottom: var(--space-lg); padding-left: 24px;">
-				<li style="margin-bottom: 8px;"><strong>Account Verification:</strong> Establishing a verified developer identity to prevent spam and automated bot uploads.</li>
-				<li style="margin-bottom: 8px;"><strong>API Key Management:</strong> Provisioning secure, personal developer API tokens required for connecting your local IDE and coding assistant via our MCP sidecar.</li>
-				<li style="margin-bottom: 8px;"><strong>Creator Wallet & Payouts:</strong> Maintaining your purchased skill library and tracking your creator earnings (80% revenue share) for seamless UPI and bank transfers.</li>
+			<ul class="list-disc list-inside text-zinc-400 mb-6 space-y-2 leading-relaxed marker:text-indigo-500">
+				<li><strong class="text-zinc-200">Account Verification:</strong> Establishing a verified developer identity to prevent spam and automated bot uploads.</li>
+				<li><strong class="text-zinc-200">API Key Management:</strong> Provisioning secure, personal developer API tokens required for connecting your local IDE and coding assistant via our MCP sidecar.</li>
+				<li><strong class="text-zinc-200">Creator Wallet & Payouts:</strong> Maintaining your purchased skill library and tracking your creator earnings (80% revenue share) for seamless UPI and bank transfers.</li>
 			</ul>
-			<div style="padding: 16px 20px; background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); border-radius: 8px;">
-				<p style="margin: 0; font-size: 14px; color: var(--ink); line-height: 1.6;">
-					<strong>Data Privacy Commitment:</strong> BodhicAI respects user privacy. We store only essential profile credentials needed to operate your account and process payments. We never sell your data to third parties.
+			<div class="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+				<p class="text-indigo-200/80 text-sm leading-relaxed">
+					<strong class="text-indigo-400">Data Privacy Commitment:</strong> BodhicAI respects user privacy. We store only essential profile credentials needed to operate your account and process payments. We never sell your data to third parties.
 				</p>
 			</div>
 		</div>
 
-		<div style="text-align: center; margin-top: var(--space-3xl);">
-			<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 36px; font-size: 16px; font-weight: 700;">
+		<div class="pt-4">
+			<a href="/browse" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
 				Explore Verified Skills →
 			</a>
 		</div>
 	</div>
-</Layout>
+</LegalLayout>

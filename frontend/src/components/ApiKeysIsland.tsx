@@ -78,42 +78,43 @@ export default function ApiKeysIsland() {
     }
   };
 
-  if (loading) return <div>Loading API keys...</div>;
+  if (loading) return <div className="text-zinc-300">Loading API keys...</div>;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
       <div>
-        <div className="card" style={{ padding: 'var(--space-xl)' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, marginbottom: 'var(--space-md)' }}>Create New Key</h3>
-          <form onSubmit={createKey} className="form-group">
-            <div>
-              <label>Key Name</label>
+        <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+          <h3 className="text-lg font-semibold text-zinc-100 mb-6">Create New Key</h3>
+          <form onSubmit={createKey} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-zinc-300">Key Name</label>
               <input 
                 type="text" 
                 value={newKeyName} 
                 onChange={e => setNewKeyName(e.target.value)} 
                 required 
                 placeholder="e.g. Cursor IDE, Claude Desktop"
+                className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
               />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 'var(--space-sm)' }}>
+            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 w-full mt-2">
               Generate Key
             </button>
-            {error && <div style={{ color: 'var(--error)', marginTop: '8px', fontSize: '14px' }}>{error}</div>}
+            {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
           </form>
         </div>
       </div>
       
       <div>
         {generatedKey && (
-          <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--success-soft)', border: '1px solid var(--success)', marginBottom: 'var(--space-lg)' }}>
-            <h3 style={{ color: 'var(--success)', marginBottom: '8px' }}>API Key Generated!</h3>
-            <p style={{ fontSize: '14px', marginBottom: '16px' }}>Please copy this key now. For security reasons, you will <strong>not be able to see it again</strong>.</p>
-            <div style={{ background: '#000', color: '#0f0', padding: '12px', fontFamily: 'monospace', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: 1 }}>{generatedKey}</span>
+          <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all hover:-translate-y-1 hover:shadow-xl relative overflow-hidden mb-8">
+            <h3 className="text-emerald-500 mb-2 font-semibold">API Key Generated!</h3>
+            <p className="text-sm text-zinc-300 mb-4">Please copy this key now. For security reasons, you will <strong className="text-zinc-100">not be able to see it again</strong>.</p>
+            <div className="bg-black text-emerald-400 p-3 font-mono rounded-xl flex items-center gap-3 overflow-hidden border border-emerald-500/20">
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{generatedKey}</span>
               <button
                 onClick={() => { navigator.clipboard.writeText(generatedKey); showToast('API key copied!', 'success'); }}
-                style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', borderRadius: '4px', padding: '4px 10px', fontSize: '12px', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                className="shrink-0 bg-zinc-800/50 border border-zinc-700 text-zinc-100 cursor-pointer rounded-xl px-3 py-1 text-xs font-medium hover:bg-zinc-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Copy
               </button>
@@ -121,45 +122,47 @@ export default function ApiKeysIsland() {
           </div>
         )}
 
-        <div className="card" style={{ padding: 'var(--space-xl)' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Active API Keys</h3>
+        <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden mb-8">
+          <h3 className="text-lg font-semibold text-zinc-100 mb-6">Active API Keys</h3>
           {keys.length === 0 ? (
-            <p style={{ color: 'var(--mute)' }}>You have no active API keys.</p>
+            <p className="text-zinc-400">You have no active API keys.</p>
           ) : (
-            <table className="data-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                  <th style={{ padding: '12px 8px' }}>Name</th>
-                  <th style={{ padding: '12px 8px' }}>Prefix</th>
-                  <th style={{ padding: '12px 8px' }}>Created</th>
-                  <th style={{ padding: '12px 8px' }}>Last Used</th>
-                  <th style={{ padding: '12px 8px' }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {keys.map(key => (
-                  <tr key={key.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                    <td style={{ padding: '12px 8px', fontWeight: 500 }}>{key.name}</td>
-                    <td style={{ padding: '12px 8px', fontFamily: 'monospace' }}>{key.key_prefix}...</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--mute)', fontSize: '14px' }}>{new Date(key.created_at).toLocaleDateString()}</td>
-                    <td style={{ padding: '12px 8px', color: 'var(--mute)', fontSize: '14px' }}>
-                      {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
-                    </td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right' }}>
-                      {confirmRevokeId === key.id ? (
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: 'var(--mute)' }}>Are you sure?</span>
-                          <button onClick={() => deleteKey(key.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: '#fff', background: 'var(--error)', borderColor: 'var(--error)' }}>Yes, Revoke</button>
-                          <button onClick={() => setConfirmRevokeId(null)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Cancel</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setConfirmRevokeId(key.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'var(--error)', borderColor: 'var(--error-soft)' }}>Revoke</button>
-                      )}
-                    </td>
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider border-b border-zinc-800">
+                  <tr>
+                    <th className="px-6 py-4">Name</th>
+                    <th className="px-6 py-4">Prefix</th>
+                    <th className="px-6 py-4">Created</th>
+                    <th className="px-6 py-4">Last Used</th>
+                    <th className="px-6 py-4"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/50">
+                  {keys.map(key => (
+                    <tr key={key.id} className="hover:bg-zinc-800/20 transition-colors">
+                      <td className="px-6 py-4 text-zinc-100 font-medium">{key.name}</td>
+                      <td className="px-6 py-4 text-zinc-300 font-mono">{key.key_prefix}...</td>
+                      <td className="px-6 py-4 text-zinc-400 text-sm">{new Date(key.created_at).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-zinc-400 text-sm">
+                        {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {confirmRevokeId === key.id ? (
+                          <div className="flex gap-2 justify-end items-center">
+                            <span className="text-xs text-zinc-400">Are you sure?</span>
+                            <button onClick={() => deleteKey(key.id)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">Yes, Revoke</button>
+                            <button onClick={() => setConfirmRevokeId(null)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-3 py-1.5 text-xs font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setConfirmRevokeId(key.id)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 transition-all hover:bg-red-500/20 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">Revoke</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
         

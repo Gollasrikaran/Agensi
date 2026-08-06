@@ -34,53 +34,46 @@ export default function AvatarPickerIsland({ userId, currentUsername, onAvatarSe
   };
 
   return (
-    <div style={{ background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: 'var(--border-radius-card)', padding: '24px' }}>
-      <h2 style={{ color: 'var(--text-primary)', marginTop: 0 }}>Choose Avatar</h2>
+    <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+      <h2 className="text-zinc-100 mt-0 text-xl font-semibold mb-6">Choose Avatar</h2>
       
 
-        <div style={{ display: 'flex', gap: '32px' }}>
+        <div className="flex gap-8 flex-col md:flex-row">
           {/* Left: Preview */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div className="flex-1 flex flex-col items-center gap-4">
             <AvatarBadge 
               url={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}`}
               size={120}
             />
             <button 
               onClick={handleRandomize}
-              style={{ background: 'var(--bg-tertiary)', border: 'var(--glass-border)', color: 'var(--text-primary)', padding: '8px 16px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer' }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               🎲 Randomize
             </button>
             <button 
               onClick={handleSaveFree}
               disabled={loading}
-              style={{ background: 'var(--accent-gradient)', border: 'none', color: '#fff', padding: '10px 24px', borderRadius: 'var(--border-radius-pill)', cursor: 'pointer', fontWeight: 'bold' }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save Avatar'}
             </button>
           </div>
           
           {/* Right: Style Grid */}
-          <div style={{ flex: 2, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
+          <div className="flex-[2] grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-3">
             {FREE_STYLES.map(style => (
               <div 
                 key={style.id}
                 onClick={() => setSelectedStyle(style.id)}
-                style={{ 
-                  padding: '12px', 
-                  borderRadius: '12px', 
-                  background: selectedStyle === style.id ? 'var(--bg-tertiary)' : 'transparent',
-                  border: selectedStyle === style.id ? '1px solid var(--accent-primary)' : '1px solid var(--bg-tertiary)',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}
+                className={`p-3 rounded-xl cursor-pointer text-center transition-all ${selectedStyle === style.id ? 'bg-indigo-500/10 border border-indigo-500/50' : 'bg-transparent border border-zinc-800 hover:bg-zinc-800/50'}`}
               >
                 <img 
                   src={`https://api.dicebear.com/9.x/${style.id}/svg?seed=preview`} 
                   alt={style.label} 
-                  style={{ width: '48px', height: '48px', marginBottom: '8px' }} 
+                  className="w-12 h-12 mb-2 mx-auto"
                 />
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{style.label}</div>
+                <div className="text-xs text-zinc-400">{style.label}</div>
               </div>
             ))}
           </div>

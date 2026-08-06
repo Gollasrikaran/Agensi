@@ -49,54 +49,44 @@ export default function AchievementManager() {
     }
   };
 
-  if (loading) return <div>Loading achievements...</div>;
+  if (loading) return <div className="text-zinc-300">Loading achievements...</div>;
 
   return (
-    <div className="glass-card" style={{ marginTop: 'var(--space-2xl)' }}>
-      <h2 style={{ marginBottom: 'var(--space-xs)' }}>Your Achievements</h2>
-      <p style={{ color: 'var(--mute)', marginBottom: 'var(--space-lg)' }}>
+    <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden mt-16">
+      <h2 className="text-zinc-100 mb-2">Your Achievements</h2>
+      <p className="text-zinc-400 mb-8">
         Manage which achievements are visible on your public profile.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 'var(--space-md)' }}>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6">
         {achievements.map(ach => (
           <div 
             key={ach.id} 
-            style={{ 
-              padding: 'var(--space-md)', 
-              background: 'rgba(255,255,255,0.02)', 
-              border: '1px solid var(--hairline)',
-              borderRadius: 'var(--radius-lg)',
-              opacity: ach.is_unlocked ? 1 : 0.4,
-              filter: ach.is_unlocked ? 'none' : 'grayscale(100%)',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
+            className={`p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl flex flex-col ${ach.is_unlocked ? 'opacity-100 grayscale-0' : 'opacity-40 grayscale'}`}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '32px' }}>{ach.icon_url}</span>
-              <h3 style={{ fontSize: '16px', margin: 0 }}>{ach.title}</h3>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">{ach.icon_url}</span>
+              <h3 className="text-zinc-100 text-base m-0">{ach.title}</h3>
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--mute)', marginBottom: '16px', flexGrow: 1 }}>
+            <p className="text-sm text-zinc-400 mb-4 flex-grow">
               {ach.description}
             </p>
             
             {ach.is_unlocked ? (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--hairline)', paddingTop: '12px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--mute)' }}>
+              <div className="flex justify-between items-center border-t border-zinc-800/50 pt-3">
+                <span className="text-xs text-zinc-400">
                   Unlocked {new Date(ach.unlocked_at).toLocaleDateString()}
                 </span>
                 
                 <button 
                   onClick={() => togglePrivacy(ach.id, ach.is_public, ach.is_admin_awarded)}
-                  className={`btn btn-sm ${ach.is_public ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ opacity: ach.is_admin_awarded ? 0.5 : 1, padding: '4px 8px' }}
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-1 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${ach.is_public ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg hover:-translate-y-0.5' : 'border border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 hover:text-white'} ${ach.is_admin_awarded ? 'opacity-50' : 'opacity-100'}`}
                 >
                   {ach.is_admin_awarded ? 'Public Only' : (ach.is_public ? 'Public' : 'Private')}
                 </button>
               </div>
             ) : (
-              <div style={{ borderTop: '1px solid var(--hairline)', paddingTop: '12px', fontSize: '12px', color: 'var(--mute)', textAlign: 'center' }}>
+              <div className="border-t border-zinc-800/50 pt-3 text-xs text-zinc-400 text-center">
                 Locked
               </div>
             )}

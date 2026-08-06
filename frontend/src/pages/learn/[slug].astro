@@ -64,24 +64,24 @@ if (!post) {
 	title={`${post.title} — BodhicAI Learning Center`}
 	description={post.description}
 >
-	<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-2xl); padding-bottom: var(--space-5xl);">
-		<div style="margin-bottom: var(--space-xl);">
-			<a href="/learn" style="color: var(--mute); text-decoration: none; font-size: 14px;">← Back to Learning Center</a>
-			<h1 style="font-size: clamp(26px, 5.5vw, 40px); margin-top: var(--space-md); margin-bottom: var(--space-xs); line-height: 1.1;">{post.title}</h1>
-			<div style="color: var(--mute); font-family: var(--font-mono); font-size: 13px;">{post.date}</div>
+	<div class="max-w-[800px] mx-auto pt-16 pb-32">
+		<div class="mb-12">
+			<a href="/learn" class="text-zinc-400 no-underline text-sm hover:text-zinc-300 transition-colors">← Back to Learning Center</a>
+			<h1 class="text-[clamp(26px,5.5vw,40px)] mt-6 mb-2 leading-[1.1] text-zinc-100">{post.title}</h1>
+			<div class="text-zinc-400 font-mono text-sm">{post.date}</div>
 		</div>
 
-		<div class="prose" style="font-size: 18px; line-height: 1.7; color: var(--body);">
+		<div class="text-lg leading-[1.7] text-zinc-300">
 			{/* A simple mock renderer for the basic markdown we provided above */}
 			{post.content.split('\n\n').map(paragraph => {
 				if (paragraph.startsWith('###')) {
-					return <h3 style="font-size: 24px; color: var(--ink); margin-top: var(--space-xl); margin-bottom: var(--space-sm);">{paragraph.replace('### ', '')}</h3>
+					return <h3 class="text-2xl text-zinc-100 mt-12 mb-4 font-bold">{paragraph.replace('### ', '')}</h3>
 				}
 				if (paragraph.startsWith('```')) {
-					return <pre style="background: var(--canvas-soft-2); padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid var(--hairline-strong); overflow-x: auto; margin: var(--space-md) 0;"><code style="font-family: var(--font-mono); font-size: 14px; color: var(--ink);">{paragraph.replace(/```/g, '')}</code></pre>
+					return <pre class="bg-black p-6 rounded-xl border border-zinc-800 overflow-x-auto my-6"><code class="font-mono text-sm text-zinc-300">{paragraph.replace(/```/g, '')}</code></pre>
 				}
 				if (paragraph.trim() === '') return null;
-				return <p style="margin-bottom: var(--space-md);">{paragraph}</p>
+				return <p class="mb-6">{paragraph}</p>
 			})}
 		</div>
 	</div>

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { Target, FileText, IndianRupee, Clock, CheckCircle2, ChevronRight, CheckSquare, XCircle, Search, Sparkles } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 export default function BountyBoardIsland() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -147,71 +149,89 @@ export default function BountyBoardIsland() {
   const filteredRequests = filterRequests();
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 items-start">
       
       {/* Left: Bounty List */}
-      <div>
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid var(--hairline)' }}>
-          {['open', 'closed', 'my-bounties'].map(tab => (
+      <div className="min-w-0">
+        <div className="flex gap-2 mb-8 border-b border-zinc-800 pb-px overflow-x-auto">
+          {[
+            { id: 'open', label: 'Open Bounties', icon: Target },
+            { id: 'closed', label: 'Closed', icon: CheckCircle2 },
+            { id: 'my-bounties', label: 'My Bounties', icon: CheckSquare }
+          ].map(tab => (
             <button 
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                padding: '12px 16px',
-                fontSize: '16px',
-                fontWeight: activeTab === tab ? '600' : '500',
-                color: activeTab === tab ? 'var(--primary)' : 'var(--mute)',
-                borderBottom: activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
-                cursor: 'pointer',
-                textTransform: 'capitalize'
-              }}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-semibold transition-all border-b-2",
+                activeTab === tab.id 
+                  ? "border-indigo-500 text-indigo-400 bg-indigo-500/5 rounded-t-lg" 
+                  : "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-t-lg"
+              )}
             >
-              {tab.replace('-', ' ')}
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
             </button>
           ))}
         </div>
         
         {loading ? (
-          <p style={{ color: 'var(--mute)' }}>Loading bounties...</p>
+          <div className="flex justify-center py-20 text-zinc-500 flex-col items-center gap-4">
+            <div className="h-8 w-8 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin" />
+            <p className="text-sm font-medium">Loading bounties...</p>
+          </div>
         ) : filteredRequests.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: 'var(--space-4xl)' }}>
-            <p style={{ color: 'var(--mute)' }}>No bounties found in this tab.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 border-dashed bg-zinc-900/20 py-24 px-6 text-center">
+            <div className="rounded-full bg-zinc-800/50 p-4 mb-4">
+              <Search className="h-8 w-8 text-zinc-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-zinc-200 mb-2">No bounties found</h3>
+            <p className="text-sm text-zinc-500">There are no bounties in this category right now.</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          <div className="flex flex-col gap-4">
             {filteredRequests.map((req: any) => (
-              <div key={req.id} className="card" style={{ padding: 'var(--space-xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ maxWidth: '70%' }}>
-                  <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-xs)', alignItems: 'center' }}>
-                    <span className={`badge ${req.status === 'closed' ? 'success' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
+              <div key={req.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 flex flex-col md:flex-row justify-between gap-6 hover:border-indigo-500/30 transition-colors shadow-sm">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider",
+                      req.status === 'closed' 
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
+                        : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    )}>
+                      {req.status === 'closed' ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                       {req.status}
                     </span>
-                    <span style={{ fontSize: '12px', color: 'var(--mute)' }}>
-                      {req.creator?.username ? `Posted by @${req.creator.username}` : ''}
+                    <span className="text-sm font-medium text-zinc-500">
+                      {req.creator?.username ? `Posted by @${req.creator.username}` : 'Anonymous'}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '18px', marginBottom: 'var(--space-xs)' }}>{req.title}</h3>
-                  <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '1.5' }}>{req.description}</p>
+                  <h3 className="text-xl font-bold text-zinc-100 mb-2">{req.title}</h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed max-w-3xl whitespace-pre-wrap line-clamp-3">{req.description}</p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-sm)' }}>
-                    ₹{req.bounty_inr}
+                
+                <div className="flex flex-col md:items-end justify-between min-w-[140px] shrink-0 border-t md:border-t-0 md:border-l border-zinc-800 pt-4 md:pt-0 md:pl-6">
+                  <div className="flex items-center gap-1.5 text-2xl font-black font-mono text-zinc-100 mb-4 md:mb-0">
+                    <IndianRupee className="h-5 w-5 text-zinc-500" />
+                    {req.bounty_inr}
                   </div>
+                  
                   {req.status === 'open' && req.buyer_id !== session?.user?.id && (
                     <button 
-                      className="btn btn-primary" 
                       onClick={() => openClaimModal(req)}
+                      className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5"
                     >
-                      Claim Bounty
+                      <CheckSquare className="h-4 w-4" /> Claim Bounty
                     </button>
                   )}
                   {req.buyer_id === session?.user?.id && req.status === 'open' && (
-                     <a href="/dashboard/bounties" className="btn btn-secondary">Manage Claims</a>
+                     <a href="/dashboard/bounties" className="inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-zinc-800 px-5 py-2.5 text-sm font-semibold text-zinc-200 transition-all hover:bg-zinc-700">
+                        Manage Claims <ChevronRight className="h-4 w-4" />
+                     </a>
                   )}
                   {req.status === 'closed' && (
-                     <div style={{ fontSize: '12px', color: 'var(--mute)', marginTop: '8px' }}>
+                     <div className="text-xs font-medium text-zinc-500 mt-2 text-left md:text-right">
                        Closed on {new Date(req.created_at).toLocaleDateString()}
                      </div>
                   )}
@@ -223,57 +243,78 @@ export default function BountyBoardIsland() {
       </div>
 
       {/* Right: Post a Bounty */}
-      <div className="card" style={{ padding: 'var(--space-xl)', position: 'sticky', top: 'var(--space-2xl)' }}>
-        <h3 style={{ fontSize: '20px', marginBottom: 'var(--space-sm)' }}>Post a Request</h3>
-        <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: 'var(--space-lg)' }}>
-          Need a highly specific agent workflow? Post a bounty and let our verified creators build it for you.
-        </p>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 md:p-8 sticky top-24 shadow-xl">
+        <div className="mb-6">
+          <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-4">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <h3 className="text-xl font-bold text-zinc-100">Post a Request</h3>
+          <p className="text-sm text-zinc-400 mt-2">
+            Need a highly specific agent workflow? Post a bounty and let our verified creators build it for you.
+          </p>
+        </div>
 
         {!session ? (
-          <div style={{ padding: 'var(--space-md)', background: 'var(--canvas-soft)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: 'var(--space-sm)' }}>You must be logged in to post.</p>
-            <a href="/login" className="btn btn-secondary" style={{ width: '100%' }}>Log In</a>
+          <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-6 text-center">
+            <p className="text-sm font-medium text-zinc-300 mb-4">You must be logged in to post.</p>
+            <a href="/login" className="inline-flex w-full items-center justify-center rounded-xl bg-zinc-100 px-5 py-2.5 text-sm font-bold text-zinc-900 shadow-md transition-all hover:bg-white">
+              Log In
+            </a>
           </div>
         ) : (
-          <form onSubmit={handlePostRequest} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: 'var(--space-xs)' }}>Skill Title / Need</label>
+          <form onSubmit={handlePostRequest} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-zinc-500" /> Skill Title / Need
+              </label>
               <input 
                 type="text" 
                 required 
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }} 
+                placeholder="E.g., Automated Invoice Processor"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 px-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" 
               />
             </div>
             
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: 'var(--space-xs)' }}>Detailed Description</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-zinc-500" /> Detailed Description
+              </label>
               <textarea 
                 required 
                 rows={4}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Describe exactly what the agent should do..."
-                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }} 
+                className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" 
               />
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: 'var(--space-xs)' }}>Bounty Amount (₹)</label>
-              <input 
-                type="number" 
-                required 
-                min="100"
-                value={bountyInr}
-                onChange={e => setBountyInr(e.target.value)}
-                placeholder="e.g. 500"
-                style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }} 
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                <IndianRupee className="h-4 w-4 text-zinc-500" /> Bounty Amount (₹)
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium font-mono">₹</span>
+                <input 
+                  type="number" 
+                  required 
+                  min="100"
+                  value={bountyInr}
+                  onChange={e => setBountyInr(e.target.value)}
+                  placeholder="500"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pl-9 pr-4 text-sm font-mono text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" 
+                />
+              </div>
             </div>
 
-            <button type="submit" className="btn btn-primary" disabled={isPosting}>
-              {isPosting ? 'Posting...' : 'Post Bounty'}
+            <button 
+              type="submit" 
+              disabled={isPosting}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50 mt-2"
+            >
+              {isPosting ? 'Posting...' : <><Sparkles className="h-4 w-4" /> Post Bounty</>}
             </button>
           </form>
         )}
@@ -281,26 +322,36 @@ export default function BountyBoardIsland() {
 
       {/* Claim Modal */}
       {claimModalBounty && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="card" style={{ width: '90%', maxWidth: '500px', padding: 'var(--space-2xl)' }}>
-            <h3 style={{ marginBottom: '16px' }}>Submit Code for '{claimModalBounty.title}'</h3>
-            <p style={{ fontSize: '14px', color: 'var(--mute)', marginBottom: '24px' }}>
-              Paste the completed skill code here. The bounty owner will review it in a protected environment.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-zinc-950 p-8 shadow-2xl">
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-zinc-100 mb-2">Submit Code for '{claimModalBounty.title}'</h3>
+              <p className="text-sm text-zinc-400">
+                Paste the completed skill code here. The bounty owner will review it in a protected environment.
+              </p>
+            </div>
+            
             <textarea 
               rows={10} 
               placeholder="Paste skill code here..." 
               value={claimCode}
               onChange={e => setClaimCode(e.target.value)}
-              style={{ width: '100%', padding: '12px', background: 'var(--canvas-soft)', color: 'var(--ink)', border: '1px solid var(--hairline)', borderRadius: '8px', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}
+              className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 text-sm font-mono text-zinc-300 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-6"
             />
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
-              <button className="btn btn-secondary" onClick={() => setClaimModalBounty(null)}>Cancel</button>
-              <button className="btn btn-primary" onClick={submitClaimBounty} disabled={isClaiming}>
-                {isClaiming ? 'Submitting...' : 'Submit Claim'}
+            
+            <div className="flex flex-wrap justify-end gap-3">
+              <button 
+                className="rounded-xl bg-zinc-800 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-700" 
+                onClick={() => setClaimModalBounty(null)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50 inline-flex items-center gap-2" 
+                onClick={submitClaimBounty} 
+                disabled={isClaiming}
+              >
+                {isClaiming ? 'Submitting...' : <><CheckCircle2 className="h-4 w-4" /> Submit Claim</>}
               </button>
             </div>
           </div>

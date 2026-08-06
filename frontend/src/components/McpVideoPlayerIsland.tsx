@@ -31,9 +31,9 @@ export default function McpVideoPlayerIsland() {
   };
 
   return (
-    <div style={{ width: '100%', background: '#0a0a0f', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}>
+    <div className="w-full bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-xl">
       {/* Video element - maximized inside window with NO second mac window header */}
-      <div style={{ position: 'relative', width: '100%', background: '#000' }}>
+      <div className="relative w-full bg-black">
         <video 
           ref={videoRef}
           src="/mcp-demo-video.mp4" 
@@ -41,44 +41,19 @@ export default function McpVideoPlayerIsland() {
           preload="metadata" 
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-          style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '80vh', margin: '0 auto', objectFit: 'contain' }} 
+          className="w-full h-auto block max-h-[80vh] mx-auto object-contain"
         >
           Your browser does not support the video tag.
         </video>
       </div>
 
       {/* Sleek Custom Controls Bar with 10s Forward and Backward Skip */}
-      <div style={{ 
-        padding: '14px 24px', 
-        background: 'linear-gradient(180deg, #12121a 0%, #0a0a0f 100%)', 
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="px-6 py-3.5 bg-gradient-to-b from-zinc-900 to-zinc-950 border-t border-zinc-800/50 flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => skipTime(-10)}
-            className="btn"
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              color: '#fff',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-800/50 px-4 py-2 text-sm font-semibold text-zinc-300 transition-all hover:bg-zinc-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           >
             <span>⏪</span> 10s Backward
           </button>
@@ -86,22 +61,7 @@ export default function McpVideoPlayerIsland() {
           <button
             type="button"
             onClick={togglePlay}
-            className="btn"
-            style={{
-              background: 'var(--primary)',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(108, 60, 225, 0.4)',
-              transition: 'all 0.2s'
-            }}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           >
             <span>{isPlaying ? '⏸️' : '▶️'}</span> {isPlaying ? 'Pause' : 'Play Video'}
           </button>
@@ -109,45 +69,20 @@ export default function McpVideoPlayerIsland() {
           <button
             type="button"
             onClick={() => skipTime(10)}
-            className="btn"
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              color: '#fff',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; }}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-800/50 px-4 py-2 text-sm font-semibold text-zinc-300 transition-all hover:bg-zinc-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           >
             10s Forward <span>⏩</span>
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-zinc-500 font-medium">
             Interactive Demo Walkthrough
           </span>
           <button
             type="button"
             onClick={toggleFullscreen}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '13px',
-              cursor: 'pointer'
-            }}
+            className="inline-flex items-center rounded-xl border border-zinc-700 bg-transparent px-3.5 py-2 text-sm font-semibold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           >
             🔲 Fullscreen
           </button>

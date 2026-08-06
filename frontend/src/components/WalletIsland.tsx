@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
+
 export default function WalletIsland() {
     const [balance, setBalance] = useState(0);
     const [totalEarnings, setTotalEarnings] = useState(0);
@@ -74,52 +75,45 @@ export default function WalletIsland() {
         }
     };
 
-    if (loading) return <div style={{ color: 'var(--mute)' }}>Loading wallet...</div>;
+    if (loading) return <div className="text-zinc-400">Loading wallet...</div>;
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-xl)' }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
             <div>
-                <div className="card" style={{ padding: 'var(--space-xl)' }}>
-                    <h2 style={{ fontSize: '13px', color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>Available Balance</h2>
-                    <div style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-2px', marginTop: 'var(--space-xs)' }}>
+                <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+                    <h2 className="text-[13px] text-indigo-500 font-mono font-medium uppercase tracking-[1px]">Available Balance</h2>
+                    <div className="text-5xl font-bold tracking-[-2px] mt-2 text-zinc-100">
                         ₹{balance.toFixed(2)}
                     </div>
                     
-                    <div style={{ display: 'flex', gap: 'var(--space-lg)', marginTop: 'var(--space-md)' }}>
+                    <div className="flex gap-6 mt-4">
                         <div>
-                            <div style={{ fontSize: '11px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Earned</div>
-                            <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--success)' }}>₹{totalEarnings.toFixed(2)}</div>
+                            <div className="text-[11px] text-zinc-400 uppercase tracking-[0.5px]">Total Earned</div>
+                            <div className="text-lg font-semibold text-emerald-500">₹{totalEarnings.toFixed(2)}</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '11px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Withdrawn</div>
-                            <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--error)' }}>₹{totalWithdrawn.toFixed(2)}</div>
+                            <div className="text-[11px] text-zinc-400 uppercase tracking-[0.5px]">Total Withdrawn</div>
+                            <div className="text-lg font-semibold text-red-500">₹{totalWithdrawn.toFixed(2)}</div>
                         </div>
                     </div>
                     
-                    <hr style={{ border: 'none', borderTop: '1px solid var(--hairline)', margin: 'var(--space-lg) 0' }} />
+                    <hr className="border-none border-t border-zinc-800/50 my-6" />
 
                     {/* Auto-payout info banner */}
-                    <div style={{ 
-                        background: 'var(--primary-soft)', 
-                        border: '1px solid rgba(108, 60, 225, 0.15)', 
-                        borderRadius: '12px', 
-                        padding: 'var(--space-md)', 
-                        marginBottom: 'var(--space-lg)',
-                        fontSize: '13px',
-                        color: 'var(--body)'
-                    }}>
-                        <strong style={{ color: 'var(--primary)' }}>🔄 Auto-Payouts</strong>
-                        <p style={{ margin: 0, marginTop: '4px', fontSize: '14px', color: 'var(--mute)' }}>
+                    <div className="bg-indigo-500/10 border border-indigo-500/15 rounded-xl p-4 mb-6 text-[13px] text-zinc-300">
+                        <strong className="text-indigo-400">🔄 Auto-Payouts</strong>
+                        <p className="m-0 mt-1 text-[14px] text-zinc-400">
                             Payouts are processed automatically every week for balances above ₹100. Make sure your UPI ID is saved below.
                         </p>
                     </div>
                     
                     {/* UPI Settings */}
-                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>UPI Settings</h3>
-                    <form onSubmit={saveUpi} className="form-group">
-                        <div>
-                            <label>Your UPI ID</label>
+                    <h3 className="text-lg font-semibold mb-4 text-zinc-100">UPI Settings</h3>
+                    <form onSubmit={saveUpi} className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-zinc-300">Your UPI ID</label>
                             <input 
+                                className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                                 type="text" 
                                 value={upiId} 
                                 onChange={e => setUpiId(e.target.value)} 
@@ -127,12 +121,12 @@ export default function WalletIsland() {
                                 placeholder="e.g. name@okhdfcbank"
                             />
                             {savedUpi && (
-                                <div style={{ fontSize: '12px', color: 'var(--success)', marginTop: '4px' }}>
+                                <div className="text-xs text-emerald-500 mt-1">
                                     ✓ Currently saved: {savedUpi}
                                 </div>
                             )}
                         </div>
-                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={savingUpi}>
+                        <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50" disabled={savingUpi}>
                             {savingUpi ? 'Saving...' : (savedUpi ? 'Update UPI ID' : 'Save UPI ID')}
                         </button>
                     </form>
@@ -140,35 +134,37 @@ export default function WalletIsland() {
             </div>
             
             <div>
-                <div className="card" style={{ padding: 'var(--space-xl)' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-md)' }}>Payout History</h3>
+                <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden">
+                    <h3 className="text-lg font-semibold mb-4 text-zinc-100">Payout History</h3>
                     {history.length === 0 ? (
-                        <p style={{ color: 'var(--mute)', fontSize: '14px' }}>No payouts yet. Once your balance reaches ₹100, payouts will be processed automatically.</p>
+                        <p className="text-zinc-400 text-sm">No payouts yet. Once your balance reaches ₹100, payouts will be processed automatically.</p>
                     ) : (
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount (₹)</th>
-                                    <th>Provider</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {history.map(item => (
-                                    <tr key={item.id}>
-                                        <td style={{ color: 'var(--mute)' }}>{new Date(item.created_at).toLocaleDateString()}</td>
-                                        <td style={{ fontWeight: 600 }}>₹{parseFloat(item.amount).toFixed(2)}</td>
-                                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{item.provider}</td>
-                                        <td>
-                                            <span className={`badge ${item.status === 'completed' ? 'success' : ''}`} style={{ textTransform: 'capitalize' }}>
-                                                {item.status}
-                                            </span>
-                                        </td>
+                        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider border-b border-zinc-800">
+                                    <tr>
+                                        <th className="px-6 py-4">Date</th>
+                                        <th className="px-6 py-4">Amount (₹)</th>
+                                        <th className="px-6 py-4">Provider</th>
+                                        <th className="px-6 py-4">Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-800/50">
+                                    {history.map(item => (
+                                        <tr key={item.id} className="hover:bg-zinc-800/20 transition-colors">
+                                            <td className="px-6 py-4 text-zinc-400">{new Date(item.created_at).toLocaleDateString()}</td>
+                                            <td className="px-6 py-4 text-zinc-200 font-semibold">₹{parseFloat(item.amount).toFixed(2)}</td>
+                                            <td className="px-6 py-4 text-zinc-300 font-mono text-xs">{item.provider}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${item.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20'} capitalize`}>
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
             </div>

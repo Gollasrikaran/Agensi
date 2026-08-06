@@ -10,63 +10,33 @@ interface AvatarBadgeProps {
 }
 
 export default function AvatarBadge({ url, tier = 'free', size = 36, alt = 'Avatar' }: AvatarBadgeProps) {
-  
-  const getRingStyle = (): React.CSSProperties => {
+  const getTierClasses = () => {
     switch (tier) {
       case 'exclusive':
-        return {
-          background: 'var(--ring-exclusive)',
-          padding: '3px',
-          animation: 'shimmer 2s infinite linear'
-        };
+        return 'p-[3px] bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 animate-[spin_4s_linear_infinite]';
       case 'premium':
-        return {
-          background: 'var(--ring-premium)',
-          padding: '2px',
-          boxShadow: '0 0 10px var(--ring-premium)'
-        };
+        return 'p-[2px] bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]';
       case 'standard':
-        return {
-          background: 'var(--ring-standard)',
-          padding: '2px'
-        };
+        return 'p-[2px] bg-zinc-500';
       case 'free':
       default:
-        return {
-          padding: '0px'
-        };
+        return 'p-0';
     }
   };
 
   return (
-    <div 
-      className={`avatar-badge-container tier-${tier}`}
-      style={{
-        display: 'inline-flex',
-        borderRadius: '50%',
-        ...getRingStyle()
-      }}
-    >
-      <img 
-        src={url} 
-        alt={alt}
-        style={{
-          width: `${size}px`,
-          height: `${size}px`,
-          borderRadius: '50%',
-          objectFit: 'cover',
-          background: 'var(--bg-tertiary)'
-        }}
-      />
+    <div className={`inline-flex rounded-full ${tier === 'exclusive' ? 'relative overflow-hidden' : getTierClasses()}`}>
       {tier === 'exclusive' && (
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes shimmer {
-            0% { filter: hue-rotate(0deg) brightness(1); }
-            50% { filter: hue-rotate(30deg) brightness(1.3); }
-            100% { filter: hue-rotate(0deg) brightness(1); }
-          }
-        `}} />
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 animate-[spin_4s_linear_infinite]"></div>
       )}
+      <div className={tier === 'exclusive' ? 'p-[3px] relative z-10 rounded-full' : ''}>
+         <img 
+          src={url} 
+          alt={alt}
+          className="rounded-full object-cover bg-zinc-900"
+          style={{ width: `${size}px`, height: `${size}px` }}
+        />
+      </div>
     </div>
   );
 }

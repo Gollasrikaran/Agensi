@@ -12,31 +12,8 @@ try {
 	console.error(e);
 }
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/logo.png" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<title>{skill ? `Chat with ${skill.title}` : "Chat"}</title>
-		<style is:global>
-			@import "../../styles/global.css";
-			
-			body {
-				margin: 0;
-				padding: 0;
-				background-color: var(--canvas);
-				color: var(--ink);
-				font-family: var(--font-sans);
-				height: 100vh;
-				overflow: hidden;
-			}
-			* {
-				box-sizing: border-box;
-			}
-		</style>
-	</head>
-	<body>
+<Layout title={skill ? `Chat with ${skill.title}` : "Chat"}>
+	<div class="h-[calc(100vh-64px)] overflow-hidden">
 		<ChatInterfaceIsland client:only="react" skillId={id} skillTitle={skill?.title || "Skill"} />
-	</body>
-</html>
+	</div>
+</Layout>

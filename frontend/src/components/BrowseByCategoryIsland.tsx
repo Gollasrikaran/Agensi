@@ -126,55 +126,35 @@ export default function BrowseByCategoryIsland({ slug, displayCategory }: Props)
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: 'var(--space-2xl)', textAlign: 'center' }}>
-        <span className="eyebrow" style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 500, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '2px', padding: '6px 16px', background: 'var(--primary-soft)', borderRadius: 'var(--radius-pill)', border: '1px solid rgba(108, 60, 225, 0.15)', display: 'inline-block', marginBottom: 'var(--space-md)' }}>category</span>
-        <h1 style={{ fontSize: '36px', marginBottom: 'var(--space-xs)' }}>
-          <span className="gradient-text">{displayCategory}</span> AI Agent Skills
+      <div className="mb-16 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-400 border border-indigo-500/20 mb-6">category</span>
+        <h1 className="text-4xl mb-2 text-zinc-100 font-bold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">{displayCategory}</span> AI Agent Skills
         </h1>
-        <p style={{ color: 'var(--body)', fontSize: '16px' }}>Accelerate your workflow with verified {displayCategory.toLowerCase()} prompt artifacts.</p>
+        <p className="text-zinc-300 text-base">Accelerate your workflow with verified {displayCategory.toLowerCase()} prompt artifacts.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+      <div className="grid grid-cols-[240px_1fr] gap-16 items-start">
       
         {/* Sidebar */}
-        <aside style={{ position: 'sticky', top: 'var(--space-2xl)' }}>
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
+        <aside className="sticky top-16">
+          <div className="mb-8">
             <input 
               type="text" 
               placeholder="Search skills..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--hairline-strong)',
-                background: 'var(--canvas)',
-                color: 'var(--ink)',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
+              className="w-full rounded-xl border border-zinc-700 bg-black/50 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
             />
           </div>
 
-          <h3 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--mute)', marginBottom: 'var(--space-md)' }}>Domains</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+          <h3 className="text-xs uppercase tracking-widest text-zinc-400 mb-4 font-semibold">Domains</h3>
+          <div className="flex flex-col gap-2">
             {CATEGORIES.map(cat => (
               <a
                 key={cat.id}
                 href={cat.id === 'all' ? '/browse' : `/category/${cat.id}`}
-                style={{
-                  textAlign: 'left',
-                  padding: '10px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  background: cat.id === slug ? 'var(--primary-soft)' : 'transparent',
-                  color: cat.id === slug ? 'var(--primary)' : 'var(--body)',
-                  textDecoration: 'none',
-                  fontSize: '15px',
-                  fontWeight: cat.id === slug ? '600' : '400',
-                  transition: 'all 0.2s ease',
-                  display: 'block',
-                }}
+                className={`text-left px-4 py-2.5 rounded-xl text-[15px] transition-all block ${cat.id === slug ? 'bg-indigo-500/10 text-indigo-400 font-semibold border border-indigo-500/20' : 'bg-transparent text-zinc-300 font-normal hover:bg-zinc-800/50'}`}
               >
                 {cat.label}
               </a>
@@ -185,17 +165,17 @@ export default function BrowseByCategoryIsland({ slug, displayCategory }: Props)
         {/* Main Content Grid */}
         <div>
           {loading ? (
-            <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-xl)' }}>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8">
               {[1,2,3,4].map(i => (
-                <div key={i} style={{ background: 'var(--canvas-soft-2)', borderRadius: 'var(--radius-md)', height: '250px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div key={i} className="bg-zinc-900/50 rounded-2xl h-[250px] animate-pulse border border-zinc-800" />
               ))}
             </div>
           ) : filteredSkills.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--space-4xl)' }}>
-              <p style={{ color: 'var(--mute)', fontSize: '16px' }}>No {displayCategory.toLowerCase()} skills available yet. Be the first to <a href="/sell" style={{ color: 'var(--link)', textDecoration: 'underline' }}>publish one</a>.</p>
+            <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all text-center">
+              <p className="text-zinc-400 text-base">No {displayCategory.toLowerCase()} skills available yet. Be the first to <a href="/sell" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">publish one</a>.</p>
             </div>
           ) : (
-            <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-xl)' }}>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8">
               {filteredSkills.map((skill: any, index: number) => {
                 const isTopVoted = index === 0 && (skill.upvotes || 0) > 0 && searchQuery === '';
                 const isUpvoted = upvoteStates[skill.id];

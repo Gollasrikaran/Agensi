@@ -7,16 +7,19 @@ import PayoutsIsland from '../../components/PayoutsIsland.tsx';
 	title="Admin Ledger — BodhicAI"
 	description="Review and process creator payout requests."
 >
-    <div style="max-width: 1200px; margin: 0 auto; padding-top: var(--space-2xl);">
-        <div style="margin-bottom: var(--space-xl); display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: var(--space-md);">
-            <div>
-                <span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">ledger</span>
-                <h1 style="font-size: clamp(24px, 5vw, 36px); margin-bottom: var(--space-xs);">Admin Ledger</h1>
-                <p style="color: var(--body); font-size: 16px;">Review and process creator payout requests.</p>
-            </div>
-            <a href="/admin" class="btn btn-secondary">← Back to Admin</a>
-        </div>
+    <div class="max-w-5xl mx-auto pt-16 pb-12 px-6 sm:px-8 lg:px-10">
+		<div class="text-center mb-12">
+			<span class="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-400 border border-indigo-500/20 mb-6">
+				<svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+				ledger
+			</span>
+			<h1 class="text-3xl sm:text-4xl font-black text-zinc-100 tracking-tight">Admin Ledger</h1>
+			<p class="text-zinc-400 mt-3 max-w-xl mx-auto leading-relaxed">Review and process creator payout requests.</p>
+		</div>
+		<div class="mb-8">
+			<a href="/admin" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">← Back to Admin</a>
+		</div>
 
         <PayoutsIsland client:load />
-    </div>
+	</div>
 </Layout>

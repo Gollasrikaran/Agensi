@@ -4,178 +4,120 @@ const { frontmatter } = Astro.props;
 ---
 
 <Layout title={`${frontmatter.title} | BodhicAI Guides`} description={frontmatter.description}>
-  <div class="guide-container">
-    <article class="glass-card guide-article">
-      <header class="guide-header">
-        <h1>{frontmatter.title}</h1>
-        {frontmatter.description && <p class="guide-description">{frontmatter.description}</p>}
-        {frontmatter.date && <p class="guide-date">Last Updated: {frontmatter.date}</p>}
+  <div class="max-w-7xl mx-auto my-16 px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10 items-start">
+    <article class="rounded-3xl border border-zinc-800 bg-zinc-900/50 p-8 md:p-12 shadow-xl relative overflow-hidden">
+      <!-- Glow effect -->
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <header class="mb-12 border-b border-zinc-800 pb-8 relative z-10">
+        <h1 class="text-3xl md:text-5xl font-black mb-6 bg-gradient-to-br from-white to-zinc-400 bg-clip-text text-transparent leading-tight">{frontmatter.title}</h1>
+        {frontmatter.description && <p class="text-xl text-zinc-400 leading-relaxed mb-4 max-w-3xl">{frontmatter.description}</p>}
+        {frontmatter.date && <p class="text-sm text-zinc-500 font-mono font-medium">Last Updated: {frontmatter.date}</p>}
       </header>
-      <div class="guide-content">
+      <div class="guide-content relative z-10">
         <slot />
       </div>
     </article>
     
-    <div class="guide-sidebar">
-      <div class="glass-card">
-        <h3>More Guides</h3>
-        <ul>
-          <li><a href="/guides/seller-requirements">Creator Requirements (Mandatory)</a></li>
-          <li><a href="/guides/what-is-prompt-injection-in-ai-agents">What is Prompt Injection?</a></li>
-          <li><a href="/guides/how-to-build-custom-skills-for-ai-agents">Building Custom Skills</a></li>
-          <li><a href="/guides">View All Guides &rarr;</a></li>
+    <aside class="sticky top-24">
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 shadow-xl">
+        <h3 class="text-lg font-bold text-indigo-400 mb-6 flex items-center gap-2">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+          More Guides
+        </h3>
+        <ul class="space-y-4">
+          <li>
+            <a href="/guides/seller-requirements" class="flex items-start gap-3 group">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0 group-hover:scale-150 transition-transform"></span>
+              <span class="text-sm text-zinc-300 group-hover:text-red-400 font-medium leading-relaxed transition-colors">Creator Requirements (Mandatory)</span>
+            </a>
+          </li>
+          <li>
+            <a href="/guides/what-is-prompt-injection-in-ai-agents" class="flex items-start gap-3 group">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0 group-hover:scale-150 transition-transform"></span>
+              <span class="text-sm text-zinc-300 group-hover:text-indigo-400 font-medium leading-relaxed transition-colors">What is Prompt Injection?</span>
+            </a>
+          </li>
+          <li>
+            <a href="/guides/how-to-build-custom-skills-for-ai-agents" class="flex items-start gap-3 group">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0 group-hover:scale-150 transition-transform"></span>
+              <span class="text-sm text-zinc-300 group-hover:text-indigo-400 font-medium leading-relaxed transition-colors">Building Custom Skills</span>
+            </a>
+          </li>
+          <li class="pt-2 border-t border-zinc-800 mt-4">
+            <a href="/guides" class="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 hover:text-white transition-colors">
+              View All Guides &rarr;
+            </a>
+          </li>
         </ul>
       </div>
-    </div>
+    </aside>
   </div>
 </Layout>
 
 <style>
-  .guide-container {
-    max-width: 1200px;
-    margin: 4rem auto;
-    padding: 0 2rem;
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 2rem;
-  }
-  
-  @media (max-width: 900px) {
-    .guide-container {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .guide-article {
-    padding: 3rem;
-  }
-
-  .guide-header {
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--hairline-strong);
-    padding-bottom: 2rem;
-  }
-
-  .guide-header h1 {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    margin-bottom: 1rem;
-    background: var(--text-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .guide-description {
-    font-size: 1.2rem;
-    color: var(--mute);
-    line-height: 1.6;
-  }
-
-  .guide-date {
-    font-size: 0.9rem;
-    color: var(--mute);
-    margin-top: 1rem;
-    font-family: var(--font-mono);
-  }
-
+  /* Markdown Content Typography Styles */
   .guide-content :global(h2) {
-    font-size: 1.8rem;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--accent);
+    @apply text-2xl md:text-3xl font-bold text-zinc-100 mt-12 mb-6 tracking-tight;
   }
   
   .guide-content :global(h3) {
-    font-size: 1.4rem;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    @apply text-xl md:text-2xl font-bold text-zinc-200 mt-10 mb-4;
+  }
+
+  .guide-content :global(h4) {
+    @apply text-lg md:text-xl font-bold text-zinc-300 mt-8 mb-4;
   }
 
   .guide-content :global(p) {
-    margin-bottom: 1.5rem;
-    line-height: 1.8;
-    color: var(--body);
+    @apply mb-6 leading-relaxed text-zinc-300 text-[15px] md:text-base;
   }
 
   .guide-content :global(ul), .guide-content :global(ol) {
-    margin-bottom: 1.5rem;
-    padding-left: 1.5rem;
-    color: var(--body);
-    line-height: 1.8;
+    @apply mb-6 pl-6 text-zinc-300 leading-relaxed space-y-2;
+  }
+  
+  .guide-content :global(ul) {
+    @apply list-disc marker:text-zinc-600;
+  }
+  
+  .guide-content :global(ol) {
+    @apply list-decimal marker:text-zinc-500 font-medium;
   }
 
   .guide-content :global(li) {
-    margin-bottom: 0.5rem;
+    @apply pl-1;
+  }
+  
+  .guide-content :global(li > p) {
+    @apply mb-2 mt-2;
+  }
+
+  .guide-content :global(a) {
+    @apply text-indigo-400 hover:text-indigo-300 underline decoration-indigo-500/30 hover:decoration-indigo-400 transition-colors;
   }
 
   .guide-content :global(pre) {
-    background: var(--surface-2);
-    padding: 1.5rem;
-    border-radius: 12px;
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--hairline);
-    font-size: 14px;
-    line-height: 1.6;
+    @apply bg-zinc-950 p-6 rounded-xl overflow-x-auto mb-8 border border-zinc-800 shadow-inner text-sm leading-relaxed;
   }
 
   .guide-content :global(pre code) {
-    background: transparent;
-    padding: 0;
-    color: var(--ink);
-    border: none;
-    white-space: pre-wrap;
-    word-break: break-word;
+    @apply bg-transparent p-0 text-emerald-400 border-none font-mono whitespace-pre;
   }
 
   .guide-content :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    color: var(--primary);
-    background: var(--canvas-soft);
-    padding: 2px 6px;
-    border-radius: 4px;
+    @apply font-mono text-[0.875em] text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20;
   }
 
   .guide-content :global(blockquote) {
-    border-left: 4px solid var(--accent);
-    padding-left: 1.5rem;
-    margin-left: 0;
-    margin-bottom: 1.5rem;
-    font-style: italic;
-    color: var(--mute);
-    background: var(--surface-2);
-    padding: 1rem 1.5rem;
-    border-radius: 0 8px 8px 0;
+    @apply border-l-4 border-indigo-500 pl-6 my-8 py-2 text-zinc-400 italic bg-gradient-to-r from-indigo-500/5 to-transparent rounded-r-xl;
   }
 
-  .guide-sidebar {
-    position: sticky;
-    top: 6rem;
-    height: max-content;
+  .guide-content :global(strong) {
+    @apply font-bold text-zinc-100;
   }
-
-  .guide-sidebar h3 {
-    margin-bottom: 1rem;
-    color: var(--accent);
-  }
-
-  .guide-sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .guide-sidebar li {
-    margin-bottom: 0.8rem;
-  }
-
-  .guide-sidebar a {
-    color: var(--body);
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-
-  .guide-sidebar a:hover {
-    color: var(--accent);
-    padding-left: 5px;
+  
+  .guide-content :global(hr) {
+    @apply border-zinc-800 my-10;
   }
 </style>

@@ -69,20 +69,20 @@ export default function SocialShareButtonsIsland({
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
 
   const buttons = [
-    { name: 'WhatsApp', icon: <WhatsAppIcon />, url: whatsappUrl, bg: '#25D366', color: '#fff', border: 'none', shadow: '0 2px 8px #25D36644', iconColor: '#fff' },
-    { name: 'LinkedIn', icon: <LinkedInIcon />, url: linkedinUrl, bg: '#0a66c2', color: '#fff', border: 'none', shadow: '0 2px 8px #0a66c244', iconColor: '#fff' },
-    { name: 'Reddit', icon: <RedditIcon />, url: redditUrl, bg: '#FF4500', color: '#fff', border: 'none', shadow: '0 2px 8px #FF450044', iconColor: '#fff' },
-    { name: 'X / Twitter', icon: <TwitterIcon />, url: twitterUrl, bg: '#14171a', color: '#fff', border: 'none', shadow: '0 2px 8px #14171a44', iconColor: '#fff' },
-    { name: 'Telegram', icon: <TelegramIcon />, url: telegramUrl, bg: '#0088cc', color: '#fff', border: 'none', shadow: '0 2px 8px #0088cc44', iconColor: '#fff' },
+    { name: 'WhatsApp', icon: <WhatsAppIcon />, url: whatsappUrl, bgClass: 'bg-[#25D366]', textClass: 'text-white' },
+    { name: 'LinkedIn', icon: <LinkedInIcon />, url: linkedinUrl, bgClass: 'bg-[#0a66c2]', textClass: 'text-white' },
+    { name: 'Reddit', icon: <RedditIcon />, url: redditUrl, bgClass: 'bg-[#FF4500]', textClass: 'text-white' },
+    { name: 'X / Twitter', icon: <TwitterIcon />, url: twitterUrl, bgClass: 'bg-[#14171a]', textClass: 'text-white' },
+    { name: 'Telegram', icon: <TelegramIcon />, url: telegramUrl, bgClass: 'bg-[#0088cc]', textClass: 'text-white' },
   ];
 
   if (compact) {
     return (
       <div 
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }} 
+        className="inline-flex items-center gap-1.5 flex-wrap"
         onClick={(e) => e.stopPropagation()}
       >
-        {label && <span style={{ fontSize: '12px', color: 'var(--mute)', fontWeight: 600, marginRight: '2px' }}>{label}:</span>}
+        {label && <span className="text-xs font-semibold text-zinc-400 mr-0.5">{label}:</span>}
         {buttons.map((btn) => (
           <a
             key={btn.name}
@@ -90,101 +90,44 @@ export default function SocialShareButtonsIsland({
             target="_blank"
             rel="noopener noreferrer"
             title={`Share on ${btn.name}`}
-            className="btn btn-sm"
-            style={{
-              background: btn.bg,
-              color: btn.color,
-              border: btn.border,
-              padding: '4px 8px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: '28px',
-              height: '26px'
-            }}
+            className={`inline-flex items-center justify-center min-w-[28px] h-[26px] px-2 py-1 rounded-md text-xs no-underline transition-all hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${btn.bgClass} ${btn.textClass}`}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', color: btn.iconColor }}>{btn.icon}</span>
+            <span className="inline-flex items-center">{btn.icon}</span>
           </a>
         ))}
         <button
           type="button"
           onClick={handleCopy}
           title="Copy Link"
-          className="btn btn-sm"
-          style={{
-            background: 'var(--canvas-soft-2, #333)',
-            color: 'var(--ink)',
-            border: '1px solid var(--hairline)',
-            padding: '4px 8px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '26px',
-            cursor: 'pointer'
-          }}
+          className="inline-flex items-center justify-center h-[26px] px-2 py-1 rounded-md text-xs border border-zinc-700 bg-zinc-800 text-zinc-100 hover:bg-zinc-700 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
         >
-          <span style={{ display: 'inline-flex', alignItems: 'center' }}><CopyIcon /></span>
+          <span className="inline-flex items-center"><CopyIcon /></span>
         </button>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+    <div className="flex flex-col gap-2 w-full">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2">
         {buttons.map((btn) => (
           <a
             key={btn.name}
             href={btn.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn"
-            style={{
-              background: btn.bg,
-              color: btn.color,
-              border: btn.border,
-              padding: '8px 12px',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              textDecoration: 'none',
-              boxShadow: btn.shadow,
-              transition: 'transform 0.15s, opacity 0.15s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
-            onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+            className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-bold no-underline transition-all hover:opacity-90 hover:-translate-y-0.5 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${btn.bgClass} ${btn.textClass}`}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', color: btn.iconColor }}>{btn.icon}</span> {btn.name}
+            <span className="inline-flex items-center">{btn.icon}</span> {btn.name}
           </a>
         ))}
       </div>
       <button
         type="button"
         onClick={handleCopy}
-        className="btn btn-secondary"
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          fontSize: '13px',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px',
-          cursor: 'pointer'
-        }}
+        className="inline-flex items-center justify-center gap-2 w-full rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-[13px] font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
       >
-        <span style={{ display: 'inline-flex', alignItems: 'center' }}><CopyIcon /></span> Copy Referral Link ({url})
+        <span className="inline-flex items-center"><CopyIcon /></span> Copy Referral Link ({url})
       </button>
     </div>
   );

@@ -32,39 +32,39 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
     fetchReviews();
   }, [skillId]);
 
-  if (loading) return <div style={{ padding: '20px', color: 'var(--mute)' }}>Loading reviews...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'var(--error)' }}>Failed to load reviews.</div>;
-  if (reviews.length === 0) return <div style={{ padding: '20px', color: 'var(--mute)' }}>No reviews yet. Be the first to review!</div>;
+  if (loading) return <div className="p-5 text-zinc-500 text-center">Loading reviews...</div>;
+  if (error) return <div className="p-5 text-red-500 text-center bg-red-500/10 rounded-xl border border-red-500/20">Failed to load reviews.</div>;
+  if (reviews.length === 0) return <div className="p-5 text-zinc-400 text-center italic bg-zinc-900/50 rounded-xl border border-zinc-800">No reviews yet. Be the first to review!</div>;
 
   const displayedReviews = showAll ? reviews : reviews.slice(0, 5);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+    <div className="flex flex-col gap-4">
       {displayedReviews.map((review, i) => (
-        <div key={i} className="card" style={{ padding: 'var(--space-md)', background: 'var(--canvas)', border: '1px solid var(--hairline)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div key={i} className="group flex flex-col p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-0.5 hover:shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2.5">
               <img 
-                src={review.buyer?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(review.buyer?.username || 'user')}&backgroundColor=6C3CE1&textColor=ffffff`}
+                src={review.buyer?.avatar_url || ''}
                 alt="avatar" 
-                style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
+                className="w-7 h-7 rounded-full object-cover border border-zinc-700"
               />
-              <span style={{ fontWeight: '600', color: 'var(--ink)' }}>{review.buyer?.username || 'Anonymous'}</span>
+              <span className="font-bold text-zinc-100">{review.buyer?.username || 'Anonymous'}</span>
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--mute)' }}>
+            <div className="text-xs text-zinc-500 font-medium">
               {new Date(review.created_at).toLocaleDateString()}
             </div>
           </div>
           
-          <div style={{ display: 'flex', color: '#fbbf24', fontSize: '14px', marginBottom: 'var(--space-xs)' }}>
+          <div className="flex text-amber-500 text-sm mb-3">
             {'★'.repeat(Math.round(review.rating))}
-            <span style={{ color: 'var(--hairline-strong)' }}>
+            <span className="text-zinc-700">
               {'★'.repeat(5 - Math.round(review.rating))}
             </span>
           </div>
           
           {review.comment && (
-            <p style={{ color: 'var(--body)', fontSize: '14px', lineHeight: '1.5', marginTop: '4px' }}>
+            <p className="text-zinc-300 text-sm leading-relaxed m-0">
               {review.comment}
             </p>
           )}
@@ -74,20 +74,7 @@ export default function ReviewsIsland({ skillId }: { skillId: string }) {
       {reviews.length > 5 && (
         <button 
           onClick={() => setShowAll(!showAll)}
-          style={{
-            marginTop: '8px',
-            padding: '8px 16px',
-            background: 'transparent',
-            border: '1px solid var(--hairline-strong)',
-            color: 'var(--primary)',
-            borderRadius: 'var(--border-radius-pill)',
-            cursor: 'pointer',
-            alignSelf: 'center',
-            fontSize: '14px',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          className="mt-2 inline-flex items-center justify-center px-5 py-2.5 bg-transparent border border-zinc-700 text-indigo-400 rounded-full cursor-pointer self-center text-sm font-semibold transition-all hover:bg-zinc-800 hover:text-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
         >
           {showAll ? 'Show Less' : `View All ${reviews.length} Reviews`}
         </button>

@@ -42,22 +42,9 @@ export default function ThemeToggleIsland() {
     <button
       onClick={toggle}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 32,
-        height: 32,
-        background: 'transparent',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-full)',
-        color: 'var(--ink)',
-        cursor: 'pointer',
-        fontSize: 16,
-        transition: 'all 0.15s ease',
-      }}
+      className="inline-flex items-center justify-center w-8 h-8 bg-transparent border border-zinc-800 rounded-full text-zinc-100 cursor-pointer text-base transition-all hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
     >
-      {isDark ? <Sun style={{ width: 16, height: 16 }} /> : <Moon style={{ width: 16, height: 16 }} />}
+      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
     </button>
   );
 }

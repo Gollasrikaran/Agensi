@@ -5,72 +5,72 @@ import Layout from '../layouts/Layout.astro';
 	title="Pricing & Payouts — BodhicAI"
 	description="Learn about BodhicAI's transparent pricing model. Creators keep an industry-leading 80% of sales, while buyers pay zero markup or conversion fees."
 >
-	<div style="max-width: 800px; margin: 0 auto; text-align: center; padding: var(--space-5xl) 0;">
-		<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">pricing</span>
-		<h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-xs);">Simple, <span class="gradient-text">transparent</span> pricing.</h1>
-		<p style="color: var(--body); font-size: 18px; max-width: 500px; margin: 0 auto;">No surprises. Fair splits for creators, zero markup for buyers.</p>
+	<div class="max-w-[800px] mx-auto text-center py-32 px-6">
+		<span class="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-400 border border-indigo-500/20 mb-6 font-mono">pricing</span>
+		<h1 class="text-[clamp(28px,6vw,48px)] mb-2 text-zinc-100 font-bold">Simple, <span class="bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">transparent</span> pricing.</h1>
+		<p class="text-zinc-300 text-lg max-w-[500px] mx-auto">No surprises. Fair splits for creators, zero markup for buyers.</p>
 
-		<div class="grid responsive-grid" style="margin-top: var(--space-3xl); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-			<div class="card" style="padding: var(--space-xl); text-align: left;">
-				<div style="font-size: 13px; font-family: var(--font-mono); color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-md);">For Creators</div>
-				<div style="font-size: clamp(36px, 10vw, 56px); font-weight: 700; letter-spacing: -2.5px; line-height: 1;">80%</div>
-				<div style="color: var(--mute); font-size: 14px; margin-top: var(--space-xxs);">revenue per sale</div>
-				<div style="border-top: 1px solid var(--hairline); margin: var(--space-lg) 0; padding-top: var(--space-lg);">
-					<ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); font-size: 14px; color: var(--body);">
+		<div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 mt-16">
+			<div class="flex flex-col p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 text-left hover:-translate-y-1 hover:bg-zinc-800 transition-all">
+				<div class="text-[13px] font-mono text-indigo-400 uppercase tracking-[1px] mb-6">For Creators</div>
+				<div class="text-[clamp(36px,10vw,56px)] font-bold tracking-[-2.5px] leading-none text-zinc-100">80%</div>
+				<div class="text-zinc-400 text-sm mt-1">revenue per sale</div>
+				<div class="border-t border-zinc-800 mt-8 pt-8">
+					<ul class="flex flex-col gap-3 text-sm text-zinc-300 list-none p-0 m-0">
 						<li>✓ Direct UPI payouts in INR</li>
 						<li>✓ Instant wallet crediting</li>
 						<li>✓ Free security scanning</li>
 						<li>✓ Marketplace listing</li>
 					</ul>
 				</div>
-				<a href="/sell" class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);">Start Creating →</a>
+				<a href="/sell" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 w-full mt-8 no-underline">Start Creating →</a>
 			</div>
-			<div class="card" style="padding: var(--space-xl); text-align: left;">
-				<div style="font-size: 13px; font-family: var(--font-mono); color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-md);">For Buyers</div>
-				<div style="font-size: clamp(36px, 10vw, 56px); font-weight: 700; letter-spacing: -2.5px; line-height: 1;">₹0</div>
-				<div style="color: var(--mute); font-size: 14px; margin-top: var(--space-xxs);">markup or hidden fees</div>
-				<div style="border-top: 1px solid var(--hairline); margin: var(--space-lg) 0; padding-top: var(--space-lg);">
-					<ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); font-size: 14px; color: var(--body);">
+			<div class="flex flex-col p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 text-left hover:-translate-y-1 hover:bg-zinc-800 transition-all">
+				<div class="text-[13px] font-mono text-emerald-400 uppercase tracking-[1px] mb-6">For Buyers</div>
+				<div class="text-[clamp(36px,10vw,56px)] font-bold tracking-[-2.5px] leading-none text-zinc-100">₹0</div>
+				<div class="text-zinc-400 text-sm mt-1">markup or hidden fees</div>
+				<div class="border-t border-zinc-800 mt-8 pt-8">
+					<ul class="flex flex-col gap-3 text-sm text-zinc-300 list-none p-0 m-0">
 						<li>✓ Pay in INR</li>
 						<li>✓ Security-verified skills</li>
 						<li>✓ Instant delivery</li>
 						<li>✓ Dispute protection</li>
 					</ul>
 				</div>
-				<a href="/browse" class="btn btn-secondary" style="width: 100%; margin-top: var(--space-lg);">Browse Skills →</a>
+				<a href="/browse" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 w-full mt-8 no-underline">Browse Skills →</a>
 			</div>
 		</div>
 
-		<div class="card" style="margin-top: var(--space-3xl); padding: var(--space-2xl); text-align: left; background: var(--canvas-elevated); border: 1px solid var(--hairline);">
-			<h2 style="font-size: 24px; margin-bottom: var(--space-md); color: var(--ink); display: flex; align-items: center; gap: 8px;">
+		<div class="mt-16 p-8 md:p-12 rounded-2xl border border-zinc-800 bg-zinc-900 text-left">
+			<h2 class="text-2xl mb-6 text-zinc-100 flex items-center gap-2 font-bold">
 				⚡ Skill Complexity & Credit Usage Policy
 			</h2>
-			<p style="color: var(--body); line-height: 1.7; margin-bottom: var(--space-lg); font-size: 16px;">
+			<p class="text-zinc-300 leading-[1.7] mb-8 text-base">
 				To ensure total transparency, prevent misinformation, and maintain fair compute usage across our AI Agent infrastructure, all interactions with skills on BodhicAI (via web chat or IDE connectors like Cursor and Claude) consume Bodhic Credits based on an automated AI complexity classification system. Each skill is evaluated during security scanning and assigned a Complexity Level from 1 to 5:
 			</p>
-			<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg);">
-				<div style="padding: 16px; background: var(--canvas-soft); border-radius: 10px; border: 1px solid var(--hairline);">
-					<div style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 4px;">Level 1 — Simple Queries</div>
-					<div style="font-size: 20px; font-weight: 700; color: var(--ink);">10 CR <span style="font-size: 13px; font-weight: 500; color: var(--mute);">/ chat</span></div>
+			<div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-8">
+				<div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+					<div class="text-indigo-400 font-bold text-sm mb-1">Level 1 — Simple Queries</div>
+					<div class="text-xl font-bold text-zinc-100">10 CR <span class="text-[13px] font-medium text-zinc-500">/ chat</span></div>
 				</div>
-				<div style="padding: 16px; background: var(--canvas-soft); border-radius: 10px; border: 1px solid var(--hairline);">
-					<div style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 4px;">Level 2 — Scripting & Formatting</div>
-					<div style="font-size: 20px; font-weight: 700; color: var(--ink);">20 CR <span style="font-size: 13px; font-weight: 500; color: var(--mute);">/ chat</span></div>
+				<div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+					<div class="text-indigo-400 font-bold text-sm mb-1">Level 2 — Scripting & Formatting</div>
+					<div class="text-xl font-bold text-zinc-100">20 CR <span class="text-[13px] font-medium text-zinc-500">/ chat</span></div>
 				</div>
-				<div style="padding: 16px; background: var(--canvas-soft); border-radius: 10px; border: 1px solid var(--hairline);">
-					<div style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 4px;">Level 3 — Data Analysis</div>
-					<div style="font-size: 20px; font-weight: 700; color: var(--ink);">40 CR <span style="font-size: 13px; font-weight: 500; color: var(--mute);">/ chat</span></div>
+				<div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+					<div class="text-indigo-400 font-bold text-sm mb-1">Level 3 — Data Analysis</div>
+					<div class="text-xl font-bold text-zinc-100">40 CR <span class="text-[13px] font-medium text-zinc-500">/ chat</span></div>
 				</div>
-				<div style="padding: 16px; background: var(--canvas-soft); border-radius: 10px; border: 1px solid var(--hairline);">
-					<div style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 4px;">Level 4 — Advanced Engineering</div>
-					<div style="font-size: 20px; font-weight: 700; color: var(--ink);">70 CR <span style="font-size: 13px; font-weight: 500; color: var(--mute);">/ chat</span></div>
+				<div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+					<div class="text-indigo-400 font-bold text-sm mb-1">Level 4 — Advanced Engineering</div>
+					<div class="text-xl font-bold text-zinc-100">70 CR <span class="text-[13px] font-medium text-zinc-500">/ chat</span></div>
 				</div>
-				<div style="padding: 16px; background: var(--canvas-soft); border-radius: 10px; border: 1px solid var(--hairline);">
-					<div style="color: var(--accent); font-weight: 700; font-size: 14px; margin-bottom: 4px;">Level 5 — Multi-Agent Orchestrator</div>
-					<div style="font-size: 20px; font-weight: 700; color: var(--ink);">100 CR <span style="font-size: 13px; font-weight: 500; color: var(--mute);">/ chat</span></div>
+				<div class="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+					<div class="text-indigo-400 font-bold text-sm mb-1">Level 5 — Multi-Agent Orchestrator</div>
+					<div class="text-xl font-bold text-zinc-100">100 CR <span class="text-[13px] font-medium text-zinc-500">/ chat</span></div>
 				</div>
 			</div>
-			<p style="color: var(--mute); font-size: 14px; margin: 0;">
+			<p class="text-zinc-500 text-sm m-0">
 				Note: Once you purchase a skill outright, all future interactions with it are completely free and consume 0 credits.
 			</p>
 		</div>

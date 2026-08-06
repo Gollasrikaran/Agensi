@@ -5,21 +5,12 @@ export default function MiniPulse({ intensityArray = Array(28).fill(0) }: { inte
   const data = [...intensityArray, ...Array(28)].slice(0, 28);
   
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gridTemplateRows: 'repeat(7, 1fr)',
-      gap: '2px',
-      width: 'fit-content'
-    }}>
+    <div className="grid grid-cols-4 grid-rows-7 gap-[2px] w-fit">
       {data.map((intensity, i) => (
         <div 
           key={i}
+          className={`w-[6px] h-[6px] rounded-[1px] ${intensity > 0 ? 'bg-indigo-500' : 'bg-zinc-800'}`}
           style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '1px',
-            background: intensity > 0 ? 'var(--accent-primary)' : 'var(--pulse-empty)',
             opacity: intensity === 0 ? 1 : (intensity * 0.25),
           }}
         />

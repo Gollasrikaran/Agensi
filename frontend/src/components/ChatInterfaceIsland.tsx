@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { API_BASE } from '../lib/config';
 import AuthForm from './AuthForm';
+import { ArrowLeft, Send, Paperclip, X, Bot, Diamond, Zap } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -105,46 +107,48 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--canvas)', color: 'var(--ink)' }}>
+    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 font-sans">
       {/* Top Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', borderBottom: '1px solid var(--hairline)', background: 'var(--canvas-elevated)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
-            ← Back to Skill
+      <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md">
+        <div className="flex items-center gap-4">
+          <a href={`/skill/${skillId}`} className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
+            <ArrowLeft className="h-4 w-4" /> Back to Skill
           </a>
-          <div style={{ height: '24px', width: '1px', background: 'var(--hairline)' }}></div>
+          <div className="h-6 w-px bg-zinc-800" />
           <div>
-            <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--ink)', letterSpacing: '0.5px' }}>{skillTitle}</h1>
-            <span style={{ fontSize: '12px', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', boxShadow: '0 0 8px var(--accent)' }}></span>
+            <h1 className="text-base font-bold text-zinc-100 m-0 leading-tight">{skillTitle}</h1>
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
               Powered by BodhicAI
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ padding: '6px 12px', background: 'var(--canvas-soft-2, #222)', border: '1px solid var(--hairline-strong)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--accent, #a855f7)', fontWeight: 700 }}>
-                ⚡ Level {skillData?.complexity_level || 1}
+        <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1.5 text-xs font-bold text-purple-400 border border-purple-500/20">
+                <Zap className="h-3.5 w-3.5" /> Level {skillData?.complexity_level || 1}
             </div>
-            <div style={{ padding: '6px 12px', background: 'var(--success-soft)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-pill)', fontSize: '12px', color: 'var(--success)', fontWeight: 600 }}>
-                💎 {skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} CR / MSG
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 border border-emerald-500/20">
+                <Diamond className="h-3.5 w-3.5" /> {skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} CR / MSG
             </div>
-            <a href={`/skill/${skillId}`} style={{ color: 'var(--mute)', textDecoration: 'none', fontSize: '14px', padding: '8px 12px', borderRadius: 'var(--radius-sm)', transition: 'color 0.2s' }}>Exit Chat</a>
+            <a href={`/skill/${skillId}`} className="px-4 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors rounded-lg hover:bg-zinc-800/50">Exit Chat</a>
         </div>
       </header>
       
       {/* Chat Area */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '32px', scrollBehavior: 'smooth' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div className="flex-1 overflow-y-auto p-4 sm:p-8 scroll-smooth">
+        <div className="max-w-3xl mx-auto w-full flex flex-col gap-8">
             {messages.length === 0 && (
-              <div style={{ textAlign: 'center', color: 'var(--mute)', margin: '100px auto', maxWidth: '400px' }}>
-                <img src="/logo.png" alt="Bodhic" style={{ width: '80px', height: '80px', opacity: 0.5, marginBottom: '24px', filter: 'grayscale(100%) brightness(200%)' }} />
-                <h2 style={{ color: 'var(--ink)', fontSize: '24px', marginBottom: '12px', fontWeight: 500 }}>How can I help you?</h2>
-                <p style={{ lineHeight: 1.6, color: 'var(--body)' }}>Ask any question or test this skill's capabilities. Each message deducts <strong>{skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} Bodhic Credits</strong> based on its Level {skillData?.complexity_level || 1} rating.</p>
+              <div className="text-center text-zinc-500 my-24 max-w-md mx-auto">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-900/50 border border-zinc-800/50 mb-6 shadow-xl">
+                  <img src="/logo.png" alt="BodhicAI" className="h-10 w-10 rounded" />
+                </div>
+                <h2 className="text-2xl font-semibold text-zinc-200 mb-3">How can I help you?</h2>
+                <p className="text-sm leading-relaxed text-zinc-400 mb-6">Ask any question or test this skill's capabilities. Each message deducts <strong className="text-zinc-300">{skillData ? ({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skillData.complexity_level || 1] || ((skillData.complexity_level || 1) * 10) : '10-100'} Bodhic Credits</strong> based on its Level {skillData?.complexity_level || 1} rating.</p>
                 {!userSession && (
                   <button
                     type="button"
                     onClick={() => setShowAuthModal(true)}
-                    style={{ background: 'var(--accent-gradient)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '15px', cursor: 'pointer', marginTop: '20px', boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)' }}
+                    className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5"
                   >
                     Log In to Start Testing →
                   </button>
@@ -153,53 +157,51 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             )}
             
             {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+              <div key={i} className={cn("flex gap-4 items-start", msg.role === 'user' ? "justify-end" : "justify-start")}>
                 {msg.role === 'assistant' && (
-                  <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }} />
+                  <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-sm mt-0.5">
+                    <img src="/logo.png" alt="BodhicAI" className="h-5 w-5 rounded-sm" />
+                  </div>
                 )}
                 
-                <div style={{ 
-                  background: msg.role === 'user' ? 'var(--grad-brand)' : 'var(--canvas-elevated)', 
-                  color: msg.role === 'user' ? 'var(--on-primary)' : 'var(--ink)',
-                  padding: '16px 20px', 
-                  borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '4px 20px 20px 20px', 
-                  maxWidth: '85%',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: 1.6,
-                  fontSize: '15px',
-                  border: msg.role === 'assistant' ? '1px solid var(--hairline)' : 'none',
-                  boxShadow: 'var(--shadow-md)'
-                }}>
+                <div className={cn(
+                  "px-5 py-3.5 text-[15px] leading-relaxed shadow-sm max-w-[85%] whitespace-pre-wrap",
+                  msg.role === 'user' 
+                    ? "bg-indigo-600 text-white rounded-[20px_20px_4px_20px]" 
+                    : "bg-zinc-900 text-zinc-200 rounded-[4px_20px_20px_20px] border border-zinc-800"
+                )}>
                   {msg.content}
                 </div>
               </div>
             ))}
             
             {loading && (
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <img src="/logo.png" alt="AI" style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-glow)', animation: 'pulse 1.5s infinite' }} />
-                <div style={{ padding: '16px 20px', borderRadius: '4px 20px 20px 20px', background: 'var(--canvas-elevated)', border: '1px solid var(--hairline)', color: 'var(--mute)' }}>
-                  <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both' }}>.</span>
-                  <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}>.</span>
-                  <span style={{ display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}>.</span>
+              <div className="flex gap-4 items-start">
+                <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)] mt-0.5">
+                  <img src="/logo.png" alt="BodhicAI" className="h-5 w-5 rounded-sm" />
+                </div>
+                <div className="px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-[4px_20px_20px_20px] flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-zinc-500 animate-bounce" />
+                  <span className="h-2 w-2 rounded-full bg-zinc-500 animate-bounce [animation-delay:0.2s]" />
+                  <span className="h-2 w-2 rounded-full bg-zinc-500 animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} style={{ height: '40px' }} />
+            <div ref={messagesEndRef} className="h-10" />
         </div>
       </div>
       
       {/* Input Area */}
-      <div style={{ padding: '24px', background: 'linear-gradient(to top, var(--canvas) 50%, transparent 100%)', zIndex: 10 }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="p-4 sm:p-6 bg-gradient-to-t from-zinc-950 via-zinc-950 to-transparent z-10 pt-10">
+        <div className="max-w-3xl mx-auto">
             {error && (
-              <div style={{ padding: '12px 16px', color: 'var(--error)', fontSize: '14px', background: 'var(--error-soft)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', border: '1px solid rgba(248, 113, 113, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-sm text-red-400">
                 <span>{error}</span>
                 {(!userSession || error.toLowerCase().includes("logged in") || error.toLowerCase().includes("auth")) && (
                   <button
                     type="button"
                     onClick={() => setShowAuthModal(true)}
-                    style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(108, 60, 225, 0.3)' }}
+                    className="shrink-0 rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-md hover:bg-indigo-500 transition-colors"
                   >
                     Log In Now →
                   </button>
@@ -208,14 +210,14 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             )}
             
             {!userSession && (
-              <div style={{ padding: '10px 16px', background: 'var(--canvas-elevated)', border: '1px solid var(--primary)', borderRadius: 'var(--radius-pill)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', boxShadow: 'var(--shadow-sm)', flexWrap: 'wrap', gap: '10px' }}>
-                <span style={{ fontSize: '13px', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>🔐</span> Please log in before chatting. Don't worry, your chat session stays right here!
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-3.5 text-sm text-zinc-300 shadow-sm backdrop-blur-sm">
+                <span className="flex items-center gap-2">
+                  <span className="text-base">🔐</span> Please log in before chatting. Your session will be saved.
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowAuthModal(true)}
-                  style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: 'var(--radius-pill)', fontWeight: 600, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(108, 60, 225, 0.3)' }}
+                  className="shrink-0 rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-md hover:bg-indigo-500 transition-colors"
                 >
                   Log In Now →
                 </button>
@@ -223,23 +225,29 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             )}
             
             {selectedFiles.length > 0 && (
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px', padding: '0 16px' }}>
+              <div className="mb-3 flex flex-wrap gap-2 px-2">
                 {selectedFiles.map((file, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--canvas-elevated)', padding: '6px 12px', borderRadius: 'var(--radius-pill)', fontSize: '12px', border: '1px solid var(--hairline)', color: 'var(--ink)' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</span>
-                    <button type="button" onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))} style={{ background: 'none', border: 'none', color: 'var(--mute)', cursor: 'pointer', display: 'flex', padding: 0 }}>✕</button>
+                  <div key={idx} className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs text-zinc-300">
+                    <Paperclip className="h-3.5 w-3.5 text-zinc-500" />
+                    <span className="max-w-[150px] truncate">{file.name}</span>
+                    <button 
+                      type="button" 
+                      onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))} 
+                      className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 ))}
               </div>
             )}
             
-            <form onSubmit={handleSend} style={{ display: 'flex', position: 'relative', alignItems: 'center' }}>
+            <form onSubmit={handleSend} className="relative flex items-center">
                 <input 
                   type="file" 
                   ref={fileInputRef} 
                   multiple 
-                  style={{ display: 'none' }} 
+                  className="hidden"
                   onChange={(e) => {
                     if (e.target.files) {
                       setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
@@ -250,74 +258,58 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 <button 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  style={{ position: 'absolute', left: '16px', background: 'none', border: 'none', color: 'var(--mute)', cursor: 'pointer', display: 'flex', padding: '4px', transition: 'color 0.2s', zIndex: 2 }}
+                  className="absolute left-4 z-10 p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-full transition-colors"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  <Paperclip className="h-5 w-5" />
                 </button>
                 <input 
                     type="text" 
                     value={input} 
                     onChange={e => setInput(e.target.value)} 
                     placeholder="Message BodhicAI..." 
-                    style={{ flex: 1, padding: '18px 60px 18px 48px', borderRadius: 'var(--radius-pill)', border: '1.5px solid var(--hairline)', background: 'var(--canvas-soft-2)', color: 'var(--ink)', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s', boxShadow: 'var(--shadow-md)' }}
                     disabled={loading}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--hairline)'}
+                    className="w-full rounded-[24px] border border-zinc-700 bg-zinc-900/80 py-4 pl-14 pr-16 text-[15px] text-zinc-100 placeholder:text-zinc-500 shadow-xl backdrop-blur-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50"
                 />
                 <button 
                     type="submit" 
                     disabled={loading || (!input.trim() && selectedFiles.length === 0)}
-                    style={{ 
-                        position: 'absolute', right: '8px', 
-                        width: '44px', height: '44px', 
-                        borderRadius: '50%', border: 'none', 
-                        background: (input.trim() || selectedFiles.length > 0) ? 'var(--primary)' : 'var(--canvas-elevated)', 
-                        color: (input.trim() || selectedFiles.length > 0) ? 'var(--on-primary)' : 'var(--mute)',
-                        cursor: (input.trim() || selectedFiles.length > 0) ? 'pointer' : 'default',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.2s'
-                    }}
+                    className={cn(
+                      "absolute right-2 flex h-10 w-10 items-center justify-center rounded-full transition-all",
+                      (input.trim() || selectedFiles.length > 0) 
+                        ? "bg-indigo-600 text-white hover:bg-indigo-500 shadow-md" 
+                        : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                    )}
                 >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <Send className="h-4 w-4 ml-0.5" />
                 </button>
             </form>
-            <div style={{ textAlign: 'center', margin: '12px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
+            <div className="mt-3 text-center text-xs text-zinc-500">
                 AI can make mistakes. Consider verifying important information.
             </div>
         </div>
       </div>
       
       {showAuthModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="card" style={{ maxWidth: '440px', width: '100%', padding: '32px', position: 'relative', background: 'var(--canvas-elevated)', borderRadius: '24px', border: '1px solid var(--hairline-strong)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-[440px] max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-zinc-950 p-8 shadow-2xl">
             <button 
               type="button"
               onClick={() => setShowAuthModal(false)}
-              style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'var(--mute)', fontSize: '20px', cursor: 'pointer', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+              className="absolute right-6 top-6 rounded-full p-2 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300 transition-colors"
             >
-              ✕
+              <X className="h-5 w-5" />
             </button>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <img src="/logo.png" alt="Bodhic" style={{ width: '48px', height: '48px', borderRadius: '12px', marginBottom: '12px' }} />
-              <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ink)', margin: '0 0 6px 0' }}>Log In to Continue</h2>
-              <p style={{ color: 'var(--body)', fontSize: '14px', margin: 0 }}>Sign in to test this skill without losing your chat session.</p>
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                <Bot className="h-6 w-6 text-indigo-400" />
+              </div>
+              <h2 className="mb-2 text-2xl font-bold text-zinc-100">Log In to Continue</h2>
+              <p className="text-sm text-zinc-400">Sign in to test this skill without losing your chat session.</p>
             </div>
             <AuthForm type="login" onSuccess={() => { setShowAuthModal(false); setError(''); }} />
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-4px); }
-        }
-      `}</style>
     </div>
   );
 }

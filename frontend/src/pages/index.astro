@@ -1,149 +1,138 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import TrendingSkillsIsland from '../components/TrendingSkillsIsland';
-import { ShieldCheck, IndianRupee, Zap } from 'lucide-react';
+import { ShieldCheck, IndianRupee, Zap, ChevronRight } from 'lucide-react';
+import { AnimatedGridPattern } from '../components/ui/animated-grid-pattern';
+import { TextShimmer } from '../components/ui/text-shimmer';
+import { ShimmerButton } from '../components/ui/shimmer-button';
 ---
 
 <Layout 
 	title="BodhicAI — AI Agent Skill & Prompt Marketplace" 
 	description="Welcome to BodhicAI. The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude."
-	jsonLd={JSON.stringify({
-		"@context": "https://schema.org",
-		"@graph": [
-			{
-				"@type": "Organization",
-				"name": "BodhicAI",
-				"url": "https://bodhicai.tech",
-				"logo": "https://bodhicai.tech/logo.png",
-				"description": "BodhicAI is an action-agent skill and prompt marketplace for AI coding assistants. Developers can discover, test, and monetize custom MCP sidecar tools and prompt artifacts.",
-				"sameAs": []
-			},
-			{
-				"@type": "WebSite",
-				"name": "BodhicAI",
-				"url": "https://bodhicai.tech",
-				"description": "The verified marketplace where developers discover, test, request, and monetize AI agent skills and prompt templates for Cursor, Windsurf, and Claude.",
-				"potentialAction": {
-					"@type": "SearchAction",
-					"target": "https://bodhicai.tech/search?q={search_term_string}",
-					"query-input": "required name=search_term_string"
-				}
-			},
-			{
-				"@type": "WebApplication",
-				"name": "BodhicAI",
-				"url": "https://bodhicai.tech",
-				"applicationCategory": "AI Skill & Prompt Marketplace",
-				"operatingSystem": "Web",
-				"description": "BodhicAI is an action-agent skill and prompt marketplace for AI coding assistants. Developers can discover, test, and monetize custom MCP sidecar tools and prompt artifacts."
-			}
-		]
-	})}
 >
-	<main id="app-landing-purpose">
-	<!-- Dynamic Hero Section -->
-	<section style="min-height: 80vh; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; padding-top: var(--space-4xl);">
-		<!-- Background mesh effect -->
-		<div style="position: absolute; top: -20%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--primary) 0%, transparent 60%); filter: blur(120px); opacity: 0.15; z-index: -1;"></div>
-		<div style="position: absolute; bottom: -20%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--accent) 0%, transparent 60%); filter: blur(120px); opacity: 0.15; z-index: -1;"></div>
+	<main id="app-landing-purpose" class="relative">
+		<!-- Dynamic Hero Section -->
+		<section class="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden pt-24 pb-12">
+			<!-- Magic UI Animated Grid Background -->
+			<AnimatedGridPattern
+				client:load
+				numSquares={30}
+				maxOpacity={0.15}
+				duration={3}
+				repeatDelay={1}
+				className="absolute inset-0 h-full w-full skew-y-12"
+			/>
+			
+			<!-- Ambient Glow -->
+			<div class="absolute -top-[20%] -left-[10%] h-[50vw] w-[50vw] rounded-full bg-indigo-500/20 blur-[120px] -z-10"></div>
+			<div class="absolute -bottom-[20%] -right-[10%] h-[50vw] w-[50vw] rounded-full bg-violet-500/20 blur-[120px] -z-10"></div>
 
-		<div style="max-width: 900px; margin: 0 auto; text-align: center; padding: 0 var(--space-md);">
-			<span class="eyebrow" style="font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(79, 70, 229, 0.15); display: inline-block; margin-bottom: var(--space-md);">the premier ecosystem</span>
-			
-			<h1 style="font-size: clamp(var(--text-4xl), 8vw, var(--text-5xl)); line-height: 1.1; margin-bottom: var(--space-md); letter-spacing: -3px;">
-				<span class="gradient-text">BodhicAI</span> — AI Agent Skill &amp; Prompt Marketplace
-			</h1>
-			
-			<p style="color: var(--body); font-size: clamp(var(--text-lg), 2vw, var(--text-xl)); max-width: 700px; margin: 0 auto var(--space-md) auto; line-height: 1.5;">
-				Discover, buy, and sell prompt artifacts built for AI agents. Every skill is scanned for prompt injections and security threats before it goes live.
-			</p>
-			
-			<p style="color: var(--mute); font-size: var(--text-base); max-width: 700px; margin: 0 auto var(--space-xl) auto; line-height: 1.5; background: var(--canvas-soft); padding: 12px; border-radius: 8px; border: 1px solid var(--hairline);">
-				<strong>Platform Purpose:</strong> BodhicAI is a software marketplace. Users can securely authenticate using their Google accounts to manage their creator wallet, upload custom AI agent scripts, and seamlessly test or purchase verified AI skills built by other developers.
-			</p>
-			
-			<div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-4xl);">
-				<a href="/browse" class="btn btn-primary btn-lg" style="padding: 16px 32px; font-size: var(--text-lg);">Explore Skills →</a>
-				<a href="/sell" class="btn btn-secondary btn-lg" style="padding: 16px 32px; font-size: var(--text-lg); border-color: var(--hairline); background: var(--canvas-soft);">Start Creating</a>
+			<div class="relative z-10 mx-auto max-w-4xl px-4 text-center">
+				<div class="mb-8 inline-flex items-center rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-indigo-300">
+					The Premier Ecosystem
+				</div>
+				
+				<h1 class="mb-6 text-5xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+					<TextShimmer client:load duration={2} className="inline-block font-sans">
+						BodhicAI
+					</TextShimmer>
+					<br />
+					<span class="text-zinc-100">AI Agent Skill &amp; Prompt Marketplace</span>
+				</h1>
+				
+				<p class="mx-auto mb-10 max-w-2xl text-lg text-zinc-400 sm:text-xl">
+					Discover, buy, and sell prompt artifacts built for AI agents. Every skill is scanned for prompt injections and security threats before it goes live.
+				</p>
+				
+				<div class="flex flex-wrap items-center justify-center gap-4">
+					<a href="/browse">
+						<ShimmerButton client:load className="shadow-2xl">
+							<span class="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10 lg:text-lg">
+								Explore Skills
+							</span>
+						</ShimmerButton>
+					</a>
+					<a href="/sell" class="inline-flex h-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 px-8 text-sm font-medium text-zinc-100 shadow-sm transition-colors hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
+						Start Creating
+					</a>
+				</div>
+			</div>
+		</section>
+
+		<!-- Social Proof Strip -->
+		<div class="border-y border-white/5 bg-zinc-950/50 backdrop-blur-sm py-4">
+			<div class="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 text-sm font-medium text-zinc-500">
+				<span class="flex items-center gap-2"><ShieldCheck size={16} /> Every skill security-scanned</span>
+				<span class="flex items-center gap-2">🇮🇳 Built in India</span>
+				<span class="flex items-center gap-2"><Zap size={16} /> 200+ skills live</span>
 			</div>
 		</div>
-	</section>
 
-	<!-- How It Works Flow -->
-	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
-		<div style="text-align: center; margin-bottom: var(--space-4xl);">
-			<h2 style="font-size: clamp(24px, 5vw, var(--text-4xl)); letter-spacing: -1.5px; margin-bottom: var(--space-xs);">Built for trust and speed.</h2>
-			<p style="color: var(--mute); font-size: var(--text-lg);">How BodhicAI protects buyers and rewards creators.</p>
-		</div>
+		<!-- How It Works Flow -->
+		<section class="py-24">
+			<div class="mx-auto max-w-6xl px-4 text-center">
+				<h2 class="mb-4 text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">Built for trust and speed.</h2>
+				<p class="mb-16 text-lg text-zinc-400">How BodhicAI protects buyers and rewards creators.</p>
 
-		<div class="grid responsive-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-xl);">
-			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
-				<div style="margin-bottom: var(--space-md);"><ShieldCheck style={{ width: '32px', height: '32px', color: 'var(--primary)' }} /></div>
-				<h3 style="font-size: var(--text-xl); margin-bottom: var(--space-sm);">Tier 1 Security Scanning</h3>
-				<p style="color: var(--body); font-size: var(--text-base); line-height: 1.6;">Every uploaded skill undergoes automated OWASP LLM vulnerability scanning. We block prompt injections and leaked secrets before they ever reach the marketplace.</p>
+				<div class="grid gap-8 md:grid-cols-3">
+					<div class="card-glow rounded-2xl border border-white/10 bg-zinc-900/50 p-8 text-left backdrop-blur-sm transition-transform hover:-translate-y-1">
+						<div class="mb-6 inline-flex rounded-xl bg-indigo-500/20 p-3 text-indigo-400">
+							<ShieldCheck size={28} />
+						</div>
+						<h3 class="mb-3 text-xl font-semibold text-zinc-100">Tier 1 Security Scanning</h3>
+						<p class="text-zinc-400 leading-relaxed">Every uploaded skill undergoes automated OWASP LLM vulnerability scanning. We block prompt injections and leaked secrets before they reach the marketplace.</p>
+					</div>
+					
+					<div class="card-glow rounded-2xl border border-white/10 bg-zinc-900/50 p-8 text-left backdrop-blur-sm transition-transform hover:-translate-y-1">
+						<div class="mb-6 inline-flex rounded-xl bg-indigo-500/20 p-3 text-indigo-400">
+							<IndianRupee size={28} />
+						</div>
+						<h3 class="mb-3 text-xl font-semibold text-zinc-100">Zero Buyer Markup</h3>
+						<p class="text-zinc-400 leading-relaxed">Buyers pay the exact base price set by the creator in INR. No hidden conversion fees, no subscription traps. Pure transactional value.</p>
+					</div>
+					
+					<div class="card-glow rounded-2xl border border-white/10 bg-zinc-900/50 p-8 text-left backdrop-blur-sm transition-transform hover:-translate-y-1">
+						<div class="mb-6 inline-flex rounded-xl bg-indigo-500/20 p-3 text-indigo-400">
+							<Zap size={28} />
+						</div>
+						<h3 class="mb-3 text-xl font-semibold text-zinc-100">Instant Creator Payouts</h3>
+						<p class="text-zinc-400 leading-relaxed">Creators take home an industry-leading 80% split. Request a payout anytime to your UPI or bank account directly from your creator wallet.</p>
+					</div>
+				</div>
 			</div>
-			
-			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
-				<div style="margin-bottom: var(--space-md);"><IndianRupee style={{ width: '32px', height: '32px', color: 'var(--primary)' }} /></div>
-				<h3 style="font-size: var(--text-xl); margin-bottom: var(--space-sm);">Zero Buyer Markup</h3>
-				<p style="color: var(--body); font-size: var(--text-base); line-height: 1.6;">Buyers pay the exact base price set by the creator in INR. No hidden conversion fees, no subscription traps. Pure transactional value.</p>
-			</div>
-			
-			<div class="card" style="padding: var(--space-2xl); text-align: left; background: var(--canvas-soft-2); border: 1px solid var(--hairline-strong);">
-				<div style="margin-bottom: var(--space-md);"><Zap style={{ width: '32px', height: '32px', color: 'var(--primary)' }} /></div>
-				<h3 style="font-size: var(--text-xl); margin-bottom: var(--space-sm);">Instant Creator Payouts</h3>
-				<p style="color: var(--body); font-size: var(--text-base); line-height: 1.6;">Creators take home an industry-leading 80% split. Request a payout anytime to your UPI or bank account directly from your creator wallet.</p>
-			</div>
-		</div>
-	</section>
+		</section>
 
-	<!-- Live Marketplace Preview -->
-	<section style="padding: var(--space-5xl) 0; border-top: 1px solid var(--hairline);">
-		<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-2xl); flex-wrap: wrap; gap: var(--space-md);">
-			<div style="flex: 1; min-width: 250px;">
-				<h2 style="font-size: clamp(24px, 6vw, var(--text-4xl)); letter-spacing: -1px; margin-bottom: var(--space-xs);">Trending Agent Skills</h2>
-				<p style="color: var(--mute);">The most popular verified skills this week.</p>
+		<!-- Live Marketplace Preview -->
+		<section class="border-t border-white/5 py-24">
+			<div class="mx-auto max-w-7xl px-4">
+				<div class="mb-12 flex flex-wrap items-end justify-between gap-6">
+					<div>
+						<h2 class="mb-2 text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">Trending Agent Skills</h2>
+						<p class="text-zinc-400">The most popular verified skills this week.</p>
+					</div>
+					<a href="/browse" class="group inline-flex items-center gap-1 text-sm font-medium text-indigo-400 hover:text-indigo-300">
+						View All <ChevronRight size={16} class="transition-transform group-hover:translate-x-1" />
+					</a>
+				</div>
+				<TrendingSkillsIsland client:visible />
 			</div>
-			<a href="/browse" class="btn btn-secondary" style="font-weight: 600;">View All →</a>
-		</div>
+		</section>
 
-		<TrendingSkillsIsland client:visible />
-	</section>
-
-	<!-- Final CTA Band -->
-	<section class="band-soft" style="position: relative; text-align: center; color: var(--ink); overflow: hidden; border: 1px solid var(--hairline-strong);">
-		<div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent));"></div>
-		<h2 style="font-size: clamp(24px, 6vw, var(--text-5xl)); letter-spacing: -2px; margin-bottom: var(--space-md); color: var(--ink);">Stop giving away your prompts.</h2>
-		<p style="font-size: var(--text-xl); color: var(--body); max-width: 600px; margin: 0 auto var(--space-xl) auto; opacity: 0.9;">
-			Package your expertise into reusable agent skills. Set your price in INR and keep 80% of every sale.
-		</p>
-		<a href="/sell" class="btn btn-primary btn-lg" style="font-weight: 700; padding: 16px 40px; font-size: var(--text-lg);">Start Creating Now</a>
-	</section>
+		<!-- Final CTA Band -->
+		<section class="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-24 text-center">
+			<div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+			<div class="mx-auto max-w-3xl px-4 relative z-10">
+				<h2 class="mb-6 text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl">Stop giving away your prompts.</h2>
+				<p class="mb-10 text-xl text-zinc-400">
+					Package your expertise into reusable agent skills. Set your price in INR and keep 80% of every sale.
+				</p>
+				<a href="/sell">
+					<ShimmerButton client:load className="mx-auto">
+						<span class="text-base font-semibold text-white">Start Creating Now</span>
+					</ShimmerButton>
+				</a>
+			</div>
+		</section>
 	</main>
-
-	<!-- Crawler / noscript fallback so bots that skip JS still see the app name and purpose -->
-	<noscript>
-		<h2>BodhicAI — AI Agent Skill &amp; Prompt Marketplace</h2>
-		<p>BodhicAI is a verified software marketplace where developers discover, test, and purchase AI agent skills and prompt templates. Users sign in with Google to manage their creator wallet, upload custom AI agent scripts, and buy verified skills built by other developers. Every skill is security-scanned before listing. Creators keep 80% of every sale. Prices are in INR with no hidden fees.</p>
-		<h3>How It Works</h3>
-		<p>1. Browse the marketplace and find a skill for your AI coding agent.</p>
-		<p>2. Purchase the skill. Prices start at ₹79.</p>
-		<p>3. Install the skill file in your project and your AI agent learns new capabilities instantly.</p>
-		<h3>Key Features</h3>
-		<ul>
-			<li>OWASP LLM security scanning on every uploaded skill</li>
-			<li>Works with Cursor, Claude, Windsurf, and MCP-compatible agents</li>
-			<li>Creator payouts via UPI and bank transfer</li>
-			<li>Zero buyer markup — pay the exact price set by the creator</li>
-		</ul>
-		<nav>
-			<a href="https://bodhicai.tech/">Home</a> |
-			<a href="https://bodhicai.tech/browse">Browse Skills</a> |
-			<a href="https://bodhicai.tech/sell">Create a Skill</a> |
-			<a href="https://bodhicai.tech/about">About</a> |
-			<a href="https://bodhicai.tech/privacy">Privacy Policy</a> |
-			<a href="https://bodhicai.tech/terms">Terms of Service</a> |
-			<a href="https://bodhicai.tech/contact">Contact</a>
-		</nav>
-	</noscript>
 </Layout>

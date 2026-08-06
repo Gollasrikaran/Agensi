@@ -18,33 +18,26 @@ export default function ReferralShareCardIsland() {
   const shareTitle = `BodhicAI — Action-Agent Marketplace (Invite: ${refId})`;
 
   return (
-    <div className="card" style={{ 
-      padding: 'var(--space-xl)', 
-      background: 'linear-gradient(135deg, rgba(37, 211, 102, 0.08), rgba(10, 102, 194, 0.1), rgba(108, 60, 225, 0.15))', 
-      border: '1px solid rgba(108, 60, 225, 0.3)', 
-      borderRadius: '16px', 
-      marginBottom: 'var(--space-xl)',
-      color: 'var(--ink)'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-        <div style={{ flex: '1 1 320px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(108, 60, 225, 0.2)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, marginBottom: '8px' }}>
+    <div className="group flex flex-col p-6 md:p-8 rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-emerald-500/5 via-indigo-500/5 to-purple-500/10 hover:border-indigo-500/50 transition-all hover:-translate-y-1 hover:shadow-xl relative overflow-hidden mb-8">
+      <div className="flex justify-between items-start flex-wrap gap-5">
+        <div className="flex-1 min-w-[320px]">
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-400 mb-2">
             MULTI-CHANNEL VIRAL REFERRAL
           </div>
-          <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: 'var(--ink)' }}>
+          <h3 className="text-xl font-bold mb-2 text-zinc-100">
             Refer Friends & Earn 20% Affiliate Kickbacks!
           </h3>
-          <p style={{ fontSize: '14px', color: 'var(--body)', lineHeight: 1.6, margin: '0 0 12px 0' }}>
-            Share your unique referral code <strong style={{ color: 'var(--primary)', fontFamily: 'monospace', background: 'var(--canvas-soft)', padding: '2px 6px', borderRadius: '4px' }}>{refId}</strong> via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone visits and signs up using your link, you automatically earn a <strong style={{ color: '#10b981' }}>20% Affiliate Kickback</strong> on all credits they utilize for life!
+          <p className="text-sm text-zinc-300 leading-relaxed mb-3">
+            Share your unique referral code <strong className="text-indigo-400 font-mono bg-black/30 px-1.5 py-0.5 rounded">{refId}</strong> via WhatsApp, LinkedIn, Reddit, X (Twitter), or Telegram. When someone visits and signs up using your link, you automatically earn a <strong className="text-emerald-500">20% Affiliate Kickback</strong> on all credits they utilize for life!
           </p>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '12px', color: 'var(--mute)' }}>
+          <div className="flex gap-2 flex-wrap text-xs text-zinc-500">
             <span>Free instant sharing</span>
             <span>•</span>
             <span>Automated 20% reward attribution</span>
           </div>
         </div>
 
-        <div style={{ flex: '1 1 260px', minWidth: '240px' }}>
+        <div className="flex-1 min-w-[240px]">
           <SocialShareButtonsIsland 
             url={shareUrl || 'https://bodhicai.onrender.com'} 
             title={shareTitle} 

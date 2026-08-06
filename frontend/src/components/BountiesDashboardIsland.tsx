@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import StrictAntiCopyView from './StrictAntiCopyView';
+import { IndianRupee, CheckCircle2, XCircle, AlertCircle, FileCode, CheckSquare, X, Upload } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 declare global {
   interface Window {
@@ -102,7 +104,7 @@ export default function BountiesDashboardIsland() {
           }
         },
         theme: {
-          color: "#6c3ce1"
+          color: "#4f46e5"
         }
       };
       
@@ -147,100 +149,109 @@ export default function BountiesDashboardIsland() {
   };
 
   if (loading) {
-    return <p style={{ color: 'var(--mute)' }}>Loading dashboard...</p>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+        <div className="h-8 w-8 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin mb-4" />
+        <p className="text-sm font-medium">Loading dashboard...</p>
+      </div>
+    );
   }
 
   if (!session) {
     return (
-      <div className="card" style={{ padding: 'var(--space-2xl)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--mute)', marginBottom: 'var(--space-md)' }}>Please log in to view your bounty dashboard.</p>
-        <a href="/login" className="btn btn-primary">Log In</a>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-12 text-center max-w-lg mx-auto">
+        <AlertCircle className="h-10 w-10 text-zinc-500 mx-auto mb-4" />
+        <p className="text-zinc-400 mb-6 text-sm">Please log in to view your bounty dashboard.</p>
+        <a href="/login" className="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500">
+          Log In
+        </a>
       </div>
     );
   }
 
   return (
-    <>
+    <div className="space-y-8">
       {/* Include Razorpay script */}
       <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       
-      <div style={{ display: 'flex', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)', borderBottom: '1px solid var(--hairline)', paddingBottom: 'var(--space-sm)' }}>
+      <div className="flex gap-4 border-b border-zinc-800 pb-px overflow-x-auto">
         <button 
           onClick={() => setActiveTab('posted_bounties')}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: activeTab === 'posted_bounties' ? 'var(--ink)' : 'var(--mute)',
-            fontWeight: activeTab === 'posted_bounties' ? '600' : '400',
-            fontSize: '16px',
-            cursor: 'pointer',
-            padding: 'var(--space-xs) 0',
-            borderBottom: activeTab === 'posted_bounties' ? '2px solid var(--primary)' : '2px solid transparent'
-          }}
+          className={cn(
+            "flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-semibold transition-all border-b-2",
+            activeTab === 'posted_bounties'
+              ? "border-indigo-500 text-indigo-400 bg-indigo-500/5 rounded-t-lg" 
+              : "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-t-lg"
+          )}
         >
-          Bounties I Posted
+          <Upload className="h-4 w-4" /> Bounties I Posted
         </button>
         <button 
           onClick={() => setActiveTab('my_claims')}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: activeTab === 'my_claims' ? 'var(--ink)' : 'var(--mute)',
-            fontWeight: activeTab === 'my_claims' ? '600' : '400',
-            fontSize: '16px',
-            cursor: 'pointer',
-            padding: 'var(--space-xs) 0',
-            borderBottom: activeTab === 'my_claims' ? '2px solid var(--primary)' : '2px solid transparent'
-          }}
+          className={cn(
+            "flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-semibold transition-all border-b-2",
+            activeTab === 'my_claims'
+              ? "border-indigo-500 text-indigo-400 bg-indigo-500/5 rounded-t-lg" 
+              : "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-t-lg"
+          )}
         >
-          My Claims
+          <CheckSquare className="h-4 w-4" /> My Claims
         </button>
       </div>
 
       {activeTab === 'posted_bounties' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <div className="space-y-4">
           {postedClaims.length === 0 ? (
-            <div className="card" style={{ padding: 'var(--space-2xl)', textAlign: 'center', color: 'var(--mute)' }}>
-              No claims submitted for your bounties yet.
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 border-dashed bg-zinc-900/20 py-20 px-6 text-center">
+              <Upload className="h-8 w-8 text-zinc-600 mb-4" />
+              <p className="text-sm font-medium text-zinc-400">No claims submitted for your bounties yet.</p>
             </div>
           ) : (
             postedClaims.map((claim) => (
-              <div key={claim.id} className="card" style={{ padding: 'var(--space-lg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px', marginBottom: 'var(--space-xs)' }}>Bounty: {claim.bounty.title}</h3>
-                  <p style={{ color: 'var(--mute)', fontSize: '14px', marginBottom: 'var(--space-sm)' }}>
-                    Claimed by @{claim.claimer?.username || 'user'}
+              <div key={claim.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 flex flex-col md:flex-row justify-between gap-6 shadow-sm">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-zinc-100 mb-1">{claim.bounty.title}</h3>
+                  <p className="text-sm font-medium text-zinc-500 mb-4">
+                    Claimed by <span className="text-zinc-300">@{claim.claimer?.username || 'user'}</span>
                   </p>
-                  <span className={`badge ${claim.status === 'accepted' ? 'success' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
+                  <span className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider",
+                    claim.status === 'accepted' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : 
+                    claim.status === 'rejected' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                    "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                  )}>
+                    {claim.status === 'accepted' && <CheckCircle2 className="h-3.5 w-3.5" />}
+                    {claim.status === 'rejected' && <XCircle className="h-3.5 w-3.5" />}
+                    {claim.status === 'pending' && <AlertCircle className="h-3.5 w-3.5" />}
                     {claim.status}
                   </span>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'var(--font-mono)', marginBottom: 'var(--space-xs)' }}>
-                    ₹{claim.bounty.bounty_inr}
+                
+                <div className="flex flex-col md:items-end justify-between min-w-[200px] shrink-0 border-t md:border-t-0 md:border-l border-zinc-800 pt-4 md:pt-0 md:pl-6">
+                  <div className="flex items-center gap-1 text-2xl font-black font-mono text-zinc-100 mb-4 md:mb-0">
+                    <IndianRupee className="h-5 w-5 text-zinc-500" />
+                    {claim.bounty.bounty_inr}
                   </div>
+                  
                   {claim.status === 'pending' && (
-                    <div style={{ display: 'flex', gap: 'var(--space-xs)', justifyContent: 'flex-end' }}>
+                    <div className="flex flex-wrap gap-2 justify-end w-full">
                       <button 
-                        className="btn btn-secondary" 
                         onClick={() => setInspectClaim(claim)}
-                        style={{ padding: '6px 12px', fontSize: '14px' }}
+                        className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-800 px-4 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-700"
                       >
-                        Inspect
+                        <FileCode className="h-4 w-4" /> Inspect
                       </button>
                       <button 
-                        className="btn" 
                         onClick={() => handleRejectClaim(claim.id)}
-                        style={{ padding: '6px 12px', fontSize: '14px', background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)' }}
+                        className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/20"
                       >
                         Reject
                       </button>
                       <button 
-                        className="btn btn-primary" 
                         onClick={() => handleAcceptClaim(claim.id)}
-                        style={{ padding: '6px 12px', fontSize: '14px' }}
+                        className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-indigo-500"
                       >
-                        Approve & Pay
+                        <CheckCircle2 className="h-4 w-4" /> Approve & Pay
                       </button>
                     </div>
                   )}
@@ -252,29 +263,39 @@ export default function BountiesDashboardIsland() {
       )}
 
       {activeTab === 'my_claims' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <div className="space-y-4">
           {myClaims.length === 0 ? (
-            <div className="card" style={{ padding: 'var(--space-2xl)', textAlign: 'center', color: 'var(--mute)' }}>
-              You haven't claimed any bounties yet.
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 border-dashed bg-zinc-900/20 py-20 px-6 text-center">
+              <CheckSquare className="h-8 w-8 text-zinc-600 mb-4" />
+              <p className="text-sm font-medium text-zinc-400">You haven't claimed any bounties yet.</p>
             </div>
           ) : (
             myClaims.map((claim) => (
-              <div key={claim.id} className="card" style={{ padding: 'var(--space-lg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={claim.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-sm">
                 <div>
-                  <h3 style={{ fontSize: '18px', marginBottom: 'var(--space-xs)' }}>{claim.bounty.title}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                    <span className={`badge ${claim.status === 'accepted' ? 'success' : claim.status === 'rejected' ? 'error' : 'warning'}`} style={{ textTransform: 'uppercase' }}>
+                  <h3 className="text-lg font-bold text-zinc-100 mb-3">{claim.bounty.title}</h3>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider",
+                      claim.status === 'accepted' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : 
+                      claim.status === 'rejected' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                      "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    )}>
+                      {claim.status === 'accepted' && <CheckCircle2 className="h-3.5 w-3.5" />}
+                      {claim.status === 'rejected' && <XCircle className="h-3.5 w-3.5" />}
+                      {claim.status === 'pending' && <AlertCircle className="h-3.5 w-3.5" />}
                       {claim.status}
                     </span>
                     {claim.status === 'rejected' && claim.rejection_reason && (
-                      <span style={{ fontSize: '13px', color: 'var(--error)' }}>
+                      <span className="text-xs font-medium text-red-400 bg-red-500/5 px-3 py-1 rounded-full border border-red-500/10 max-w-sm truncate">
                         <strong>Reason:</strong> {claim.rejection_reason}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', fontSize: '20px', fontWeight: 'bold', fontFamily: 'var(--font-mono)' }}>
-                  ₹{claim.bounty.bounty_inr}
+                <div className="flex items-center gap-1 text-xl font-black font-mono text-zinc-100 shrink-0">
+                  <IndianRupee className="h-5 w-5 text-zinc-500" />
+                  {claim.bounty.bounty_inr}
                 </div>
               </div>
             ))
@@ -284,54 +305,59 @@ export default function BountiesDashboardIsland() {
 
       {/* Inspect Modal */}
       {inspectClaim && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(4px)'
-        }}>
-          <div className="card" style={{ width: '90%', maxWidth: '900px', padding: 'var(--space-xl)', background: 'var(--nav-bg)', border: '1px solid var(--hairline-strong)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
-              <h2 style={{ margin: 0, fontSize: '20px' }}>Strict Non-Copy Inspection</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-5xl rounded-3xl border border-zinc-800 bg-zinc-950 p-6 md:p-8 shadow-2xl max-h-[95vh] flex flex-col">
+            <div className="flex items-center justify-between mb-6 shrink-0">
+              <h2 className="text-xl md:text-2xl font-bold text-zinc-100 flex items-center gap-2">
+                <FileCode className="h-6 w-6 text-indigo-400" /> Strict Non-Copy Inspection
+              </h2>
               <button 
                 onClick={() => setInspectClaim(null)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--body)', fontSize: '24px', cursor: 'pointer' }}
+                className="rounded-full p-2 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300 transition-colors"
               >
-                &times;
+                <X className="h-6 w-6" />
               </button>
             </div>
-            <p style={{ color: 'var(--mute)', fontSize: '14px', marginBottom: 'var(--space-lg)' }}>
-              Viewing solution submitted by @{inspectClaim.claimer?.username || 'user'}. 
-              To prevent external camera leaks, a dynamic forensic watermark tracks your session.
-            </p>
             
-            <StrictAntiCopyView 
-              code={inspectClaim.submitted_code || "// No code submitted."} 
-              username={session.user.email || session.user.id} 
-              ip="Client IP" 
-            />
+            <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm font-medium text-amber-400/90 shrink-0 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+              <p>
+                Viewing solution submitted by <strong className="text-amber-400">@{inspectClaim.claimer?.username || 'user'}</strong>. 
+                To prevent external camera leaks, a dynamic forensic watermark tracks your session.
+              </p>
+            </div>
+            
+            <div className="flex-1 min-h-[300px] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 mb-6 relative">
+              <StrictAntiCopyView 
+                code={inspectClaim.submitted_code || "// No code submitted."} 
+                username={session.user.email || session.user.id} 
+                ip="Client IP" 
+              />
+            </div>
 
-            <div style={{ marginTop: 'var(--space-lg)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-sm)' }}>
-              <button className="btn" style={{ background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)' }} onClick={() => {
-                setInspectClaim(null);
-                handleRejectClaim(inspectClaim.id);
-              }}>
-                Reject Claim
+            <div className="flex flex-wrap justify-end gap-3 shrink-0">
+              <button 
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-colors hover:bg-red-500/20" 
+                onClick={() => {
+                  setInspectClaim(null);
+                  handleRejectClaim(inspectClaim.id);
+                }}
+              >
+                <XCircle className="h-4 w-4" /> Reject Claim
               </button>
-              <button className="btn btn-primary" onClick={() => {
-                setInspectClaim(null);
-                handleAcceptClaim(inspectClaim.id);
-              }}>
-                Looks Good - Approve & Pay
+              <button 
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500" 
+                onClick={() => {
+                  setInspectClaim(null);
+                  handleAcceptClaim(inspectClaim.id);
+                }}
+              >
+                <CheckCircle2 className="h-4 w-4" /> Looks Good - Approve & Pay
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

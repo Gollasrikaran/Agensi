@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import AvatarPickerIsland from './AvatarPickerIsland';
+import { UserCircle, Camera, Image as ImageIcon, ExternalLink, Shield } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 export default function ProfileSettingsIsland() {
   const [username, setUsername] = useState('');
@@ -27,7 +29,6 @@ export default function ProfileSettingsIsland() {
       }
       setUserId(session.user.id);
 
-      // Fetch current profile from users table
       const { data } = await supabase
         .from('users')
         .select('username, bio, avatar_url, background_url, is_private')
@@ -43,14 +44,11 @@ export default function ProfileSettingsIsland() {
         if (data.background_url) setBackgroundUrl(data.background_url);
         if (data.is_private !== undefined) setIsPrivate(data.is_private);
       }
-      if (data?.bio) {
-        setBio(data.bio);
-      }
+      if (data?.bio) setBio(data.bio);
       if (data?.avatar_url) {
         setAvatarUrl(data.avatar_url);
       } else {
-        // Assign a random default bot avatar if none is set
-        setAvatarUrl(`https://api.dicebear.com/9.x/bottts/svg?seed=${session.user.id}`);
+        setAvatarUrl('');
       }
       setLoading(false);
     };
@@ -61,9 +59,7 @@ export default function ProfileSettingsIsland() {
     const file = event.target.files?.[0];
     if (!file) return;
     
-    // reset input
     event.target.value = '';
-
     setUploading(true);
     setMessage(null);
 
@@ -79,9 +75,7 @@ export default function ProfileSettingsIsland() {
         .from('user_media')
         .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('user_media')
@@ -106,7 +100,6 @@ export default function ProfileSettingsIsland() {
       setMessage({ type: 'error', text: 'Username cannot be empty.' });
       return;
     }
-    // Validate username (alphanumeric + underscore only)
     if (!/^[a-z0-9_]{3,30}$/.test(username)) {
       setMessage({ type: 'error', text: 'Username must be 3–30 characters, lowercase letters, numbers, or underscores only.' });
       return;
@@ -135,7 +128,6 @@ export default function ProfileSettingsIsland() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         setCurrentUsername(username);
         setMessage({ type: 'success', text: '✓ Profile updated successfully!' });
@@ -150,77 +142,46 @@ export default function ProfileSettingsIsland() {
   };
 
   if (loading) {
-    return <div style={{ padding: 'var(--space-xl)', color: 'var(--mute)' }}>Loading profile...</div>;
+    return <div className="animate-pulse space-y-4 p-6"><div className="h-32 bg-zinc-800 rounded-xl"></div><div className="h-64 bg-zinc-800 rounded-xl"></div></div>;
   }
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Profile Header Preview */}
-      <div style={{ 
-        position: 'relative',
-        marginBottom: 'var(--space-xl)', 
-        background: backgroundUrl ? `url(${backgroundUrl}) center/cover no-repeat` : 'var(--canvas)', 
-        borderRadius: 'var(--radius-lg)', 
-        border: '1px solid var(--hairline-strong)',
-        overflow: 'hidden'
-      }}>
-        {/* Dark overlay if background exists for readability */}
-        {backgroundUrl && (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4))' }}></div>
-        )}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : 'none' }}
+        />
+        {backgroundUrl && <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40" />}
         
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '20px', padding: 'var(--space-xl)' }}>
-          {/* Avatar Preview */}
-          <div style={{
-            width: '72px', height: '72px', borderRadius: '50%',
-            background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), #9b5cff)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '28px', fontWeight: 700, color: '#fff', flexShrink: 0,
-            border: '2px solid rgba(255,255,255,0.2)'
-          }}>
+        <div className="relative flex flex-col sm:flex-row items-center gap-6 p-8">
+          <div 
+            className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-white/20 text-3xl font-bold text-white shadow-xl bg-cover bg-center"
+            style={{ 
+              backgroundImage: avatarUrl ? `url(${avatarUrl})` : 'linear-gradient(135deg, #6366f1, #a855f7)'
+            }}
+          >
             {!avatarUrl && (currentUsername ? currentUsername[0].toUpperCase() : '?')}
           </div>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '22px', color: backgroundUrl ? '#fff' : 'inherit' }}>
+          
+          <div className="text-center sm:text-left">
+            <h2 className={cn("text-2xl font-bold", backgroundUrl ? "text-white" : "text-zinc-100")}>
               {currentUsername ? `@${currentUsername}` : 'No username set yet'}
             </h2>
-            <p style={{ margin: '4px 0 0', color: backgroundUrl ? 'rgba(255,255,255,0.7)' : 'var(--mute)', fontSize: '14px' }}>
+            <p className={cn("mt-1 text-sm", backgroundUrl ? "text-white/70" : "text-zinc-400")}>
               {currentUsername ? 'This is how creators and buyers see you on the marketplace.' : 'Set a username so you appear on the marketplace!'}
             </p>
           </div>
 
           {currentUsername && (
-            <div style={{ marginLeft: 'auto' }}>
+            <div className="mt-4 sm:ml-auto sm:mt-0">
               <a 
                 href={`/profile/${currentUsername}`} 
                 target="_blank" 
-                style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  padding: '10px 20px',
-                  borderRadius: 'var(--radius-pill)',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'background 0.2s ease, transform 0.1s ease',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white/25"
               >
-                View Public Profile ↗
+                View Public Profile <ExternalLink className="h-4 w-4" />
               </a>
             </div>
           )}
@@ -228,71 +189,71 @@ export default function ProfileSettingsIsland() {
       </div>
 
       {/* Form */}
-      <div style={{ padding: 'var(--space-xl)', background: 'var(--canvas)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--hairline-strong)' }}>
-        <h3 style={{ marginTop: 0, marginBottom: 'var(--space-lg)', fontSize: '18px' }}>Edit Profile</h3>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8">
+        <h3 className="mb-6 text-xl font-bold text-zinc-100">Edit Profile</h3>
 
-        <form onSubmit={handleSave}>
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
-              Username
-            </label>
-            <div style={{ position: 'relative' }}>
-              <span style={{
-                position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-                color: 'var(--mute)', fontSize: '15px', pointerEvents: 'none'
-              }}>@</span>
+        <form onSubmit={handleSave} className="space-y-6 max-w-3xl">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-300">Username</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium">@</span>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 placeholder="your_username"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 28px',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--hairline-strong)',
-                  background: 'var(--canvas-soft)',
-                  color: 'var(--ink)',
-                  fontSize: '15px',
-                  boxSizing: 'border-box'
-                }}
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-3 pl-10 pr-4 text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
-            <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>
+            <p className="text-xs text-zinc-500">
               3–30 characters. Lowercase letters, numbers, and underscores only. Must be unique.
             </p>
           </div>
 
           {/* Media Uploads */}
-          <div style={{ display: 'flex', gap: '20px', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
-                Profile Avatar
-              </label>
+          <div className="flex flex-col sm:flex-row gap-6">
+            <div className="flex-1 space-y-2">
+              <label className="text-sm font-medium text-zinc-300">Profile Avatar</label>
               <input 
                 type="file" 
                 accept="image/*" 
                 ref={avatarInputRef} 
-                style={{ display: 'none' }} 
+                className="hidden" 
                 onChange={(e) => handleFileUpload(e, 'avatar')} 
               />
               <button 
                 type="button" 
-                className="btn btn-secondary" 
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={uploading}
-                style={{ width: '100%', marginBottom: '12px' }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-700 disabled:opacity-50"
               >
+                <Camera className="h-4 w-4" />
                 {uploading ? 'Uploading...' : (avatarUrl ? 'Change Avatar' : 'Upload Avatar')}
               </button>
-              
+            </div>
+            <div className="flex-1 space-y-2">
+              <label className="text-sm font-medium text-zinc-300">Profile Background</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={backgroundInputRef} 
+                className="hidden" 
+                onChange={(e) => handleFileUpload(e, 'background')} 
+              />
+              <button 
+                type="button" 
+                onClick={() => backgroundInputRef.current?.click()}
+                disabled={uploading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-700 disabled:opacity-50"
+              >
+                <ImageIcon className="h-4 w-4" />
+                {uploading ? 'Uploading...' : (backgroundUrl ? 'Change Background' : 'Upload Background')}
+              </button>
             </div>
           </div>
           
-          <div style={{ marginBottom: 'var(--space-xl)' }}>
-            <label style={{ display: 'block', marginBottom: '16px', fontWeight: 500, fontSize: '14px' }}>
-              Choose Avatar
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-300">Or Choose Avatar</label>
             <AvatarPickerIsland 
               userId={userId} 
               currentUsername={username} 
@@ -300,89 +261,54 @@ export default function ProfileSettingsIsland() {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '20px', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
-                Profile Background
-              </label>
-              <input 
-                type="file" 
-                accept="image/*" 
-                ref={backgroundInputRef} 
-                style={{ display: 'none' }} 
-                onChange={(e) => handleFileUpload(e, 'background')} 
-              />
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
-                onClick={() => backgroundInputRef.current?.click()}
-                disabled={uploading}
-                style={{ width: '100%' }}
-              >
-                {uploading ? 'Uploading...' : (backgroundUrl ? 'Change Background' : 'Upload Background')}
-              </button>
-            </div>
-          </div>
-          
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500, fontSize: '14px' }}>
-              Bio
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-300">Bio</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell us about yourself and your skills..."
               rows={4}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--hairline-strong)',
-                background: 'var(--canvas-soft)',
-                color: 'var(--ink)',
-                fontSize: '15px',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
 
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
               <input 
                 type="checkbox" 
                 checked={isPrivate} 
                 onChange={(e) => setIsPrivate(e.target.checked)} 
-                style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }}
+                className="mt-1 h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-zinc-950"
               />
-              <span style={{ fontWeight: 500, fontSize: '14px' }}>Private Profile</span>
+              <div>
+                <span className="block text-sm font-medium text-zinc-200 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-indigo-400" /> Private Profile
+                </span>
+                <span className="block mt-1 text-xs text-zinc-500">
+                  If enabled, your public profile and Skill Pulse will be hidden from other users.
+                </span>
+              </div>
             </label>
-            <p style={{ margin: '4px 0 0 26px', fontSize: '12px', color: 'var(--mute)' }}>
-              If enabled, your public profile and Skill Pulse will be hidden from other users.
-            </p>
           </div>
 
           {message && (
-            <div style={{
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: 'var(--space-md)',
-              background: message.type === 'success' ? 'var(--success-soft)' : 'var(--error-soft)',
-              color: message.type === 'success' ? 'var(--success)' : 'var(--error)',
-              fontSize: '14px'
-            }}>
+            <div className={cn(
+              "rounded-xl p-4 text-sm font-medium",
+              message.type === 'success' ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border border-red-500/20 bg-red-500/10 text-red-400"
+            )}>
               {message.text}
             </div>
           )}
 
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={saving || uploading}
-            style={{ minWidth: '120px' }}
-          >
-            {saving ? 'Saving...' : 'Save Profile'}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={saving || uploading}
+              className="inline-flex min-w-[140px] items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

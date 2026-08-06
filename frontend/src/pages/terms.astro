@@ -1,20 +1,20 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
 ---
-<Layout title="Terms & Conditions - BodhicAI">
-    <div style="max-width: 800px; margin: 0 auto; padding: var(--space-2xl) 0;">
-        <h1 style="font-size: clamp(24px, 5vw, 36px); margin-bottom: var(--space-lg);">Terms & Conditions</h1>
-        <div style="color: var(--body); line-height: 1.8; font-size: 16px;">
+<LegalLayout title="Terms & Conditions - BodhicAI">
+    
+        
+        <div>
             <p>Last updated: {new Date().toLocaleDateString()}</p>
-            <h3 style="color: var(--ink); margin-top: var(--space-xl);">1. Acceptance of Terms</h3>
+            <h3>1. Acceptance of Terms</h3>
             <p>By accessing and using BodhicAI, you agree to be bound by these Terms and Conditions. If you disagree with any part of the terms, you may not access the service.</p>
-            <h3 style="color: var(--ink); margin-top: var(--space-xl);">2. Marketplace Rules</h3>
+            <h3>2. Marketplace Rules</h3>
             <p>BodhicAI is a marketplace for AI agent skills and prompts. Creators must hold the intellectual property rights to the items they upload. Buyers receive a non-exclusive license to use the purchased digital goods.</p>
-            <h3 style="color: var(--ink); margin-top: var(--space-xl);">3. Security & Liability</h3>
+            <h3>3. Security & Liability</h3>
             <p>While BodhicAI performs automated security scans on uploaded artifacts, buyers are responsible for safely utilizing the provided code or prompts in their environments. BodhicAI shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use of any marketplace item.</p>
-            <h3 style="color: var(--ink); margin-top: var(--space-xl);">4. Skill Complexity & Credit Usage Policy</h3>
+            <h3>4. Skill Complexity & Credit Usage Policy</h3>
             <p>To ensure transparency, prevent misinformation, and maintain fair compute usage across our AI Agent infrastructure, all interactions with skills on BodhicAI (via web chat or MCP/IDE connectors) consume Bodhic Credits based on an automated AI complexity classification system. Each skill is evaluated during Tier 2 AI Security & Complexity Scanning and assigned a Complexity Level from 1 to 5:</p>
-            <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 15px; color: var(--body);">
+            <ul>
                 <li><strong>Level 1 (Simple Queries & Prompts):</strong> 10 Credits / chat interaction</li>
                 <li><strong>Level 2 (Standard Formatting & Scripting):</strong> 20 Credits / chat interaction</li>
                 <li><strong>Level 3 (Intermediate Data & Code Analysis):</strong> 40 Credits / chat interaction</li>
@@ -22,8 +22,8 @@ import Layout from '../layouts/Layout.astro';
                 <li><strong>Level 5 (Complex Multi-Agent Orchestration):</strong> 100 Credits / chat interaction</li>
             </ul>
             <p>The exact Complexity Level and required Credits / Chat are publicly displayed on every skill card and detail page so that users are fully informed prior to initiating interactions.</p>
-            <h3 style="color: var(--ink); margin-top: var(--space-xl);">5. Governing Law</h3>
+            <h3>5. Governing Law</h3>
             <p>These terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.</p>
         </div>
-    </div>
-</Layout>
+    
+</LegalLayout>

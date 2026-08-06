@@ -323,6 +323,15 @@ def handle_security_failure(user_id: str, scan_result: dict, tier: int, message_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class AutofillRequest(BaseModel):
+    content: str
+
+@app.post("/api/skills/autofill")
+def autofill_skill_metadata(req: AutofillRequest, user = Depends(get_current_user)):
+    from security_scanner import generate_skill_metadata
+    metadata = generate_skill_metadata(req.content)
+    return metadata
+
 @app.post("/api/skills/upload")
 def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     # The user object is provided by Supabase Auth via the JWT

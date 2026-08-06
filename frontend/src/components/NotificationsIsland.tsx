@@ -138,40 +138,34 @@ export default function NotificationsIsland() {
   const filteredNotifs = filter === 'unread' ? notifications.filter(n => !n.is_read) : notifications;
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '40px', color: 'var(--mute)' }}>Loading notifications...</div>;
+    return <div className="text-center p-10 text-zinc-400">Loading notifications...</div>;
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', margin: 0 }}>Notifications</h1>
-        <div style={{ display: 'flex', gap: '12px' }}>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-zinc-100 m-0">Notifications</h1>
+        <div className="flex gap-3">
           <select 
             value={filter} 
             onChange={e => setFilter(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--hairline)',
-              background: 'var(--canvas-soft)',
-              color: 'var(--body)'
-            }}
+            className="px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900/50 text-zinc-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           >
             <option value="all">All Notifications</option>
             <option value="unread">Unread Only</option>
           </select>
-          <button onClick={markAllAsRead} className="btn-primary" style={{ padding: '8px 16px', fontSize: '14px' }}>
+          <button onClick={markAllAsRead} className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
             Mark all read
           </button>
-          <button onClick={() => setShowSettings(true)} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '14px' }}>
+          <button onClick={() => setShowSettings(true)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-2 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
             ⚙️ Settings
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {filteredNotifs.length === 0 ? (
-          <div className="glass-card" style={{ padding: '40px', textAlign: 'center', color: 'var(--mute)' }}>
+          <div className="group flex flex-col p-10 rounded-2xl border border-zinc-800 bg-zinc-900/50 text-center text-zinc-400 shadow-sm relative overflow-hidden">
             No notifications to display.
           </div>
         ) : (
@@ -179,39 +173,23 @@ export default function NotificationsIsland() {
             <div 
               key={n.id}
               onClick={() => markAsRead(n.id, n.link)}
-              className="glass-card"
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '20px',
-                cursor: 'pointer',
-                borderLeft: n.is_read ? '1px solid var(--hairline)' : '4px solid var(--primary)',
-                background: n.is_read ? 'var(--canvas)' : 'var(--canvas-soft-2)'
-              }}
+              className={`flex justify-between items-center p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg rounded-2xl border ${n.is_read ? 'border-zinc-800 bg-zinc-900 border-l border-l-zinc-800' : 'border-zinc-800 bg-zinc-900/50 border-l-4 border-l-indigo-500'}`}
             >
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <div style={{ fontSize: '24px' }}>
+              <div className="flex gap-4 items-center">
+                <div className="text-2xl">
                   {n.type === 'success' ? '🟢' : n.type === 'error' ? '🔴' : n.type === 'bounty' ? '🏆' : '🔵'}
                 </div>
                 <div>
-                  <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: n.is_read ? '500' : '700' }}>{n.title}</h3>
-                  <p style={{ margin: 0, fontSize: '14px', color: 'var(--mute)' }}>{n.message}</p>
-                  <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '8px' }}>
+                  <h3 className={`m-0 mb-1 text-base ${n.is_read ? 'font-medium text-zinc-300' : 'font-bold text-zinc-100'}`}>{n.title}</h3>
+                  <p className="m-0 text-sm text-zinc-400">{n.message}</p>
+                  <span className="block mt-2 text-xs text-zinc-500">
                     {new Date(n.created_at).toLocaleString()}
                   </span>
                 </div>
               </div>
               <button 
                 onClick={(e) => deleteNotification(n.id, e)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--error)',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '50%',
-                }}
+                className="bg-transparent border-none text-red-500/80 hover:text-red-500 hover:bg-red-500/10 cursor-pointer p-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
                 title="Delete Notification"
               >
                 🗑️
@@ -223,60 +201,60 @@ export default function NotificationsIsland() {
 
       {/* Settings Modal */}
       {showSettings && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="card" style={{ width: '90%', maxWidth: '500px', padding: 'var(--space-2xl)' }}>
-            <h3 style={{ marginBottom: '24px' }}>Notification Settings</h3>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-5">
+          <div className="group flex flex-col p-8 rounded-2xl border border-zinc-800 bg-zinc-900 w-full max-w-lg shadow-xl relative overflow-hidden">
+            <h3 className="text-2xl font-bold text-zinc-100 mb-6">Notification Settings</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+            <div className="flex flex-col gap-6">
+              <label className="flex items-center gap-3 cursor-pointer group/label">
                 <input 
                   type="checkbox" 
                   checked={settings.email_notifications} 
-                  onChange={e => setSettings({...settings, email_notifications: e.target.checked})} 
+                  onChange={e => setSettings({...settings, email_notifications: e.target.checked})}
+                  className="w-4 h-4 rounded border-zinc-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-zinc-900 bg-zinc-950" 
                 />
-                <span style={{ fontSize: '16px' }}>Email Notifications</span>
+                <span className="text-base text-zinc-300 group-hover/label:text-zinc-100 transition-colors">Email Notifications</span>
               </label>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+              <label className="flex items-center gap-3 cursor-pointer group/label">
                 <input 
                   type="checkbox" 
                   checked={settings.push_notifications} 
                   onChange={e => setSettings({...settings, push_notifications: e.target.checked})} 
+                  className="w-4 h-4 rounded border-zinc-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-zinc-900 bg-zinc-950" 
                 />
-                <span style={{ fontSize: '16px' }}>Desktop / Web Push Notifications</span>
+                <span className="text-base text-zinc-300 group-hover/label:text-zinc-100 transition-colors">Desktop / Web Push Notifications</span>
               </label>
 
-              <div style={{ padding: '16px', border: '1px solid var(--hairline)', borderRadius: '8px', background: 'var(--canvas-soft-2)' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '16px' }}>
+              <div className="p-4 border border-zinc-800 rounded-xl bg-zinc-900/50">
+                <label className="flex items-center gap-3 cursor-pointer mb-4 group/label">
                   <input 
                     type="checkbox" 
                     checked={settings.dnd_enabled} 
                     onChange={e => setSettings({...settings, dnd_enabled: e.target.checked})} 
+                    className="w-4 h-4 rounded border-zinc-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-zinc-900 bg-zinc-950" 
                   />
-                  <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Do Not Disturb (Quiet Hours)</span>
+                  <span className="text-base font-bold text-zinc-100 group-hover/label:text-white transition-colors">Do Not Disturb (Quiet Hours)</span>
                 </label>
                 
                 {settings.dnd_enabled && (
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: 'var(--mute)', marginBottom: '4px' }}>Start Time</label>
-                      <input type="time" value={settings.dnd_start_time.substring(0,5)} onChange={e => setSettings({...settings, dnd_start_time: e.target.value + ':00'})} style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)' }} />
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs text-zinc-500 font-semibold mb-1">Start Time</label>
+                      <input type="time" value={settings.dnd_start_time.substring(0,5)} onChange={e => setSettings({...settings, dnd_start_time: e.target.value + ':00'})} className="w-full rounded-xl border border-zinc-700 bg-black/50 px-3 py-2 text-sm text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: 'var(--mute)', marginBottom: '4px' }}>End Time</label>
-                      <input type="time" value={settings.dnd_end_time.substring(0,5)} onChange={e => setSettings({...settings, dnd_end_time: e.target.value + ':00'})} style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--hairline)', background: 'var(--canvas)', color: 'var(--ink)' }} />
+                    <div className="flex-1">
+                      <label className="block text-xs text-zinc-500 font-semibold mb-1">End Time</label>
+                      <input type="time" value={settings.dnd_end_time.substring(0,5)} onChange={e => setSettings({...settings, dnd_end_time: e.target.value + ':00'})} className="w-full rounded-xl border border-zinc-700 bg-black/50 px-3 py-2 text-sm text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '32px' }}>
-              <button className="btn btn-secondary" onClick={() => setShowSettings(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={saveSettings} disabled={savingSettings}>
+            <div className="flex gap-4 justify-end mt-8">
+              <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950" onClick={() => setShowSettings(false)}>Cancel</button>
+              <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50" onClick={saveSettings} disabled={savingSettings}>
                 {savingSettings ? 'Saving...' : 'Save Settings'}
               </button>
             </div>

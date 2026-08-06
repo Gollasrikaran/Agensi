@@ -7,17 +7,19 @@ import CreditWalletIsland from '../../../components/CreditWalletIsland.tsx';
 	title="Buyer Dashboard — BodhicAI"
 	description="Access your purchased AI agent skills, prompts, and workflows in your private buyer dashboard."
 >
-	<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
-		<div style="margin-bottom: var(--space-xl);">
-			<div style="display: flex; gap: var(--space-md); margin-bottom: var(--space-lg); border-bottom: 1px solid var(--hairline);">
-				<a href="/dashboard/buyer" style="padding: var(--space-sm) var(--space-md); font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary); text-decoration: none;">Buyer Dashboard</a>
-				<a href="/dashboard/seller" style="padding: var(--space-sm) var(--space-md); font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color 0.2s;">Creator Dashboard</a>
+	<div class="mx-auto max-w-5xl pt-16 px-4 sm:px-6 lg:px-8 pb-32">
+		<div class="mb-10">
+			<div class="flex gap-6 mb-8 border-b border-zinc-800">
+				<a href="/dashboard/buyer" class="px-2 py-3 font-semibold text-indigo-400 border-b-2 border-indigo-400 transition-colors">Buyer Dashboard</a>
+				<a href="/dashboard/seller" class="px-2 py-3 font-medium text-zinc-500 hover:text-zinc-300 transition-colors">Creator Dashboard</a>
 			</div>
-			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">buyer</span>
-			<h1 style="font-size: clamp(24px, 5vw, 36px); margin-bottom: var(--space-xs);">Dashboard</h1>
-			<p style="color: var(--body); font-size: 16px;">View your purchased skills and access artifacts.</p>
+			<span class="inline-block px-4 py-1.5 mb-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-mono text-xs font-semibold tracking-widest uppercase">
+				Buyer
+			</span>
+			<h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mb-2">Dashboard</h1>
+			<p class="text-zinc-400 text-lg">View your purchased skills and access artifacts.</p>
 		</div>
-		<div style="margin-bottom: var(--space-3xl);">
+		<div class="mb-12">
 			<CreditWalletIsland client:load />
 		</div>
 		<BuyerDashboardIsland client:load />

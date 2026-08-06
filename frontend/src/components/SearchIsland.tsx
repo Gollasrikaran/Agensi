@@ -37,37 +37,33 @@ export default function SearchIsland() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px' }}>
-        <p style={{ color: 'var(--text-muted)' }}>Searching...</p>
+      <div className="text-center p-16">
+        <p className="text-zinc-400">Searching...</p>
       </div>
     );
   }
 
   if (!query) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', background: 'var(--bg-secondary)', borderRadius: '12px' }}>
-        <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>Empty Query</h3>
-        <p style={{ color: 'var(--text-muted)' }}>Enter a search term in the navbar to find skills.</p>
+      <div className="text-center p-16 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+        <h3 className="text-xl font-semibold mb-2 text-zinc-100">Empty Query</h3>
+        <p className="text-zinc-400">Enter a search term in the navbar to find skills.</p>
       </div>
     );
   }
 
   if (skills.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', background: 'var(--bg-secondary)', borderRadius: '12px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-        <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>No skills found</h3>
-        <p style={{ color: 'var(--text-muted)' }}>We couldn't find any skills matching "{query}". Try different keywords.</p>
+      <div className="text-center p-16 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+        <div className="text-5xl mb-4">🔍</div>
+        <h3 className="text-xl font-semibold mb-2 text-zinc-100">No skills found</h3>
+        <p className="text-zinc-400">We couldn't find any skills matching "{query}". Try different keywords.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', 
-      gap: '24px' 
-    }}>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6">
       {skills.map((skill: any) => (
         <SkillCard key={skill.id} skill={skill} />
       ))}

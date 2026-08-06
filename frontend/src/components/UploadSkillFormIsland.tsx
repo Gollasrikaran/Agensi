@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Badge } from './ui/badge';
+import { Sparkles, Upload, Image as ImageIcon, Lock, CheckCircle2 } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const CATEGORIES = [
   { value: 'automation', label: 'Automation' },
@@ -16,7 +20,9 @@ const CATEGORIES = [
   { value: 'legal', label: 'Legal' },
   { value: 'marketing', label: 'Marketing' },
   { value: 'productivity', label: 'Productivity' },
-  { value: 'security', label: 'Security' }
+  { value: 'security', label: 'Security' },
+  { value: 'api', label: 'API & Integrations' },
+  { value: 'ai', label: 'AI & Machine Learning' }
 ];
 
 export default function UploadSkillFormIsland() {
@@ -35,45 +41,25 @@ export default function UploadSkillFormIsland() {
   const [mediaUploading, setMediaUploading] = useState(false);
   
   const [loading, setLoading] = useState(false);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [result, setResult] = useState<{ success: boolean; content: React.ReactNode } | null>(null);
   const [appealMsg, setAppealMsg] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Load draft on mount
-  useEffect(() => {
-    const draftStr = localStorage.getItem('skill_upload_draft');
-    if (draftStr) {
-      try {
-        const draft = JSON.parse(draftStr);
-        if (draft.title) setTitle(draft.title);
-        if (draft.description) setDescription(draft.description);
-        if (draft.price) setPrice(draft.price);
-        if (draft.pricingModel) setPricingModel(draft.pricingModel);
-        if (draft.selectedCategories) setSelectedCategories(draft.selectedCategories);
-        if (draft.targetAudience) setTargetAudience(draft.targetAudience);
-        if (draft.itemType) setItemType(draft.itemType);
-        if (draft.mediaUrl) setMediaUrl(draft.mediaUrl);
-      } catch(e) {}
-    }
-  }, []);
-
-  // Save draft on change
-  useEffect(() => {
-    const draft = { title, description, price, pricingModel, selectedCategories, targetAudience, itemType, mediaUrl };
-    localStorage.setItem('skill_upload_draft', JSON.stringify(draft));
-  }, [title, description, price, pricingModel, selectedCategories, targetAudience, itemType, mediaUrl]);
+  const [freeSkillsCount, setFreeSkillsCount] = useState(0);
 
   useEffect(() => {
-    // Check session on load and redirect if not logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         window.location.href = '/signup';
+      } else {
+        fetchFreeSkillsCount(session.user.id);
       }
     });
 
-    // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
@@ -83,42 +69,94 @@ export default function UploadSkillFormIsland() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const fetchFreeSkillsCount = async (userId: string) => {
+    const { count } = await supabase
+      .from('skills')
+      .select('*', { count: 'exact', head: true })
+      .eq('seller_id', userId)
+      .eq('is_free', true);
+    setFreeSkillsCount(count || 0);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+    setFile(selected);
+
+    // Auto-fill trigger
+    setIsAutoFilling(true);
+    showToast("Analyzing file to auto-fill details...", "info");
+    
+    try {
+      const content = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject("Error reading file");
+        reader.readAsText(selected);
+      });
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No session");
+
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/autofill`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ content })
+      });
+
+      if (res.ok) {
+        const metadata = await res.json();
+        if (metadata.title) setTitle(metadata.title);
+        if (metadata.description) setDescription(metadata.description);
+        if (metadata.category) {
+          const cats = metadata.category.split(',').map((c: string) => c.trim().toLowerCase());
+          const validCats = CATEGORIES.filter(c => cats.includes(c.value) || cats.includes(c.label.toLowerCase())).map(c => c.value);
+          if (validCats.length > 0) {
+            setSelectedCategories(validCats);
+          }
+        }
+        showToast("Auto-filled details successfully!", "success");
+      } else {
+        throw new Error("Failed to auto-fill");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Auto-fill skipped. You can manually enter details.", "info");
+    } finally {
+      setIsAutoFilling(false);
+    }
+  };
+
   const toggleCategory = (value: string) => {
     setSelectedCategories(prev => 
       prev.includes(value) ? prev.filter(c => c !== value) : [...prev, value]
     );
   };
 
-  const handleMediaFileChange = async (file: File) => {
-    setMediaFile(file);
-    // Show local preview immediately
-    const objectUrl = URL.createObjectURL(file);
+  const handleMediaFileChange = async (f: File) => {
+    setMediaFile(f);
+    const objectUrl = URL.createObjectURL(f);
     setMediaPreview(objectUrl);
     setMediaUrl('');
-
-    // Upload to Supabase Storage
     setMediaUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not logged in');
 
-      const ext = file.name.split('.').pop();
+      const ext = f.name.split('.').pop();
       const filePath = `skill_media/${session.user.id}/${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('user_media')
-        .upload(filePath, file, { upsert: true });
-
+      const { error: uploadError } = await supabase.storage.from('user_media').upload(filePath, f, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('user_media')
-        .getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from('user_media').getPublicUrl(filePath);
       setMediaUrl(publicUrl);
       showToast('Media uploaded!', 'success');
     } catch (err: any) {
-      showToast('Media upload failed: ' + err.message, 'error');
+      showToast('Media upload failed', 'error');
       setMediaFile(null);
       setMediaPreview('');
     } finally {
@@ -127,29 +165,17 @@ export default function UploadSkillFormIsland() {
   };
 
   const handleAppeal = async () => {
-    if (!appealMsg.trim()) {
-      showToast('Please enter a message.', 'error');
-      return;
-    }
+    if (!appealMsg.trim()) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-
-      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/appeal`, {
+      await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/users/me/appeal`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({ message: appealMsg })
       });
-      if (res.ok) {
-        showToast("Appeal submitted successfully. The admin will review it.", "success");
-        setAppealMsg('');
-      } else {
-        const errData = await res.json();
-        showToast("Failed to submit appeal: " + (errData.detail || "Unknown error"), "error");
-      }
+      showToast("Appeal submitted.", "success");
+      setAppealMsg('');
     } catch (e) {
       showToast("Error submitting appeal.", "error");
     }
@@ -157,16 +183,7 @@ export default function UploadSkillFormIsland() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      showToast("Please select a .md file to upload.", "error");
-      return;
-    }
-    
-    if (!agreedToGuidelines) {
-      showToast("You must read and agree to the Creator Guidelines before uploading.", "error");
-      return;
-    }
-
+    if (!file || !agreedToGuidelines) return;
     setLoading(true);
     setResult(null);
 
@@ -174,416 +191,252 @@ export default function UploadSkillFormIsland() {
       const content = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = () => reject("Error reading file");
+        reader.onerror = () => reject("Error");
         reader.readAsText(file);
       });
 
-      // Get a guaranteed fresh session: try refreshSession first, fall back to getSession
-      let session: any = null;
-      try {
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshData?.session) {
-          session = refreshData.session;
-        } else {
-          console.warn('refreshSession failed or returned no session:', refreshError?.message);
-          const { data: { session: existingSession } } = await supabase.auth.getSession();
-          session = existingSession;
-        }
-      } catch (refreshEx) {
-        console.error('Session refresh threw:', refreshEx);
-        const { data: { session: existingSession } } = await supabase.auth.getSession();
-        session = existingSession;
-      }
-
-      if (!session?.access_token) {
-        window.location.href = '/login';
-        return;
-      }
-
-      console.log('[Upload] Using token prefix:', session.access_token.substring(0, 20));
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return window.location.assign('/login');
 
       const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/upload`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({
-          title,
-          description,
-          content,
+          title, description, content,
           base_price_inr: pricingModel === 'free' ? 0 : parseFloat(price) || 0,
-          billing_type: 'one-time',
-          categories: selectedCategories,
-          target_audience: targetAudience,
-          item_type: itemType,
-          media_url: mediaUrl || undefined
+          billing_type: 'one-time', categories: selectedCategories, target_audience: targetAudience,
+          item_type: itemType, media_url: mediaUrl || undefined
         })
       });
 
       const data = await res.json();
-
       if (res.ok) {
         setIsBlocked(false);
-        localStorage.removeItem('skill_upload_draft');
         setResult({
           success: true,
           content: (
-            <>
-              <h3 style={{ color: 'var(--success)', marginBottom: 'var(--space-xs)' }}>✓ Upload Successful</h3>
-              <p style={{ color: 'var(--body)', fontSize: '14px' }}>Your skill passed all security checks and is now <strong>pending admin approval</strong>. It will appear publicly once an admin reviews and approves it.</p>
-            </>
+            <div className="flex flex-col items-center justify-center p-6 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500">
+                <CheckCircle2 size={32} />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold text-zinc-100">Upload Successful</h3>
+              <p className="text-sm text-zinc-400">Your {itemType} passed all security checks and is now pending admin approval.</p>
+            </div>
           )
         });
       } else {
-        if (res.status === 401) {
-          setResult({
-            success: false,
-            content: (
-              <>
-                <h3 style={{ color: 'var(--error)', marginBottom: 'var(--space-xs)' }}>Session Expired</h3>
-                <p style={{ color: 'var(--body)', fontSize: '14px' }}>Your login session expired. Please <a href="/login" style={{ color: 'var(--primary)' }}>log in again</a> and retry.</p>
-              </>
-            )
-          });
-        } else if (res.status === 403) {
-          const blockMsg = data.detail?.message || data.detail || "Account Blocked";
+        if (res.status === 403) {
           setIsBlocked(true);
-          setResult({
-            success: false,
-            content: (
-              <>
-                <h3 style={{ color: 'var(--error)', marginBottom: 'var(--space-xs)' }}>Account Blocked</h3>
-                <p style={{ color: 'var(--body)', fontSize: '14px' }}>{blockMsg}</p>
-              </>
-            )
-          });
+          setResult({ success: false, content: <div className="text-red-400 font-medium">Account Blocked: {data.detail?.message || "Too many warnings"}</div> });
         } else {
-          const issuesList = data.detail?.scan?.issues?.map((i: any, idx: number) => (
-            <li key={idx} style={{ marginBottom: '4px' }}>{i.rule}: {i.description}</li>
-          )) || null;
-          setIsBlocked(false);
-          setResult({
-            success: false,
-            content: (
-              <>
-                <h3 style={{ color: 'var(--error)', marginBottom: 'var(--space-xs)' }}>Security Scan Failed</h3>
-                <p style={{ color: 'var(--body)', fontSize: '14px' }}>{data.detail?.message || 'Warning'}</p>
-                {issuesList && (
-                  <ul style={{ marginLeft: 'var(--space-lg)', marginTop: 'var(--space-sm)', fontSize: '13px', color: 'var(--body)' }}>
-                    {issuesList}
-                  </ul>
-                )}
-              </>
-            )
-          });
+          setResult({ success: false, content: <div className="text-red-400 font-medium">Security Scan Failed: {data.detail?.message || "Review required"}</div> });
         }
       }
     } catch (err) {
-      console.error(err);
-      setResult({
-        success: false,
-        content: <p style={{ color: 'var(--error)' }}>An unexpected error occurred.</p>
-      });
+      setResult({ success: false, content: <div className="text-red-400 font-medium">An unexpected error occurred.</div> });
     } finally {
       setLoading(false);
     }
   };
 
+  const isPaidLocked = freeSkillsCount < 2;
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '0px' }}>
-        <div onClick={() => setItemType('skill')} style={{ padding: '16px', borderRadius: '12px', border: itemType === 'skill' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'skill' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-          <strong style={{ color: itemType === 'skill' ? 'var(--primary)' : 'var(--ink)', fontSize: '16px', display: 'block' }}>AI Agent Skill</strong>
-          <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '4px' }}>MCP tools & instructions</span>
+    <div className="mx-auto max-w-4xl space-y-8">
+      {/* Type Selector */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div 
+          onClick={() => setItemType('skill')}
+          className={cn(
+            "cursor-pointer rounded-2xl border p-6 text-center transition-all",
+            itemType === 'skill' ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/5" : "border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50"
+          )}
+        >
+          <strong className={cn("mb-1 block text-lg", itemType === 'skill' ? "text-indigo-400" : "text-zinc-100")}>AI Agent Skill</strong>
+          <span className="text-sm text-zinc-500">MCP tools & instructions</span>
         </div>
-        <div onClick={() => setItemType('prompt')} style={{ padding: '16px', borderRadius: '12px', border: itemType === 'prompt' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)', background: itemType === 'prompt' ? 'var(--primary-soft)' : 'var(--glass-bg)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-          <strong style={{ color: itemType === 'prompt' ? 'var(--primary)' : 'var(--ink)', fontSize: '16px', display: 'block' }}>Prompt Template</strong>
-          <span style={{ fontSize: '12px', color: 'var(--mute)', display: 'block', marginTop: '4px' }}>System prompts & workflows</span>
+        <div 
+          onClick={() => setItemType('prompt')}
+          className={cn(
+            "cursor-pointer rounded-2xl border p-6 text-center transition-all",
+            itemType === 'prompt' ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/5" : "border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50"
+          )}
+        >
+          <strong className={cn("mb-1 block text-lg", itemType === 'prompt' ? "text-indigo-400" : "text-zinc-100")}>Prompt Template</strong>
+          <span className="text-sm text-zinc-500">System prompts & workflows</span>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <form onSubmit={handleSubmit} className="space-y-8">
         
-        {/* Step 1: File Upload */}
-        <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '8px', color: 'var(--ink)' }}>1. Content</h3>
-          <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: '24px' }}>
-            Upload your agent code (.zip) or {itemType === 'prompt' ? 'prompt text (.md)' : 'instructions (.md)'}. We will automatically scan it for security vulnerabilities.
-            <br/><br/>
-            <a href={itemType === 'prompt' ? "/guides/example-prompt-template" : "/guides/example-skill-template"} target="_blank" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
-              View Example {itemType === 'skill' ? 'Skill' : 'Prompt'} Template &rarr;
-            </a>
-          </p>
-          
-          <div style={{ 
-            border: '2px dashed var(--hairline-strong)', 
-            borderRadius: '12px', 
-            padding: '40px 20px', 
-            textAlign: 'center',
-            background: 'var(--canvas-soft-2)',
-            cursor: 'pointer',
-            transition: 'border-color 0.2s ease',
-            position: 'relative'
-          }}>
-            <input 
-              type="file" 
-              accept=".md" 
-              required 
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-            />
-            <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--primary)', marginBottom: '6px' }}>{file ? file.name : "Click or drag file to upload"}</div>
-            <p style={{ margin: '0', fontSize: '13px', color: 'var(--mute)' }}>Supports .md only (Max 5MB)</p>
-          </div>
-        </div>
+        {/* Step 1: Content */}
+        <Card className="border-white/10 bg-zinc-900/40 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between text-xl text-zinc-100">
+              1. Upload Content
+              {isAutoFilling && <Badge className="bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 border-indigo-500/30"><Sparkles size={12} className="mr-1" /> AI Analyzing</Badge>}
+            </CardTitle>
+            <CardDescription className="text-zinc-400">
+              Upload your {itemType === 'prompt' ? 'prompt text (.md)' : 'instructions (.md)'}. We will automatically scan it and generate metadata.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-900/50 p-12 text-center transition-colors hover:border-indigo-500/50 hover:bg-indigo-500/5">
+              <input type="file" accept=".md" required onChange={handleFileChange} className="absolute inset-0 cursor-pointer opacity-0" />
+              <Upload className={cn("mb-4 h-8 w-8", file ? "text-indigo-400" : "text-zinc-600")} />
+              <div className="mb-2 font-semibold text-zinc-200">{file ? file.name : "Click or drag file to upload"}</div>
+              <p className="text-sm text-zinc-500">Supports .md only (Max 5MB)</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Step 2: Details */}
-        <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)', position: 'relative', zIndex: 20 }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>2. Identity & Details</h3>
-          
-          <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>{itemType === 'prompt' ? 'Prompt Name' : 'Skill Name'} *</label>
-            <input 
-              type="text" 
-              required 
-              placeholder="e.g. Code Reviewer Pro"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)' }}
-            />
-          </div>
+        <Card className="border-white/10 bg-zinc-900/40 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-xl text-zinc-100">2. Identity & Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">Name *</label>
+              <input type="text" required placeholder="e.g. Next.js Code Reviewer" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            </div>
 
-          <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Summary *</label>
-            <textarea 
-              required 
-              rows={3} 
-              placeholder="One line describing what this skill does..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', resize: 'vertical' }}
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">Summary *</label>
+              <textarea required rows={3} placeholder="One line describing what this does..." value={description} onChange={(e) => setDescription(e.target.value)} className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+            </div>
 
-          <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Target Audience *</label>
-            <select 
-              value={targetAudience}
-              onChange={(e) => setTargetAudience(e.target.value as any)}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', cursor: 'pointer' }}
-            >
-              <option value="all">Everyone (General Purpose)</option>
-              <option value="student">Students (Assignments, Prep, College)</option>
-              <option value="professional">Professionals (Work, Tech, Finance)</option>
-            </select>
-          </div>
-
-          <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-              Media / Thumbnail <span style={{ color: 'var(--mute)', fontWeight: 400 }}>(Optional — image or video)</span>
-            </label>
-
-            {/* Preview */}
-            {mediaPreview && (
-              <div style={{ marginBottom: '12px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--hairline)', position: 'relative', maxHeight: '220px', background: 'var(--canvas-elevated)' }}>
-                {mediaFile?.type.startsWith('video') ? (
-                  <video src={mediaPreview} muted autoPlay loop playsInline style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', display: 'block' }} />
-                ) : (
-                  <img src={mediaPreview} alt="preview" style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', display: 'block' }} />
-                )}
-                {mediaUploading && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 600, fontSize: '15px', gap: '10px' }}>
-                    <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> Uploading...
+            <div className="space-y-2" ref={dropdownRef}>
+              <label className="text-sm font-medium text-zinc-200">Categories</label>
+              <div className="relative">
+                <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex min-h-[50px] w-full cursor-pointer flex-wrap items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2">
+                  {selectedCategories.length === 0 ? <span className="text-zinc-500">Select categories...</span> : (
+                    selectedCategories.map(cat => {
+                      const label = CATEGORIES.find(c => c.value === cat)?.label;
+                      return (
+                        <Badge key={cat} variant="secondary" className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border-indigo-500/20">
+                          {label}
+                          <button type="button" onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }} className="ml-1 hover:text-indigo-300">&times;</button>
+                        </Badge>
+                      )
+                    })
+                  )}
+                </div>
+                {isDropdownOpen && (
+                  <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900 p-2 shadow-xl">
+                    {CATEGORIES.map(category => (
+                      <div key={category.value} onClick={() => toggleCategory(category.value)} className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800">
+                        <input type="checkbox" checked={selectedCategories.includes(category.value)} readOnly className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-zinc-900" />
+                        <span>{category.label}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
-                {!mediaUploading && mediaUrl && (
-                  <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(16,185,129,0.9)', color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>
-                    ✓ Uploaded
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => { setMediaFile(null); setMediaPreview(''); setMediaUrl(''); }}
-                  style={{ position: 'absolute', top: '10px', left: '10px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  ✕
-                </button>
               </div>
-            )}
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">Target Audience *</label>
+              <select value={targetAudience} onChange={(e) => setTargetAudience(e.target.value as any)} className="w-full appearance-none rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                <option value="all">Everyone (General Purpose)</option>
+                <option value="student">Students (Assignments, Prep, College)</option>
+                <option value="professional">Professionals (Work, Tech, Finance)</option>
+              </select>
+            </div>
 
-            {/* Drop Zone */}
-            {!mediaPreview && (
-              <div
-                style={{ border: '2px dashed var(--hairline-strong)', borderRadius: '10px', padding: '28px 20px', textAlign: 'center', background: 'var(--canvas-soft-2)', cursor: 'pointer', transition: 'border-color 0.2s ease', position: 'relative' }}
-                onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--primary)'; }}
-                onDragLeave={(e) => { e.currentTarget.style.borderColor = 'var(--hairline-strong)'; }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.style.borderColor = 'var(--hairline-strong)';
-                  const f = e.dataTransfer.files[0];
-                  if (f) handleMediaFileChange(f);
-                }}
-              >
-                <input
-                  type="file"
-                  accept="image/*,video/mp4,video/webm"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleMediaFileChange(f); }}
-                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
-                />
-                <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 600, fontSize: '14px' }}>Click or drag to upload image / video</p>
-                <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--mute)' }}>PNG, JPG, GIF, MP4, WEBM — max 20MB</p>
-              </div>
-            )}
-          </div>
-
-          <div className="form-group" style={{ marginBottom: '20px', position: 'relative' }} ref={dropdownRef}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Categories</label>
-            <div 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              style={{ 
-                width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', cursor: 'pointer', display: 'flex', flexWrap: 'wrap', gap: '8px', minHeight: '48px', alignItems: 'center'
-              }}
-            >
-              {selectedCategories.length === 0 ? (
-                <span style={{ color: 'var(--mute)' }}>Select categories...</span>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">Media Thumbnail (Optional)</label>
+              {!mediaPreview ? (
+                <div className="relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-800 bg-zinc-950/50 py-8 text-center transition-colors hover:border-zinc-700">
+                  <input type="file" accept="image/*,video/mp4,video/webm" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleMediaFileChange(f); }} className="absolute inset-0 cursor-pointer opacity-0" />
+                  <ImageIcon className="mb-2 h-6 w-6 text-zinc-600" />
+                  <p className="text-sm font-medium text-zinc-400">Upload Image / Video</p>
+                </div>
               ) : (
-                selectedCategories.map(cat => {
-                  const label = CATEGORIES.find(c => c.value === cat)?.label;
-                  return (
-                    <span key={cat} style={{ background: 'var(--primary-soft)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {label}
-                      <button 
-                        type="button" 
-                        onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
-                        style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, fontSize: '16px', lineHeight: 1 }}
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  );
-                })
+                <div className="relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+                  {mediaFile?.type.startsWith('video') ? (
+                    <video src={mediaPreview} muted autoPlay loop playsInline className="h-48 w-full object-cover" />
+                  ) : (
+                    <img src={mediaPreview} alt="preview" className="h-48 w-full object-cover" />
+                  )}
+                  {mediaUploading && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm font-medium text-white backdrop-blur-sm">Uploading...</div>}
+                  <button type="button" onClick={() => { setMediaFile(null); setMediaPreview(''); setMediaUrl(''); }} className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70">&times;</button>
+                </div>
               )}
             </div>
-            
-            {isDropdownOpen && (
-              <div style={{ position: 'absolute', zIndex: 10, width: '100%', marginTop: '8px', background: 'var(--canvas)', border: '1px solid var(--hairline-strong)', borderRadius: '12px', maxHeight: '240px', overflowY: 'auto', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)' }}>
-                {CATEGORIES.map(category => (
-                  <div 
-                    key={category.value}
-                    onClick={() => toggleCategory(category.value)}
-                    style={{ 
-                      padding: '12px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px',
-                      background: selectedCategories.includes(category.value) ? 'var(--canvas-soft)' : 'transparent',
-                      fontSize: '14px',
-                      color: 'var(--ink)'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = 'var(--canvas-soft-2)'}
-                    onMouseOut={(e) => e.currentTarget.style.background = selectedCategories.includes(category.value) ? 'var(--canvas-soft)' : 'transparent'}
-                  >
-                    <input 
-                      type="checkbox" 
-                      checked={selectedCategories.includes(category.value)} 
-                      readOnly
-                      style={{ cursor: 'pointer', margin: 0, width: '18px', height: '18px', flexShrink: 0, accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ lineHeight: 1 }}>{category.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Step 3: Pricing */}
-        <div className="card" style={{ padding: 'var(--space-xl)', background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '24px', color: 'var(--ink)' }}>3. Pricing Model</h3>
-          
-          <div className="responsive-split-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-            <div 
-              onClick={() => setPricingModel('free')}
-              style={{ 
-                padding: '20px', borderRadius: '12px', border: pricingModel === 'free' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
-                background: pricingModel === 'free' ? 'var(--primary-soft)' : 'var(--canvas)',
-                cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
-              }}
-            >
-              <div style={{ fontWeight: 700, fontSize: '16px', color: pricingModel === 'free' ? 'var(--primary)' : 'var(--ink)' }}>Free</div>
-              <div style={{ fontSize: '13px', color: 'var(--body)', marginTop: '4px' }}>Available to all users</div>
-            </div>
-            
-            <div 
-              onClick={() => setPricingModel('paid')}
-              style={{ 
-                padding: '20px', borderRadius: '12px', border: pricingModel === 'paid' ? '2px solid var(--primary)' : '1px solid var(--hairline-strong)',
-                background: pricingModel === 'paid' ? 'var(--primary-soft)' : 'var(--canvas)',
-                cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
-              }}
-            >
-              <div style={{ fontWeight: 700, fontSize: '16px', color: pricingModel === 'paid' ? 'var(--primary)' : 'var(--ink)' }}>Paid License</div>
-              <div style={{ fontSize: '13px', color: 'var(--body)', marginTop: '4px' }}>One-time purchase</div>
-            </div>
-          </div>
-
-          {pricingModel === 'paid' && (
-            <div className="form-group">
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Base Price (INR) *</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mute)' }}>₹</span>
-                <input 
-                  type="number" 
-                  required 
-                  min="1" 
-                  step="1" 
-                  placeholder="500"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  style={{ width: '100%', padding: '12px 16px 12px 36px', borderRadius: '8px', border: '1px solid var(--hairline-strong)', background: 'var(--canvas)', color: 'var(--ink)', fontSize: '16px' }}
-                />
+        <Card className="border-white/10 bg-zinc-900/40 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-xl text-zinc-100">3. Pricing Model</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div 
+                onClick={() => setPricingModel('free')}
+                className={cn("cursor-pointer rounded-xl border p-4 text-center transition-all", pricingModel === 'free' ? "border-indigo-500 bg-indigo-500/10" : "border-zinc-800 bg-zinc-950 hover:bg-zinc-900")}
+              >
+                <div className={cn("font-semibold", pricingModel === 'free' ? "text-indigo-400" : "text-zinc-100")}>Free</div>
+                <div className="mt-1 text-xs text-zinc-500">Available to all users</div>
+              </div>
+              
+              <div 
+                onClick={() => { if (!isPaidLocked) setPricingModel('paid'); }}
+                className={cn("relative cursor-pointer rounded-xl border p-4 text-center transition-all", 
+                  isPaidLocked ? "cursor-not-allowed border-zinc-800 bg-zinc-950/50 opacity-60" :
+                  pricingModel === 'paid' ? "border-indigo-500 bg-indigo-500/10" : "border-zinc-800 bg-zinc-950 hover:bg-zinc-900"
+                )}
+              >
+                <div className="flex items-center justify-center gap-1.5">
+                  <div className={cn("font-semibold", pricingModel === 'paid' ? "text-indigo-400" : "text-zinc-100")}>Paid License</div>
+                  {isPaidLocked && <Lock size={14} className="text-amber-500" />}
+                </div>
+                <div className="mt-1 text-xs text-zinc-500">
+                  {isPaidLocked ? `Publish ${2 - freeSkillsCount} more free skills to unlock` : 'One-time purchase'}
+                </div>
               </div>
             </div>
-          )}
-        </div>
+
+            {pricingModel === 'paid' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-200">Base Price (INR) *</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+                  <input type="number" required min="79" step="1" placeholder="500" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-3 pl-10 pr-4 text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                </div>
+                <p className="text-xs text-zinc-500 mt-1">Minimum price ₹79. You keep 80%.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         
-        <div style={{ marginBottom: '24px', padding: '16px', background: 'rgba(255,60,60,0.05)', border: '1px solid var(--error-soft)', borderRadius: '8px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <input 
-            type="checkbox" 
-            id="guidelines_check"
-            checked={agreedToGuidelines}
-            onChange={(e) => setAgreedToGuidelines(e.target.checked)}
-            style={{ marginTop: '4px', cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--error)' }}
-          />
-          <label htmlFor="guidelines_check" style={{ fontSize: '14px', color: 'var(--ink)', cursor: 'pointer', lineHeight: 1.5 }}>
-            I have read the <a href="/guides/seller-requirements" target="_blank" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>BodhicAI Creator Requirements</a> and verify that this {itemType} contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
-          </label>
-        </div>
-
-        <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', padding: '16px', fontSize: '18px', fontWeight: 600 }} disabled={loading}>
-          {loading ? 'Scanning...' : `Publish ${itemType === 'skill' ? 'Skill' : 'Prompt'} →`}
-        </button>
-      </form>
-
-      {result && (
-        <div style={{ marginTop: '0' }}>
-          <div className="card" style={{ 
-            background: result.success ? 'var(--success-soft)' : 'var(--error-soft)', 
-            borderColor: result.success ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-            padding: 'var(--space-md)'
-          }}>
-            {result.content}
+        {/* Consent & Submit */}
+        <div className="space-y-6">
+          <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+            <input type="checkbox" id="guidelines" checked={agreedToGuidelines} onChange={(e) => setAgreedToGuidelines(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 rounded border-red-500/30 bg-zinc-950 accent-red-500" />
+            <label htmlFor="guidelines" className="text-sm leading-relaxed text-zinc-300">
+              I have read the <a href="/guides/seller-requirements" target="_blank" className="text-indigo-400 hover:underline">BodhicAI Creator Requirements</a> and verify that this {itemType} contains no prohibited security bypasses, prompt injections, or marketing fluff in the instructions.
+            </label>
           </div>
 
+          <button type="submit" disabled={loading || !agreedToGuidelines} className="w-full rounded-full bg-indigo-600 py-4 font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:bg-indigo-500 disabled:opacity-50">
+            {loading ? 'Scanning & Uploading...' : `Publish ${itemType === 'skill' ? 'Skill' : 'Prompt'} →`}
+          </button>
+        </div>
+      </form>
+
+      {/* Result Modals / Alerts */}
+      {result && (
+        <div className={cn("rounded-xl border p-6", result.success ? "border-emerald-500/30 bg-emerald-500/10" : "border-red-500/30 bg-red-500/10")}>
+          {result.content}
+          
           {isBlocked && (
-            <div style={{ marginTop: 'var(--space-lg)', padding: 'var(--space-md)', background: 'var(--canvas-soft)', borderRadius: '12px' }}>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px' }}>Submit an Appeal</h4>
-              <textarea
-                rows={3}
-                style={{ width: '100%', background: 'var(--canvas)', border: '1px solid var(--hairline)', color: 'var(--ink)', padding: '12px', borderRadius: '8px', fontFamily: 'var(--font-sans)', marginBottom: '12px', resize: 'vertical' }}
-                placeholder="Explain your situation..."
-                value={appealMsg}
-                onChange={(e) => setAppealMsg(e.target.value)}
-              />
-              <button type="button" onClick={handleAppeal} className="btn btn-primary btn-sm">Submit Appeal</button>
+            <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+              <h4 className="mb-2 text-sm font-medium text-zinc-200">Submit an Appeal</h4>
+              <textarea rows={3} className="w-full resize-none rounded-md border border-zinc-700 bg-zinc-950 p-3 text-sm text-zinc-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="Explain your situation..." value={appealMsg} onChange={(e) => setAppealMsg(e.target.value)} />
+              <button type="button" onClick={handleAppeal} className="mt-3 rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700">Submit Appeal</button>
             </div>
           )}
         </div>
@@ -591,4 +444,3 @@ export default function UploadSkillFormIsland() {
     </div>
   );
 }
-

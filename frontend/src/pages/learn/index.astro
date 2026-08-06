@@ -27,23 +27,23 @@ const posts = [
 	title="Learning Center — BodhicAI"
 	description="Read tutorials and guides on prompt engineering, AI agent security, and maximizing your earnings on BodhicAI."
 >
-	<div style="max-width: 1000px; margin: 0 auto; padding-top: var(--space-2xl);">
-		<div style="margin-bottom: var(--space-xl);">
-			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block; margin-bottom: var(--space-md);">learning center</span>
-			<h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-xs); letter-spacing: -1px;">
-				Master <span class="gradient-text">Prompt Engineering</span>
+	<div class="max-w-[1000px] mx-auto pt-16">
+		<div class="mb-12">
+			<span class="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-400 border border-indigo-500/20 mb-6 font-mono">learning center</span>
+			<h1 class="text-[clamp(28px,6vw,48px)] mb-2 tracking-[-1px] text-zinc-100 font-bold">
+				Master <span class="bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">Prompt Engineering</span>
 			</h1>
-			<p style="color: var(--body); font-size: 18px; max-width: 600px;">
+			<p class="text-zinc-300 text-lg max-w-[600px]">
 				Tutorials, security guides, and strategies to build better AI agent skills.
 			</p>
 		</div>
 
-		<div style="display: flex; flexDirection: 'column'; gap: var(--space-lg);">
+		<div class="flex flex-col gap-8">
 			{posts.map(post => (
-				<a href={`/learn/${post.slug}`} class="card" style="display: block; text-decoration: none; padding: var(--space-xl); margin-bottom: var(--space-lg);">
-					<div style="color: var(--mute); font-family: var(--font-mono); font-size: 13px; margin-bottom: var(--space-xs);">{post.date}</div>
-					<h2 style="font-size: 24px; color: var(--ink); margin-bottom: var(--space-sm);">{post.title}</h2>
-					<p style="color: var(--body); font-size: 16px; line-height: 1.6;">{post.description}</p>
+				<a href={`/learn/${post.slug}`} class="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden no-underline mb-8 block">
+					<div class="text-zinc-400 font-mono text-sm mb-2">{post.date}</div>
+					<h2 class="text-2xl text-zinc-100 mb-4 font-bold">{post.title}</h2>
+					<p class="text-zinc-300 text-base leading-[1.6] m-0">{post.description}</p>
 				</a>
 			))}
 		</div>

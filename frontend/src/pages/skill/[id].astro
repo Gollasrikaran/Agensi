@@ -6,8 +6,7 @@ import McpTestIsland from '../../components/McpTestIsland.tsx';
 import EditSkillButtonIsland from '../../components/EditSkillButtonIsland.tsx';
 import SkillShareBannerIsland from '../../components/SkillShareBannerIsland.tsx';
 import TestBeforeBuyIsland from '../../components/TestBeforeBuyIsland.tsx';
-
-
+import { ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck } from 'lucide-react';
 
 const { id } = Astro.params;
 
@@ -47,70 +46,80 @@ const jsonLd = skill ? JSON.stringify({
 	jsonLd={jsonLd}
 >
 	{!skill ? (
-		<div style="text-align: center; padding: var(--space-5xl);">
-			<h2 style="font-size: 24px; margin-bottom: var(--space-md);">Skill not found.</h2>
-			<a href="/browse" class="btn btn-primary">← Back to Browse</a>
+		<div class="flex flex-col items-center justify-center py-32 px-4 text-center">
+			<h2 class="text-2xl font-bold text-zinc-100 mb-6">Skill not found.</h2>
+			<a href="/browse" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-indigo-500">
+				<ChevronLeft class="h-4 w-4" /> Back to Browse
+			</a>
 		</div>
 	) : (
-		<div style="max-width: 800px; margin: 0 auto; padding-top: var(--space-xl);">
+		<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 			<EditSkillButtonIsland client:load skill={skill} />
-			<div style="margin-bottom: var(--space-xl);">
-				<div style="display: flex; gap: var(--space-xs); margin-bottom: var(--space-sm); flex-wrap: wrap;">
+			
+			<div class="mb-10">
+				<div class="flex flex-wrap items-center gap-2 mb-4">
 					{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
-						<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="badge" style="text-transform: uppercase; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; text-decoration: none;">{cat}</a>
+						<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="inline-flex items-center rounded-full bg-zinc-800/80 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-zinc-300 uppercase border border-zinc-700 hover:bg-zinc-700 transition-colors">
+							{cat}
+						</a>
 					))}
-					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--canvas-soft-2, #222); color: var(--accent, #a855f7); border: 1px solid var(--hairline-strong); border-radius: 12px; font-size: 12px; font-weight: 600;">
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-400 border border-purple-500/20">
 						Level {skill.complexity_level || 1}
 					</span>
-					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600;">
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20">
 						{({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
 					</span>
 					{skill.moderation_status === 'approved' ? (
-						<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
-							OWASP Verified
+						<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+							<ShieldCheck class="h-3.5 w-3.5" /> OWASP Verified
 						</span>
 					) : (
-						<span class="badge warning">⏳ Pending Review</span>
+						<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-400 border border-amber-500/20">
+							⏳ Pending Review
+						</span>
 					)}
-					<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 12px var(--primary-soft);">
-						MCP Ready
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-bold text-indigo-400 border border-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.15)]">
+						<Bot class="h-3.5 w-3.5" /> MCP Ready
 					</span>
 				</div>
-				<h1 style="font-size: clamp(28px, 6vw, 48px); margin-bottom: var(--space-xs);">{skill.title}</h1>
+				
+				<h1 class="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-100 mb-2 leading-tight">
+					{skill.title}
+				</h1>
 				
 				{skill.media_url && (
-					<div style="margin-top: var(--space-lg); border-radius: var(--radius-lg); overflow: hidden; background: var(--canvas-elevated); border: 1px solid var(--hairline); box-shadow: var(--shadow-sm);">
+					<div class="mt-8 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 shadow-2xl backdrop-blur-sm">
 						{skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
-							<video src={skill.media_url} controls playsinline style="width: 100%; max-height: 500px; object-fit: contain; display: block;"></video>
+							<video src={skill.media_url} controls playsinline class="w-full max-h-[600px] object-contain block bg-black/50"></video>
 						) : (
-							<img src={skill.media_url} alt={skill.title} referrerpolicy="no-referrer" style="width: 100%; max-height: 500px; object-fit: contain; display: block;" />
+							<img src={skill.media_url} alt={skill.title} referrerpolicy="no-referrer" class="w-full max-h-[600px] object-contain block bg-black/50" />
 						)}
 					</div>
 				)}
 			</div>
 
-			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
-				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Description</h3>
-				<p style="color: var(--body); font-size: 16px; white-space: pre-wrap; line-height: 1.7;">{skill.description}</p>
+			<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 mb-8 backdrop-blur-sm">
+				<h3 class="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-500">Description</h3>
+				<p class="text-base leading-relaxed text-zinc-300 whitespace-pre-wrap">{skill.description}</p>
 			</div>
 
-			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
-				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-md);">Domains & Compatibility</h3>
-				<div style="margin-bottom: var(--space-md);">
-					<div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Domains</div>
-					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+			<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 mb-8 backdrop-blur-sm">
+				<h3 class="mb-6 text-sm font-bold uppercase tracking-widest text-zinc-500">Domains & Compatibility</h3>
+				<div class="mb-6">
+					<div class="mb-3 text-sm font-semibold text-zinc-200">Domains</div>
+					<div class="flex flex-wrap gap-2">
 						{((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string) => (
-							<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; text-decoration: none;">
+							<a href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`} class="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors">
 								{cat}
 							</a>
 						))}
 					</div>
 				</div>
 				<div>
-					<div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Supported Functionality & Agents</div>
-					<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+					<div class="mb-3 text-sm font-semibold text-zinc-200">Supported Functionality & Agents</div>
+					<div class="flex flex-wrap gap-2">
 						{['Cursor', 'Claude', 'Windsurf', 'MCP'].map(agent => (
-							<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--canvas-soft); border: 1px solid var(--hairline); border-radius: 6px; font-size: 13px; color: var(--body); font-weight: 500;">
+							<span class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-300">
 								{agent}
 							</span>
 						))}
@@ -118,17 +127,24 @@ const jsonLd = skill ? JSON.stringify({
 				</div>
 			</div>
 
-			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
-				<h3 style="font-size: 16px; color: var(--mute); font-weight: 600; margin-bottom: var(--space-sm);">Security Scan</h3>
-				<div style="display: flex; flex-direction: column; gap: var(--space-xs); font-size: 14px; color: var(--body);">
-					<div><strong style="color: var(--ink);">Status:</strong> {skill.moderation_status === 'approved' ? '✓ Passed' : '⚠ Flagged'}</div>
-					<div><strong style="color: var(--ink);">Checks:</strong> <span style="font-family: var(--font-mono); font-size: 12px;">OWASP LLM01, LLM06, LLM04</span></div>
+			<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 mb-8 backdrop-blur-sm">
+				<h3 class="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-500">Security Scan</h3>
+				<div class="flex flex-col gap-3 text-sm text-zinc-300">
+					<div class="flex items-center gap-2">
+						<strong class="text-zinc-100">Status:</strong> 
+						{skill.moderation_status === 'approved' ? (
+							<span class="text-emerald-400 flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> Passed</span>
+						) : (
+							<span class="text-amber-400 flex items-center gap-1"><ShieldAlert class="h-4 w-4" /> Flagged</span>
+						)}
+					</div>
+					<div><strong class="text-zinc-100">Checks:</strong> <span class="font-mono text-xs text-zinc-400 ml-1 bg-zinc-800/50 px-2 py-0.5 rounded border border-zinc-700/50">OWASP LLM01, LLM06, LLM04</span></div>
 					{skill.scan_summary_json?.issues && skill.scan_summary_json.issues.length > 0 && (
-						<div style="color: var(--error); margin-top: var(--space-sm);">
-							<strong>Issues:</strong>
-							<ul style="margin-left: var(--space-lg); margin-top: var(--space-xxs);">
+						<div class="mt-2 rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-red-400">
+							<strong class="block mb-2 text-red-300">Issues:</strong>
+							<ul class="ml-5 list-disc space-y-1">
 								{skill.scan_summary_json.issues.map((i: any) => (
-									<li style="margin-bottom: 2px;">{i.rule}: {i.description}</li>
+									<li>{i.rule}: {i.description}</li>
 								))}
 							</ul>
 						</div>
@@ -136,21 +152,23 @@ const jsonLd = skill ? JSON.stringify({
 				</div>
 			</div>
 
-			<div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-xl);">
-				<h3 style="font-size: 20px; color: var(--ink); font-weight: 700; margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+			<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8 mb-8 backdrop-blur-sm">
+				<h3 class="mb-6 flex items-center gap-3 text-xl font-bold text-zinc-100">
 					Buyer Reviews
 					{skill.review_count > 0 && (
-						<span style="font-size: 14px; font-weight: 500; color: var(--mute); background: var(--canvas-soft); padding: 2px 8px; border-radius: 12px;">
-							★ {skill.average_rating ? Number(skill.average_rating).toFixed(1) : 0} ({skill.review_count})
+						<span class="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-3 py-1 text-sm font-medium text-zinc-300 border border-zinc-700">
+							<Star class="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> {skill.average_rating ? Number(skill.average_rating).toFixed(1) : 0} ({skill.review_count})
 						</span>
 					)}
 				</h3>
 				<ReviewsIsland client:load skillId={skill.id} />
 			</div>
 
-			<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
+			<div class="mb-8">
+				<CheckoutIsland client:load skillId={skill.id} basePrice={skill.base_price_inr || skill.base_price_usd || 0} />
+			</div>
 			
-			<div style="margin-top: var(--space-xl);">
+			<div class="mb-8">
 				<SkillShareBannerIsland client:load skillId={skill.id} skillTitle={skill.title} />
 			</div>
 

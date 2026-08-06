@@ -4,8 +4,8 @@ import SkillCard from './SkillCard';
 export default function PinnedSkillsGrid({ skills }: { skills: any[] }) {
   if (!skills || skills.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-lg)' }}>
-        <p style={{ color: 'var(--mute)' }}>This creator hasn't pinned any skills yet.</p>
+      <div className="text-center p-8 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+        <p className="text-zinc-400">This creator hasn't pinned any skills yet.</p>
       </div>
     );
   }
@@ -17,32 +17,14 @@ export default function PinnedSkillsGrid({ skills }: { skills: any[] }) {
 
   return (
     <div>
-      <h2 style={{ fontSize: '24px', marginBottom: 'var(--space-lg)', color: 'var(--ink)' }}>
+      <h2 className="text-2xl font-bold text-zinc-100 mb-6">
         Pinned Skills
       </h2>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
-        gap: 'var(--space-xl)' 
-      }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {skills.map((skill) => (
-          <div key={skill.id} style={{ position: 'relative' }}>
+          <div key={skill.id} className="relative">
             {skill.id === mostPopularSkillId && skill.purchase_count > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '-10px',
-                right: '20px',
-                background: 'linear-gradient(90deg, #6C3CE1, #a78bfa)',
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                boxShadow: '0 4px 12px rgba(108,60,225,0.4)',
-                zIndex: 10
-              }}>
+              <div className="absolute -top-3 right-5 bg-gradient-to-r from-indigo-600 to-indigo-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-indigo-500/40 z-10">
                 Most Popular
               </div>
             )}

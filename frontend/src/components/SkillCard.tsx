@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Star, ShoppingCart, TrendingUp, Download } from 'lucide-react';
+import { ShieldCheck, TrendingUp, Download, UserCircle2 } from 'lucide-react';
 import { getReferralId } from '../lib/referral';
 import SocialShareButtonsIsland from './SocialShareButtonsIsland';
+import { Card, CardContent, CardFooter } from './ui/card';
+import { Badge } from './ui/badge';
+import { cn } from '../lib/utils';
 
 interface SkillCardProps {
   skill: any;
@@ -11,19 +14,18 @@ interface SkillCardProps {
   showRank?: number | null;
 }
 
-// Map categories to CSS variables
 const getCategoryColor = (category: string) => {
   const map: Record<string, string> = {
-    'frontend': 'var(--cat-frontend, var(--accent))',
-    'testing': 'var(--cat-testing, var(--primary))',
-    'devops': 'var(--cat-devops, var(--warning))',
-    'docs': 'var(--cat-docs, var(--success))',
-    'productivity': 'var(--cat-productivity, var(--accent-deep))',
-    'data': 'var(--cat-data, var(--primary-hover))',
-    'api': 'var(--cat-api, var(--success))',
-    'ai': 'var(--cat-ai, var(--primary))'
+    'frontend': 'text-violet-400 bg-violet-400/10 border-violet-400/20',
+    'testing': 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20',
+    'devops': 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+    'docs': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+    'productivity': 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+    'data': 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+    'api': 'text-teal-400 bg-teal-400/10 border-teal-400/20',
+    'ai': 'text-purple-400 bg-purple-400/10 border-purple-400/20'
   };
-  return map[category?.toLowerCase()] || 'var(--primary)';
+  return map[category?.toLowerCase()] || 'text-zinc-400 bg-zinc-400/10 border-zinc-400/20';
 };
 
 export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false, onUpvote, showRank = null }: SkillCardProps) {
@@ -32,358 +34,129 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
     getReferralId().then(setRefId);
   }, []);
 
-  const catColor = getCategoryColor(skill.category);
+  const catStyles = getCategoryColor(skill.category);
   const isFree = skill.base_price_inr === 0 || skill.is_free;
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
-  const shareUrl = `${origin}/skill/${skill.id}?ref=${refId}`;
   
   return (
-    <div
-      className="skill-card" 
+    <Card 
       onClick={() => window.location.href = `/skill/${skill.id}`}
-      style={{ 
-        cursor: 'pointer',
-        display: 'flex', 
-        flexDirection: 'column', 
-        textDecoration: 'none', 
-        position: 'relative',
-        background: 'var(--canvas-elevated)',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-        minHeight: '340px',
-        transition: 'var(--transition-colors)',
-        boxShadow: 'var(--shadow-sm)',
-        color: 'var(--ink)'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-        e.currentTarget.style.borderColor = catColor;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'none';
-        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-        e.currentTarget.style.borderColor = 'var(--hairline)';
-      }}
+      className="group relative flex h-full min-h-[340px] cursor-pointer flex-col overflow-hidden transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10"
     >
       {/* 16:9 Thumbnail Header */}
-      <div style={{ 
-        height: '160px', 
-        background: skill.media_url ? 'var(--canvas-elevated)' : `linear-gradient(135deg, var(--canvas-soft-2) 0%, ${catColor}22 100%)`, 
-        position: 'relative',
-        borderBottom: '1px solid var(--hairline)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden'
-      }}>
-        {skill.media_url && (
+      <div className="relative flex h-40 items-center justify-center overflow-hidden border-b border-white/5 bg-zinc-900/50">
+        {skill.media_url ? (
           skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
             <video 
               src={skill.media_url} 
-              autoPlay 
-              muted 
-              loop 
-              playsInline
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              autoPlay muted loop playsInline
+              className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
             <img 
               src={skill.media_url} 
               alt={skill.title}
               referrerPolicy="no-referrer"
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               onError={(e) => { 
-                // Hide broken image and show category pills instead
                 e.currentTarget.style.display = 'none';
                 const parent = e.currentTarget.parentElement;
                 if (parent) {
-                  parent.style.background = `linear-gradient(135deg, var(--canvas-soft-2) 0%, ${catColor}22 100%)`;
                   const fallback = parent.querySelector('[data-fallback]') as HTMLElement;
                   if (fallback) fallback.style.display = 'flex';
                 }
               }}
             />
           )
-        )}
-        {/* Category pills shown when no media OR as fallback if image fails */}
+        ) : null}
+        
+        {/* Category pills shown when no media OR as fallback */}
         <div 
           data-fallback
-          style={{ 
-            display: skill.media_url ? 'none' : 'flex', 
-            gap: '8px', flexWrap: 'wrap', justifyContent: 'center', 
-            zIndex: 10, padding: '0 16px' 
-          }}
+          className={cn(
+            "z-10 flex flex-wrap justify-center gap-2 px-4",
+            skill.media_url ? "hidden" : "flex"
+          )}
         >
-            {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
-            <a 
+          {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => (
+            <span 
               key={index}
-              href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                color: catColor,
-                background: 'var(--canvas-elevated)',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-pill)',
-                fontFamily: 'var(--font-mono)',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                letterSpacing: '1px',
-                boxShadow: 'var(--shadow-sm)',
-                border: `1px solid ${catColor}44`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.background = catColor;
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.background = 'var(--canvas-elevated)';
-                e.currentTarget.style.color = catColor;
-              }}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wider uppercase backdrop-blur-md",
+                catStyles
+              )}
             >
               {cat}
-            </a>
+            </span>
           ))}
-          </div>
+        </div>
 
         {/* Rank Badge */}
         {showRank && (
-          <div style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            background: 'var(--canvas-elevated)',
-            border: '1px solid var(--hairline)',
-            color: 'var(--ink)',
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 'var(--text-sm)',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
+          <div className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-xs font-bold text-zinc-100 backdrop-blur-md">
             #{showRank}
           </div>
         )}
-
-        {/* Price Badge */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          background: isFree ? 'var(--success)' : 'var(--canvas-elevated)',
-          color: isFree ? '#fff' : 'var(--ink)',
-          border: isFree ? 'none' : '1px solid var(--hairline-strong)',
-          padding: '4px 12px',
-          borderRadius: 'var(--radius-pill)',
-          fontWeight: 600,
-          fontSize: 'var(--text-sm)',
-          boxShadow: 'var(--shadow-sm)',
-        }}>
-          {isFree ? 'Free' : `₹${skill.base_price_inr}`}
-        </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '16px' }}>
-        
-        {/* Creator Info */}
-        <a 
-          href={`/profile/${skill.seller?.username || 'bodhic'}`}
-          onClick={(e) => e.stopPropagation()}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', textDecoration: 'none', pointerEvents: 'auto', width: 'fit-content' }}
-        >
-          <img 
-            src={skill.seller?.avatar_url || `https://api.dicebear.com/9.x/initials/svg?seed=${skill.seller?.username || 'U'}`}
-            style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--canvas-soft)', border: '1px solid var(--hairline)' }}
-            alt={skill.seller?.username || 'Creator'}
-          />
-          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--mute)', fontWeight: 500 }}>
-            by <span style={{ color: 'var(--primary)', background: 'var(--primary-soft)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>@{skill.seller?.username || 'creator'}</span>
-            {skill.seller?.is_verified && <ShieldCheck style={{ display: 'inline', width: '14px', height: '14px', marginLeft: '4px', color: 'var(--primary)', verticalAlign: 'text-bottom' }} />}
-          </span>
-        </a>
-
-        {/* Title */}
-        <h3 style={{ margin: '0 0 8px 0', fontSize: 'var(--text-lg)', color: 'var(--ink)', lineHeight: '1.3' }}>
+      <CardContent className="flex flex-1 flex-col p-5">
+        <h3 className="mb-2 line-clamp-1 text-lg font-semibold tracking-tight text-zinc-100 group-hover:text-indigo-400 transition-colors">
           {skill.title}
         </h3>
-
-        {/* Badges */}
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--canvas-soft-2, #222)', color: 'var(--accent, #a855f7)', border: '1px solid var(--hairline-strong)', borderRadius: '8px', fontSize: '10px', fontWeight: 700 }}>
-            Level {skill.complexity_level || 1}
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', fontSize: '10px', fontWeight: 700 }}>
-            {({1:10, 2:20, 3:40, 4:70, 5:100} as Record<number, number>)[skill.complexity_level || 1] || ((skill.complexity_level || 1) * 10)} CR / chat
-          </span>
-          {skill.moderation_status === 'approved' && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--success-soft)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px rgba(16, 185, 129, 0.1)' }}>
-              OWASP Verified
-            </span>
-          )}
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', fontSize: '10px', fontWeight: 700, boxShadow: '0 0 8px var(--primary-soft)' }}>
-            MCP Ready
-          </span>
-        </div>
-
-        {/* Description */}
-        <p style={{ 
-          fontSize: 'var(--text-sm)', 
-          color: 'var(--body)', 
-          margin: '0 0 16px 0',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          lineHeight: '1.5',
-          flex: 1
-        }}>
+        <p className="mb-4 line-clamp-2 text-sm text-zinc-400">
           {skill.description}
         </p>
 
-        {/* Domains / Categories Section */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-          <span style={{ fontSize: '11px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Domains:</span>
-          {((skill.category || 'AI').split(',').map((c: string) => c.trim()).filter(Boolean)).map((cat: string, index: number) => {
-            const domainColor = getCategoryColor(cat);
-            return (
-              <a 
-                key={index}
-                href={`/category/${encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))}`}
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: domainColor,
-                  background: `${domainColor}15`,
-                  padding: '2px 8px',
-                  borderRadius: '6px',
-                  fontFamily: 'var(--font-mono)',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  letterSpacing: '0.5px',
-                  border: `1px solid ${domainColor}44`,
-                  transition: 'all 0.2s ease',
-                  display: 'inline-flex',
-                  alignItems: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.background = domainColor;
-                  e.currentTarget.style.color = '#fff';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.background = `${domainColor}15`;
-                  e.currentTarget.style.color = domainColor;
-                }}
-              >
-                {cat}
-              </a>
-            );
-          })}
-        </div>
-
-        {/* Functionality & Compatibility */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', color: 'var(--mute)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Works With:</span>
-           {['Cursor', 'Claude', 'Windsurf', 'MCP'].map(agent => (
-             <span key={agent} style={{
-               background: 'var(--canvas-soft)',
-               border: '1px solid var(--hairline)',
-               padding: '2px 8px',
-               borderRadius: '4px',
-               fontSize: 'var(--text-xs)',
-               color: 'var(--body)',
-               fontWeight: 500,
-               display: 'inline-flex',
-               alignItems: 'center',
-               gap: '4px'
-             }}>
-               {agent}
-             </span>
-           ))}
-        </div>
-      </div>
-
-      {/* Trust Signals & Engagement Footer */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        flexWrap: 'wrap' as any,
-        gap: '8px',
-        padding: '12px 16px',
-        background: 'var(--canvas-soft)',
-        borderTop: '1px solid var(--hairline)',
-        fontSize: 'var(--text-xs)',
-        color: 'var(--mute)'
-      }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Star style={{ width: '14px', height: '14px', color: 'var(--warning)' }} /> 
-            <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{skill.rating !== null ? skill.rating : 'New'}</span>
+        {/* Creator Info */}
+        <a 
+          href={`/profile/${(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.username}`} 
+          onClick={(e) => e.stopPropagation()}
+          className="mt-auto flex items-center gap-2 border-t border-white/5 pt-4 hover:opacity-80 transition-opacity no-underline w-fit relative z-10"
+        >
+          <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+            {(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.avatar_url ? (
+              <img src={(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles).avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              <UserCircle2 className="h-5 w-5 text-zinc-500" />
+            )}
+          </div>
+          <span className="text-sm font-medium text-zinc-300 group-hover:text-indigo-400 transition-colors">
+            @{(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.username || 'Anonymous'}
+            {/* Verified badge placeholder */}
+            {(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.is_verified && <span className="ml-1 text-indigo-400">✓</span>}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Download style={{ width: '14px', height: '14px' }} /> 
-            {skill.purchase_count || 0}
+        </a>
+      </CardContent>
+
+      <CardFooter className="flex items-center justify-between border-t border-white/5 bg-zinc-950/30 p-4">
+        {isFree ? (
+          <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20">
+            Free
+          </Badge>
+        ) : (
+          <Badge className="bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border-indigo-500/20">
+            ₹{skill.base_price_inr}
+          </Badge>
+        )}
+        
+        <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <span className="flex items-center gap-1">
+            <Download size={14} />
+            {skill.downloads || 0}
           </span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <SocialShareButtonsIsland 
-            url={shareUrl}
-            title={skill.title}
-            text={skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean MCP agent skill "${skill.title}" for automating local workflows!`}
-            compact={true}
-          />
-
-          {/* Upvote Button */}
           <button 
-            onClick={(e) => {
-              if (onUpvote) onUpvote(e, skill.id);
-            }}
+            onClick={(e) => onUpvote && onUpvote(e, skill.id)}
             disabled={isUpvoting}
-            style={{ 
-              background: isUpvoted ? 'var(--primary-soft)' : 'transparent',
-              border: `1px solid ${isUpvoted ? 'var(--primary)' : 'var(--hairline-strong)'}`,
-              borderRadius: 'var(--radius-md)', 
-              padding: '4px 10px', 
-              color: isUpvoted ? 'var(--primary)' : 'var(--body)', 
-              cursor: isUpvoting ? 'wait' : 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px',
-              fontWeight: 600,
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (!isUpvoted && !isUpvoting) {
-                e.currentTarget.style.borderColor = 'var(--primary)';
-                e.currentTarget.style.color = 'var(--primary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isUpvoted && !isUpvoting) {
-                e.currentTarget.style.borderColor = 'var(--hairline-strong)';
-                e.currentTarget.style.color = 'var(--body)';
-              }
-            }}
+            className={cn(
+              "flex items-center gap-1 rounded-md px-2 py-1 transition-colors",
+              isUpvoted ? "bg-pink-500/10 text-pink-500" : "hover:bg-zinc-800 hover:text-zinc-300",
+              isUpvoting && "opacity-50 cursor-not-allowed"
+            )}
           >
-            <TrendingUp style={{ width: '14px', height: '14px' }} />
+            <TrendingUp size={14} />
             {skill.upvotes || 0}
           </button>
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

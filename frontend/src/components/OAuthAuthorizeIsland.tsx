@@ -59,11 +59,11 @@ export default function OAuthAuthorizeIsland() {
     }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+  if (loading) return <div className="text-center p-8 text-zinc-400">Loading...</div>;
 
   if (!clientId || !redirectUri) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--danger)' }}>
+      <div className="text-center p-8 text-red-500 font-semibold bg-red-500/10 rounded-xl border border-red-500/20 max-w-lg mx-auto mt-10">
         Missing required OAuth parameters (client_id, redirect_uri).
       </div>
     );
@@ -79,15 +79,15 @@ export default function OAuthAuthorizeIsland() {
   }
 
   return (
-    <div className="card" style={{ padding: '2rem', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-      <h2 style={{ marginBottom: '1rem' }}>Authorize Connection</h2>
-      <p style={{ color: 'var(--mute)', marginBottom: '2rem' }}>
-        <strong>{clientId}</strong> is requesting access to your BodhicAI account.
+    <div className="group flex flex-col p-8 rounded-2xl border border-zinc-800 bg-zinc-900 max-w-lg mx-auto text-center shadow-xl mt-10">
+      <h2 className="text-2xl font-bold text-zinc-100 mb-4">Authorize Connection</h2>
+      <p className="text-zinc-400 mb-8">
+        <strong className="text-zinc-100">{clientId}</strong> is requesting access to your BodhicAI account.
       </p>
 
-      <div style={{ textAlign: 'left', background: 'var(--surface-2)', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
-        <h4 style={{ marginBottom: '1rem', color: 'var(--text)' }}>This application will be able to:</h4>
-        <ul style={{ color: 'var(--mute)', paddingLeft: '1.2rem', lineHeight: '1.6' }}>
+      <div className="text-left bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 mb-8 shadow-sm">
+        <h4 className="mb-4 text-zinc-100 font-bold">This application will be able to:</h4>
+        <ul className="text-zinc-300 list-disc pl-5 leading-relaxed space-y-2 marker:text-indigo-500">
           <li>Read your public creator profile and popular skills</li>
           <li>View your Bodhic Credit balance</li>
           <li>View your purchased skills and created skills</li>
@@ -98,24 +98,22 @@ export default function OAuthAuthorizeIsland() {
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+        <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 border border-red-500/20 text-left font-medium">
           {error}
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+      <div className="flex gap-4 justify-center mt-2">
         <button 
           onClick={() => window.history.back()}
-          className="btn"
-          style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)' }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-6 py-2.5 text-sm font-bold text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           disabled={processing}
         >
           Cancel
         </button>
         <button 
           onClick={handleAuthorize}
-          className="btn"
-          style={{ background: 'var(--primary)', color: '#fff', border: 'none' }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50"
           disabled={processing}
         >
           {processing ? 'Authorizing...' : 'Authorize Access'}

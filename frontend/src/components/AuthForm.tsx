@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface AuthFormProps {
   type: 'login' | 'signup';
@@ -36,38 +38,27 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
       }
 
       if (type === 'signup') {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         setSuccess('Account created successfully! You can now log in.');
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         
-        // Check if user is an admin
         const userId = data.user.id;
-        const { data: adminData } = await supabase
-          .from('admins')
-          .select('id')
-          .eq('id', userId)
-          .maybeSingle();
+        const { data: adminData } = await supabase.from('admins').select('id').eq('id', userId).maybeSingle();
           
         if (onSuccess) {
           onSuccess();
         } else if (adminData) {
-          window.location.href = '/admin'; // Redirect admin to admin panel
+          window.location.href = '/admin';
         } else {
           const oauthRedirect = sessionStorage.getItem('oauth_redirect');
           if (oauthRedirect) {
             sessionStorage.removeItem('oauth_redirect');
             window.location.href = oauthRedirect;
           } else {
-            window.location.href = '/dashboard/buyer'; // Redirect user to buyer dashboard
+            window.location.href = '/dashboard/buyer';
           }
         }
       }
@@ -82,16 +73,13 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
     }
   };
 
-
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/dashboard/buyer',
-        },
+        options: { redirectTo: window.location.origin + '/dashboard/buyer' },
       });
       if (error) throw error;
     } catch (err: any) {
@@ -101,34 +89,18 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
   };
 
   return (
-    <div>
-      {error && <div style={{ color: 'var(--error)', marginBottom: '1rem' }}>{error}</div>}
-      {success && <div style={{ color: 'var(--success)', marginBottom: '1rem' }}>{success}</div>}
+    <div className="w-full space-y-6">
+      {error && <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-500 font-medium">{error}</div>}
+      {success && <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-500 font-medium">{success}</div>}
 
-      {/* Google OAuth Button */}
       <button
         type="button"
         onClick={handleGoogleSignIn}
         disabled={loading}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px',
-          padding: '12px 16px',
-          background: 'var(--canvas)',
-          border: '1px solid var(--hairline-strong)',
-          borderRadius: 'var(--radius-md)',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: '15px',
-          fontWeight: 600,
-          color: 'var(--ink)',
-          transition: 'all 0.2s ease',
-          opacity: loading ? 0.6 : 1,
-        }}
-        onMouseEnter={(e) => { if (!loading) { (e.target as HTMLElement).style.borderColor = 'var(--primary)'; (e.target as HTMLElement).style.boxShadow = '0 0 0 2px var(--primary-soft)'; } }}
-        onMouseLeave={(e) => { (e.target as HTMLElement).style.borderColor = 'var(--hairline-strong)'; (e.target as HTMLElement).style.boxShadow = 'none'; }}
+        className={cn(
+          "flex w-full items-center justify-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-100 transition-all hover:bg-zinc-900 hover:border-zinc-700",
+          loading && "opacity-50 cursor-not-allowed"
+        )}
       >
         <svg width="18" height="18" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -139,42 +111,45 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
         {loading ? 'Redirecting...' : (type === 'login' ? 'Continue with Google' : 'Sign up with Google')}
       </button>
 
-      {/* Divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
-        <div style={{ flex: 1, height: '1px', background: 'var(--hairline)' }} />
-        <span style={{ color: 'var(--mute)', fontSize: '13px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '1px' }}>or</span>
-        <div style={{ flex: 1, height: '1px', background: 'var(--hairline)' }} />
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-zinc-800" />
+        <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">or</span>
+        <div className="h-px flex-1 bg-zinc-800" />
       </div>
 
-      <form onSubmit={handleSubmit}>
-        
-        <div className="form-group">
-          <label>Email</label>
-          <input 
-            type="email" 
-            placeholder="you@example.com" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
-          />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-zinc-300">Email Address</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <input 
+              type="email" 
+              placeholder="you@example.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-2.5 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+            />
+          </div>
         </div>
         
         {mode === 'default' && (
-          <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={{ marginBottom: 0 }}>Password</label>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-zinc-300">Password</label>
               {type === 'login' && (
                 <button 
                   type="button" 
                   onClick={() => setMode('forgot_password')}
-                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '13px', cursor: 'pointer', padding: 0 }}
+                  className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
                 >
                   Forgot Password?
                 </button>
               )}
             </div>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <input 
                 type={showPassword ? "text" : "password"} 
                 placeholder="••••••••" 
@@ -182,32 +157,14 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                style={{ paddingRight: '40px' }}
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-2.5 pl-10 pr-10 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
               />
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{ 
-                  position: 'absolute', 
-                  right: '10px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)', 
-                  background: 'none', 
-                  border: 'none', 
-                  cursor: 'pointer',
-                  color: 'var(--mute)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '4px'
-                }}
-                title={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
               >
-                {showPassword ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -215,19 +172,18 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
         
         <button 
           type="submit" 
-          className="btn btn-primary" 
-          style={{ width: '100%', marginTop: '1rem' }}
           disabled={loading}
+          className="mt-2 w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:bg-indigo-500 disabled:opacity-50"
         >
-          {loading ? 'Processing...' : (mode === 'forgot_password' ? 'Send Reset Link' : (type === 'login' ? 'Login' : 'Sign Up'))}
+          {loading ? 'Processing...' : (mode === 'forgot_password' ? 'Send Reset Link' : (type === 'login' ? 'Sign In' : 'Create Account'))}
         </button>
 
         {mode === 'forgot_password' && (
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <div className="mt-4 text-center">
             <button 
               type="button" 
               onClick={() => { setMode('default'); setError(''); setSuccess(''); }}
-              style={{ background: 'none', border: 'none', color: 'var(--mute)', fontSize: '14px', cursor: 'pointer' }}
+              className="text-sm text-zinc-400 hover:text-zinc-300"
             >
               ← Back to Login
             </button>

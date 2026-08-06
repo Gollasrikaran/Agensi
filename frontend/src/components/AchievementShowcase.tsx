@@ -7,42 +7,18 @@ export default function AchievementShowcase({ achievements }: { achievements: an
 
   return (
     <div>
-      <h2 style={{ fontSize: '24px', marginBottom: 'var(--space-lg)', color: 'var(--ink)' }}>
+      <h2 className="text-2xl mb-8 text-zinc-100">
         Achievements
       </h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
+      <div className="flex flex-wrap gap-6">
         {achievements.map((ach) => (
           <div 
             key={ach.id} 
             title={`${ach.title} - ${ach.description} (Unlocked: ${new Date(ach.unlocked_at).toLocaleDateString()})`}
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              backdropFilter: 'blur(12px)',
-              border: ach.is_admin_awarded ? '1px solid rgba(251, 191, 36, 0.5)' : '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '50px',
-              padding: '8px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              cursor: 'default',
-              boxShadow: ach.is_admin_awarded ? '0 0 15px rgba(251, 191, 36, 0.2)' : 'none',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              if (!ach.is_admin_awarded) {
-                e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              if (!ach.is_admin_awarded) {
-                e.currentTarget.style.boxShadow = 'none';
-              }
-            }}
+            className={`flex items-center gap-3 px-4 py-2 rounded-full cursor-default transition-all duration-200 hover:-translate-y-0.5 ${ach.is_admin_awarded ? 'bg-amber-500/10 border border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.2)]' : 'bg-zinc-900/30 backdrop-blur-md border border-zinc-800/50 hover:shadow-lg hover:shadow-black/20'}`}
           >
-            <span style={{ fontSize: '24px' }}>{ach.icon_url}</span>
-            <span style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '14px' }}>{ach.title}</span>
+            <span className="text-2xl">{ach.icon_url}</span>
+            <span className="font-semibold text-zinc-100 text-sm">{ach.title}</span>
           </div>
         ))}
       </div>

@@ -6,16 +6,18 @@ import AuthForm from '../components/AuthForm.tsx';
 	title="Sign Up — BodhicAI"
 	description="Create a BodhicAI account to buy and create verified AI agent skills. Join the fastest growing prompt and workflow marketplace."
 >
-	<div style="max-width: 420px; margin: var(--space-5xl) auto;">
-		<div style="text-align: center; margin-bottom: var(--space-xl);">
-			<span class="eyebrow" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; background: var(--primary-soft); border-radius: var(--radius-pill); border: 1px solid rgba(108, 60, 225, 0.15); display: inline-block;">get started</span>
-			<h1 style="font-size: clamp(24px, 5vw, 36px); margin-top: var(--space-md); margin-bottom: var(--space-xs);">Create your account.</h1>
-			<p style="color: var(--mute);">Join the BodhicAI marketplace.</p>
+	<div class="mx-auto max-w-md mt-24 mb-32 px-4 sm:px-0">
+		<div class="text-center mb-10">
+			<span class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-mono text-xs font-semibold tracking-widest uppercase">
+				Get Started
+			</span>
+			<h1 class="mt-6 mb-2 text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100">Create your account.</h1>
+			<p class="text-zinc-400">Join the BodhicAI marketplace.</p>
 		</div>
-		<div class="card" style="padding: var(--space-xl);">
+		<div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xl p-8 sm:p-10 shadow-2xl">
 			<AuthForm client:load type="signup" />
-			<p style="text-align: center; margin-top: var(--space-xl); color: var(--mute); font-size: 14px;">
-				Already have an account? <a href="/login" style="color: var(--primary); font-weight: 600;">Login →</a>
+			<p class="text-center mt-8 text-sm text-zinc-400">
+				Already have an account? <a href="/login" class="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">Login →</a>
 			</p>
 		</div>
 	</div>

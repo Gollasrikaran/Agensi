@@ -68,14 +68,14 @@ export default function TestBeforeBuyIsland({ skillId, sellerId, complexityLevel
   const creditCost = costMap[complexityLevel] || (complexityLevel * 10);
 
   return (
-    <div style={{ marginTop: 'var(--space-xl)', padding: 'var(--space-xl)', background: 'var(--canvas-soft)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 'var(--space-xs)', color: 'var(--ink)' }}>Test Before You Buy</h3>
-      <p style={{ color: 'var(--body)', fontSize: '14px', marginBottom: 'var(--space-md)' }}>
-        Try out this skill to ensure it meets your needs. Testing consumes <strong>{creditCost} Bodhic Credits</strong> per interaction based on its Level {complexityLevel} complexity rating.
+    <div className="mt-8 p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50">
+      <h3 className="text-lg font-semibold mb-1 text-zinc-100">Test Before You Buy</h3>
+      <p className="text-zinc-300 text-sm mb-4">
+        Try out this skill to ensure it meets your needs. Testing consumes <strong className="text-indigo-400">{creditCost} Bodhic Credits</strong> per interaction based on its Level {complexityLevel} complexity rating.
       </p>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-        <a href={`/chat/${skillId}`} target="_blank" className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '14px', textDecoration: 'none' }}>
+      <div className="flex flex-col gap-2">
+        <a href={`/chat/${skillId}`} target="_blank" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 w-full no-underline">
           Test with Bodhic LLM Web Chat
         </a>
         <McpTestIsland skillId={skillId} />

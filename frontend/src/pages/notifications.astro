@@ -10,11 +10,9 @@ const description = "View and manage your notifications.";
 <Layout title={title} description={description}>
   <NavbarIsland client:load />
   
-  <main class="dashboard-layout">
-    <div class="dashboard-content">
-      <div style="max-width: 800px; margin: 0 auto; padding-top: 40px;">
-        <NotificationsIsland client:only="react" />
-      </div>
+  <main class="min-h-screen bg-zinc-950 pt-20">
+    <div class="max-w-[800px] mx-auto px-6 pb-24">
+      <NotificationsIsland client:only="react" />
     </div>
   </main>
 </Layout>

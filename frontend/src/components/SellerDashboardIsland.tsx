@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../lib/toast';
 import ReferralShareCardIsland from './ReferralShareCardIsland';
+import { CheckCircle2, XCircle, AlertCircle, Edit2, ShieldAlert, ArrowRight, Wallet, Activity, Trophy } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const CATEGORIES = [
   { value: 'automation', label: 'Automation' },
@@ -208,234 +210,247 @@ export default function SellerDashboardIsland() {
     }
   };
 
-  if (loading) return <div>Loading creator dashboard...</div>;
-  if (error) return <div className="glass-card" style={{ color: 'var(--error)' }}>Error: {error}</div>;
+  if (loading) return <div className="animate-pulse space-y-6"><div className="h-24 bg-zinc-800 rounded-xl"></div><div className="h-64 bg-zinc-800 rounded-xl"></div></div>;
+  if (error) return <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-500">Error: {error}</div>;
+
+  const freeSkillsCount = skills.filter(s => s.base_price_inr === 0).length;
+  const isMonetizationUnlocked = freeSkillsCount >= 2;
+  const progressPercent = Math.min(100, (freeSkillsCount / 2) * 100);
 
   return (
-    <div className="seller-dashboard">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ margin: 0, fontSize: '28px' }}>Creator Dashboard</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-zinc-100">Your Sales & Assets</h2>
         <a 
           href="/dashboard/buyer" 
-          style={{ 
-            background: 'var(--bg-tertiary)', 
-            border: '1px solid var(--accent-deep)', 
-            padding: '8px 16px', 
-            borderRadius: '8px', 
-            color: 'var(--accent)',
-            textDecoration: 'none',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'var(--transition-smooth)'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-soft)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
         >
           <span>Switch to Buyer Dashboard</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <ArrowRight className="h-4 w-4" />
         </a>
       </div>
 
       <ReferralShareCardIsland />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '13px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Available Balance</h3>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-1px' }}>₹{balance.toFixed(2)}</div>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <Wallet className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Available Balance</h3>
+          </div>
+          <div className="text-3xl font-bold tracking-tight text-zinc-100">₹{balance.toFixed(2)}</div>
         </div>
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '13px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Active Skills</h3>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)' }}>{skills.length}</div>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <Activity className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Active Skills</h3>
+          </div>
+          <div className="text-3xl font-bold tracking-tight text-zinc-100">{skills.length}</div>
         </div>
-        <div className="glass-card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '13px', color: 'var(--mute)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Completed Bounties</h3>
-          <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)' }}>{bountyClaims.length}</div>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <Trophy className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Completed Bounties</h3>
+          </div>
+          <div className="text-3xl font-bold tracking-tight text-zinc-100">{bountyClaims.length}</div>
         </div>
       </div>
 
-      <div className="glass-card" style={{ marginBottom: '2rem' }}>
-        <h2>Your Listed Skills</h2>
+      {/* Monetization Progress */}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-zinc-100 mb-2">Creator Monetization Status</h3>
+        <p className="text-sm text-zinc-400 mb-4">
+          Publish 2 free skills to build trust and unlock the ability to sell paid skills.
+        </p>
+        <div className="mb-2 h-2.5 w-full overflow-hidden rounded-full bg-zinc-950">
+          <div 
+            className={cn("h-full transition-all duration-500", isMonetizationUnlocked ? "bg-emerald-500" : "bg-indigo-500")}
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-xs font-semibold">
+          <span className="text-zinc-500">{freeSkillsCount} Free Skills Published</span>
+          <span className={isMonetizationUnlocked ? "text-emerald-500 flex items-center gap-1" : "text-zinc-500"}>
+            {isMonetizationUnlocked ? <><CheckCircle2 className="h-3 w-3" /> Monetization Unlocked</> : "2 Required"}
+          </span>
+        </div>
+      </div>
+
+      {/* Listed Skills */}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm shadow-sm overflow-hidden">
+        <div className="border-b border-zinc-800 p-6">
+          <h2 className="text-lg font-semibold text-zinc-100">Your Listed Skills</h2>
+        </div>
         
         {skills.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-            You haven't listed any skills yet. <a href="/sell" style={{ color: 'var(--accent-color)' }}>Sell your first skill</a>
-          </p>
+          <div className="p-8 text-center text-sm text-zinc-500">
+            You haven't listed any skills yet. <a href="/sell" className="font-medium text-indigo-400 hover:text-indigo-300">Sell your first skill</a>
+          </div>
         ) : (
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                <th style={{ padding: '0.5rem' }}>Title</th>
-                <th style={{ padding: '0.5rem' }}>Price</th>
-                <th style={{ padding: '0.5rem' }}>Moderation Status</th>
-                <th style={{ padding: '0.5rem' }}>Listed On</th>
-                <th style={{ padding: '0.5rem' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {skills.map((skill: any) => (
-                <tr key={skill.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>{skill.title}</td>
-                  <td style={{ padding: '0.5rem' }}>₹{skill.base_price_inr ?? 0}</td>
-                  <td style={{ padding: '0.5rem' }}>
-                    <span style={{ 
-                      padding: '0.2rem 0.5rem', 
-                      borderRadius: '4px', 
-                      fontSize: '0.8rem',
-                      background: skill.moderation_status === 'approved' ? 'var(--success-soft)' : (skill.moderation_status === 'rejected' ? '#7f1d1d' : 'var(--warning-soft)'),
-                      color: skill.moderation_status === 'approved' ? 'var(--success)' : (skill.moderation_status === 'rejected' ? 'var(--error)' : 'var(--warning)')
-                    }}>
-                      {skill.moderation_status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
-                    {new Date(skill.created_at).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: '0.5rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button 
-                      onClick={() => openEditModal(skill)}
-                      style={{
-                        background: 'var(--primary-soft)',
-                        border: '1px solid var(--primary)',
-                        color: 'var(--primary)',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Edit ✏️
-                    </button>
-                    {skill.moderation_status === 'approved' && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-zinc-400">
+              <thead className="bg-zinc-950 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Title</th>
+                  <th className="px-6 py-4 font-medium">Price</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Listed On</th>
+                  <th className="px-6 py-4 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800 bg-transparent">
+                {skills.map((skill: any) => (
+                  <tr key={skill.id} className="transition-colors hover:bg-zinc-800/20">
+                    <td className="px-6 py-4 font-medium text-zinc-100">{skill.title}</td>
+                    <td className="px-6 py-4 text-zinc-300">₹{skill.base_price_inr ?? 0}</td>
+                    <td className="px-6 py-4">
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
+                        skill.moderation_status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' :
+                        skill.moderation_status === 'rejected' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'
+                      )}>
+                        {skill.moderation_status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{new Date(skill.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
                         <button 
-                            onClick={() => setDmcaSkill({id: skill.id, title: skill.title})}
-                            style={{
-                                background: 'transparent',
-                                border: '1px solid var(--error)',
-                                color: 'var(--error)',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                cursor: 'pointer'
-                            }}
+                          onClick={() => openEditModal(skill)}
+                          className="inline-flex items-center gap-1.5 rounded-md bg-indigo-500/10 px-3 py-1.5 text-xs font-medium text-indigo-400 transition-colors hover:bg-indigo-500/20"
                         >
-                            Report Stolen Skill
+                          <Edit2 className="h-3.5 w-3.5" /> Edit
                         </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {skill.moderation_status === 'approved' && (
+                          <button 
+                            onClick={() => setDmcaSkill({id: skill.id, title: skill.title})}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/20"
+                          >
+                            <ShieldAlert className="h-3.5 w-3.5" /> DMCA
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      <div className="glass-card" style={{ marginBottom: '2rem' }}>
-        <h2>Approved Bounties</h2>
-        
-        {bountyClaims.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-            You haven't completed any bounties yet. <a href="/requests" style={{ color: 'var(--accent-color)' }}>Browse Open Bounties</a>
-          </p>
-        ) : (
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', marginTop: '1rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--hairline-strong)' }}>
-                <th style={{ padding: '0.5rem' }}>Bounty Title</th>
-                <th style={{ padding: '0.5rem' }}>Earned Amount (80%)</th>
-                <th style={{ padding: '0.5rem' }}>Completed On</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bountyClaims.map((claim: any) => (
-                <tr key={claim.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                  <td style={{ padding: '0.5rem', fontWeight: 'bold' }}>{claim.bounty?.title || 'Unknown'}</td>
-                  <td style={{ padding: '0.5rem' }}>₹{(parseFloat(claim.bounty?.bounty_inr || '0') * 0.8).toFixed(2)}</td>
-                  <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
-                    {new Date(claim.updated_at || claim.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* Bounties & Payouts Grid */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Bounties */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm shadow-sm overflow-hidden">
+          <div className="border-b border-zinc-800 p-6">
+            <h2 className="text-lg font-semibold text-zinc-100">Approved Bounties</h2>
+          </div>
+          {bountyClaims.length === 0 ? (
+            <div className="p-8 text-center text-sm text-zinc-500">
+              You haven't completed any bounties yet. <a href="/requests" className="font-medium text-indigo-400 hover:text-indigo-300">Browse Open Bounties</a>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-zinc-400">
+                <thead className="bg-zinc-950 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  <tr>
+                    <th className="px-6 py-4 font-medium">Bounty Title</th>
+                    <th className="px-6 py-4 font-medium">Earned (80%)</th>
+                    <th className="px-6 py-4 font-medium">Completed On</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800 bg-transparent">
+                  {bountyClaims.map((claim: any) => (
+                    <tr key={claim.id} className="transition-colors hover:bg-zinc-800/20">
+                      <td className="px-6 py-4 font-medium text-zinc-100">{claim.bounty?.title || 'Unknown'}</td>
+                      <td className="px-6 py-4 text-emerald-400 font-medium">₹{(parseFloat(claim.bounty?.bounty_inr || '0') * 0.8).toFixed(2)}</td>
+                      <td className="px-6 py-4">{new Date(claim.updated_at || claim.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-      <div className="glass-card" style={{ marginBottom: '2rem' }}>
-        <h2>Payouts & Earnings</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', marginBottom: '1rem' }}>Payouts are processed automatically every week for balances above ₹1. Make sure your UPI ID is saved below.</p>
-        
-        {/* UPI Settings */}
-        <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '0.5rem', marginTop: '1.5rem' }}>UPI Settings</h3>
-        <form onSubmit={saveUpi} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
-            <div>
+        {/* UPI & Payouts */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-zinc-100 mb-2">Payouts & Earnings</h2>
+          <p className="text-sm text-zinc-400 mb-6">Payouts are processed automatically every week for balances above ₹1. Make sure your UPI ID is saved below.</p>
+          
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+            <h3 className="mb-4 text-sm font-semibold text-zinc-200">UPI Settings</h3>
+            <form onSubmit={saveUpi} className="flex flex-col gap-4">
+              <div className="relative">
                 <input 
-                    type="text" 
-                    value={upiId} 
-                    onChange={e => setUpiId(e.target.value)} 
-                    required 
-                    placeholder="e.g. name@okhdfcbank"
-                    style={{ 
-                        width: '100%', 
-                        padding: '10px 12px', 
-                        borderRadius: 'var(--radius-md)', 
-                        border: '1px solid var(--hairline-strong)', 
-                        background: 'var(--bg-tertiary)', 
-                        color: 'var(--ink)'
-                    }}
+                  type="text" 
+                  value={upiId} 
+                  onChange={e => setUpiId(e.target.value)} 
+                  required 
+                  placeholder="e.g. name@okhdfcbank"
+                  className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 />
                 {savedUpi && (
-                    <div style={{ fontSize: '12px', color: 'var(--success)', marginTop: '6px' }}>
-                        ✓ Currently saved: {savedUpi}
-                    </div>
+                  <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-500">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Currently saved: {savedUpi}
+                  </div>
                 )}
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={savingUpi}>
+              </div>
+              <button 
+                type="submit" 
+                disabled={savingUpi}
+                className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+              >
                 {savingUpi ? 'Saving...' : (savedUpi ? 'Update UPI ID' : 'Save UPI ID')}
-            </button>
-        </form>
+              </button>
+            </form>
+          </div>
 
-        <a href="/dashboard/wallet" className="btn btn-secondary" style={{ textDecoration: 'none', marginTop: '1.5rem', display: 'inline-block' }}>View Full Payout History</a>
+          <div className="mt-6">
+            <a href="/dashboard/wallet" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+              View Full Payout History <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
       </div>
+
+      {/* Modals */}
       {dmcaSkill && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', position: 'relative' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
             <button 
               onClick={() => { setDmcaSkill(null); setDmcaMessage(''); }}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+              className="absolute right-4 top-4 text-zinc-500 hover:text-zinc-300"
             >
-              ✕
+              <XCircle className="h-6 w-6" />
             </button>
-            <h2 style={{ fontSize: '20px', marginBottom: '8px' }}>Report Stolen Skill (DMCA)</h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
+            <h2 className="mb-2 text-xl font-semibold text-zinc-100">Report Stolen Skill (DMCA)</h2>
+            <p className="mb-6 text-sm text-zinc-400">
               Did you find "{dmcaSkill.title}" being distributed on another platform without permission? Submit the infringing URL below and our team will issue an automated legal takedown notice.
             </p>
             
-            <form onSubmit={submitDmca} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Infringing URL</label>
+            <form onSubmit={submitDmca} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-300">Infringing URL</label>
                 <input 
                   type="url" 
                   value={dmcaUrl} 
                   onChange={(e) => setDmcaUrl(e.target.value)} 
                   required 
                   placeholder="https://example.com/stolen-skill"
-                  style={{ width: '100%', padding: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px' }}
+                  className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                 />
               </div>
               <button 
                 type="submit" 
-                className="btn-primary" 
-                style={{ background: 'var(--error)', width: '100%', border: 'none' }}
+                className="w-full rounded-md bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500"
               >
-                Submit DMCA Takedown Request
+                Submit Takedown Request
               </button>
               {dmcaMessage && (
-                <div style={{ marginTop: '1rem', padding: '1rem', background: dmcaMessage.includes('success') ? 'var(--success-soft)' : 'var(--error-soft)', color: dmcaMessage.includes('success') ? 'var(--success)' : 'var(--error)', borderRadius: '8px', fontSize: '14px' }}>
+                <div className="mt-2 rounded-md bg-zinc-900 p-3 text-sm font-medium text-emerald-400">
                   {dmcaMessage}
                 </div>
               )}
@@ -444,106 +459,83 @@ export default function SellerDashboardIsland() {
         </div>
       )}
 
-      {/* Edit Skill Modal */}
       {editingSkill && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.7)',
-          backdropFilter: 'blur(5px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '550px', background: 'var(--bg-secondary)', padding: '2rem', position: 'relative', border: '1px solid var(--hairline-strong)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', borderRadius: '16px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setEditingSkill(null)}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.5rem', lineHeight: 1 }}
+              className="absolute right-4 top-4 text-zinc-500 hover:text-zinc-300"
             >
-              ×
+              <XCircle className="h-6 w-6" />
             </button>
-            <h2 style={{ fontSize: '22px', marginBottom: '0.5rem', color: 'var(--ink)' }}>Edit Skill Details</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '1.5rem' }}>Update marketing metadata for "{editingSkill.title}". Note: Skill code file cannot be modified to protect buyer security and maintain scan integrity.</p>
+            <h2 className="mb-6 text-xl font-semibold text-zinc-100">Edit Skill Details</h2>
             
-            <form onSubmit={saveSkillEdit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Title</label>
+            <form onSubmit={saveSkillEdit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-300">Title</label>
                 <input 
                   type="text" 
                   value={editForm.title} 
                   onChange={(e) => setEditForm({...editForm, title: e.target.value})} 
                   required 
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                  className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Description</label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-300">Description</label>
                 <textarea 
                   value={editForm.description} 
                   onChange={(e) => setEditForm({...editForm, description: e.target.value})} 
                   required 
-                  rows={4}
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px', resize: 'vertical' }}
+                  rows={3}
+                  className="w-full resize-none rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Price (INR ₹)</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-300">Price (INR)</label>
                   <input 
                     type="number" 
-                    min="0"
-                    step="0.01"
                     value={editForm.base_price_inr} 
                     onChange={(e) => setEditForm({...editForm, base_price_inr: parseFloat(e.target.value) || 0})} 
                     required 
-                    style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                    min="0"
+                    className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Category</label>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-300">Target Audience</label>
                   <select 
-                    value={editForm.category} 
-                    onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                    style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                    value={editForm.target_audience} 
+                    onChange={(e) => setEditForm({...editForm, target_audience: e.target.value})} 
+                    required
+                    className="w-full appearance-none rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                   >
-                    {CATEGORIES.map(cat => (
-                      <option key={cat.value} value={cat.value}>{cat.label}</option>
-                    ))}
+                    <option value="all">Everyone</option>
+                    <option value="student">Students</option>
+                    <option value="professional">Professionals</option>
                   </select>
                 </div>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>Target Audience</label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-300">Primary Category</label>
                 <select 
-                  value={editForm.target_audience} 
-                  onChange={(e) => setEditForm({...editForm, target_audience: e.target.value})}
-                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-tertiary)', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontSize: '14px' }}
+                  value={editForm.category} 
+                  onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
+                  required
+                  className="w-full appearance-none rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 >
-                  <option value="all">All (General Audience)</option>
-                  <option value="student">Students</option>
-                  <option value="professional">Professionals</option>
+                  {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '0.5rem' }}>
-                <button 
-                  type="button" 
-                  onClick={() => setEditingSkill(null)}
-                  style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid var(--hairline-strong)', color: 'var(--ink)', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="btn-primary" 
-                  disabled={savingEdit}
-                  style={{ flex: 2, padding: '12px', borderRadius: '8px', fontWeight: 600, border: 'none', cursor: savingEdit ? 'not-allowed' : 'pointer', opacity: savingEdit ? 0.7 : 1 }}
-                >
-                  {savingEdit ? 'Saving Changes...' : 'Save Changes'}
-                </button>
-              </div>
+              
+              <button 
+                type="submit" 
+                disabled={savingEdit}
+                className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+              >
+                {savingEdit ? 'Saving...' : 'Save Changes'}
+              </button>
             </form>
           </div>
         </div>
