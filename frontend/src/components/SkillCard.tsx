@@ -107,24 +107,29 @@ export default function SkillCard({ skill, isUpvoted = false, isUpvoting = false
         </p>
 
         {/* Creator Info */}
-        <a 
-          href={`/profile/${(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.username}`} 
-          onClick={(e) => e.stopPropagation()}
-          className="mt-auto flex items-center gap-2 border-t border-white/5 pt-4 hover:opacity-80 transition-opacity no-underline w-fit relative z-10"
-        >
-          <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
-            {(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.avatar_url ? (
-              <img src={(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles).avatar_url} alt="Avatar" className="h-full w-full object-cover" />
-            ) : (
-              <UserCircle2 className="h-5 w-5 text-zinc-500" />
-            )}
-          </div>
-          <span className="text-sm font-medium text-zinc-300 group-hover:text-indigo-400 transition-colors">
-            @{(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.username || 'Anonymous'}
-            {/* Verified badge placeholder */}
-            {(Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles)?.is_verified && <span className="ml-1 text-indigo-400">✓</span>}
-          </span>
-        </a>
+        {(() => {
+          const profile = skill.seller || (Array.isArray(skill.profiles) ? skill.profiles[0] : skill.profiles);
+          return (
+            <a 
+              href={`/profile/${profile?.username}`} 
+              onClick={(e) => e.stopPropagation()}
+              className="mt-auto flex items-center gap-2 border-t border-white/5 pt-4 hover:opacity-80 transition-opacity no-underline w-fit relative z-10"
+            >
+              <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <UserCircle2 className="h-5 w-5 text-zinc-500" />
+                )}
+              </div>
+              <span className="text-sm font-medium text-zinc-300 group-hover:text-indigo-400 transition-colors">
+                @{profile?.username || 'Anonymous'}
+                {/* Verified badge placeholder */}
+                {profile?.is_verified && <span className="ml-1 text-indigo-400">✓</span>}
+              </span>
+            </a>
+          );
+        })()}
       </CardContent>
 
       <CardFooter className="flex items-center justify-between border-t border-white/5 bg-zinc-950/30 p-4">
