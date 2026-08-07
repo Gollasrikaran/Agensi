@@ -74,10 +74,7 @@ async def chat_with_skill(request: ChatRequest):
     complexity_level = skill.get("complexity_level") or 1
     cost = cost_map.get(complexity_level, 10)
     
-    version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
-    prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
-    
-    # 2. Check Purchase
+    # 2. Check Purchase FIRST — before loading any content
     purchase_res = supabase.table("purchases").select("id").eq("buyer_id", user_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
     has_purchased = len(purchase_res.data) > 0
     
@@ -110,6 +107,10 @@ async def chat_with_skill(request: ChatRequest):
                 "transaction_type": "referral_bonus",
                 "description": f"20% Affiliate Bonus from user spending {cost} credits"
             }).execute()
+
+    # 3. Access granted — NOW fetch skill content
+    version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
+    prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
         
     # 3. Call Cloudflare AI
     cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")
@@ -195,38 +196,8 @@ async def web_chat_with_skill(
             if file_contents:
                 message = "[USER ATTACHMENTS]\n" + "\n\n".join(file_contents) + "\n\n[USER MESSAGE]\n" + message
 
-        version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
-        prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
-        
-        # Inject Repo Files if present
-        repo_files_context = ""
-        if skill.get("archive_url"):
-            try:
-                import io, zipfile
-                async with httpx.AsyncClient() as dl_client:
-                    r = await dl_client.get(skill["archive_url"], follow_redirects=True, timeout=10.0)
-                    if r.is_success:
-                        with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-                            allowed_exts = {'.txt', '.md', '.py', '.js', '.json', '.html', '.css', '.ts', '.jsx', '.tsx', '.rs', '.go', '.java', '.cpp', '.c', '.h'}
-                            total_size = 0
-                            for info in z.infolist():
-                                if info.is_dir(): continue
-                                ext = '.' + info.filename.split('.')[-1].lower() if '.' in info.filename else ''
-                                if ext in allowed_exts and total_size < 50000:
-                                    content = z.read(info.filename)
-                                    try:
-                                        text_content = content.decode('utf-8')
-                                        repo_files_context += f"File from Repo: `{info.filename}`\n```\n{text_content}\n```\n\n"
-                                        total_size += len(text_content)
-                                    except Exception:
-                                        pass
-            except Exception as e:
-                print(f"Failed to fetch archive: {e}")
-        
-        if repo_files_context:
-            prompt_template += f"\n\n<REPOSITORY_FILES>\nThe following are the core files provided in this skill's repository. You have full access to read them and use them to generate an appropriate response:\n{repo_files_context}</REPOSITORY_FILES>"
-        
-        # 2. Check Purchase
+
+        # 2. Check Purchase FIRST — before loading any skill content
         purchase_res = supabase.table("purchases").select("id").eq("buyer_id", user_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
         has_purchased = len(purchase_res.data) > 0
         
@@ -259,6 +230,38 @@ async def web_chat_with_skill(
                     "transaction_type": "referral_bonus",
                     "description": f"20% Affiliate Bonus from user spending {cost} credits"
                 }).execute()
+
+        # 3. Access granted — NOW fetch skill content
+        version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
+        prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
+        
+        # Inject Repo Files if present
+        repo_files_context = ""
+        if skill.get("archive_url"):
+            try:
+                import io, zipfile
+                async with httpx.AsyncClient() as dl_client:
+                    r = await dl_client.get(skill["archive_url"], follow_redirects=True, timeout=10.0)
+                    if r.is_success:
+                        with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+                            allowed_exts = {'.txt', '.md', '.py', '.js', '.json', '.html', '.css', '.ts', '.jsx', '.tsx', '.rs', '.go', '.java', '.cpp', '.c', '.h'}
+                            total_size = 0
+                            for info in z.infolist():
+                                if info.is_dir(): continue
+                                ext = '.' + info.filename.split('.')[-1].lower() if '.' in info.filename else ''
+                                if ext in allowed_exts and total_size < 50000:
+                                    content = z.read(info.filename)
+                                    try:
+                                        text_content = content.decode('utf-8')
+                                        repo_files_context += f"File from Repo: `{info.filename}`\n```\n{text_content}\n```\n\n"
+                                        total_size += len(text_content)
+                                    except Exception:
+                                        pass
+            except Exception as e:
+                print(f"Failed to fetch archive: {e}")
+        
+        if repo_files_context:
+            prompt_template += f"\n\n<REPOSITORY_FILES>\nThe following are the core files provided in this skill's repository. You have full access to read them and use them to generate an appropriate response:\n{repo_files_context}</REPOSITORY_FILES>"
             
         # 3. Call Cloudflare AI
         cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")

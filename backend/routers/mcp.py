@@ -363,10 +363,7 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
     complexity_level = skill.get("complexity_level") or 1
     cost = cost_map.get(complexity_level, 10)
     
-    version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
-    prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
-    
-    # 2. Check if user purchased the skill outright
+    # 2. Check purchase FIRST — before loading any skill content
     purchase_res = supabase.table("purchases").select("id").eq("buyer_id", user_id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
     has_purchased = len(purchase_res.data) > 0
     
@@ -401,8 +398,12 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
                 "user_id": referrer_id,
                 "amount": kickback,
                 "transaction_type": "referral_bonus",
-                "description": f"20% Affiliate Bonus from user spending {cost} credits in MCP"
+                "description": f"20% Affiliate Kickback from {user_id} spending {cost} credits"
             }).execute()
+        
+    # Access granted — NOW load skill content
+    version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
+    prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
         
     # 4. Call Cloudflare Workers AI
     cf_account_id = os.environ.get("CLOUDFLARE_MCP_ACCOUNT_ID")
