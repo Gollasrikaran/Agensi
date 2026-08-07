@@ -14,7 +14,7 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
   useEffect(() => {
     getReferralId().then(id => {
       setRefId(id);
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.tech';
       setShareUrl(`${origin}/skill/${skillId}?ref=${id}`);
     });
   }, [skillId]);
@@ -44,7 +44,7 @@ export default function SkillShareBannerIsland({ skillId, skillTitle }: SkillSha
         
         <div className="pt-2 border-t border-zinc-800/50 mt-2">
           <SocialShareButtonsIsland 
-            url={shareUrl || `https://bodhicai.onrender.com/skill/${skillId}`} 
+            url={shareUrl || `https://bodhicai.tech/skill/${skillId}`} 
             title={shareTitle} 
             text={shareText} 
             compact={false} 

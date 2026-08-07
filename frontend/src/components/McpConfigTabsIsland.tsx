@@ -8,7 +8,7 @@ interface Props {
 
 export default function McpConfigTabsIsland({ 
   apiKey = "YOUR_API_KEY", 
-  apiUrl = import.meta.env.PUBLIC_API_URL || "https://bodhicai.onrender.com" 
+  apiUrl = import.meta.env.PUBLIC_API_URL || "https://api.bodhicai.tech" 
 }: Props) {
   const [activeTab, setActiveTab] = useState<'ide' | 'copilot' | 'web'>('ide');
 

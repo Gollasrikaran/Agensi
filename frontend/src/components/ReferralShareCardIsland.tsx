@@ -9,7 +9,7 @@ export default function ReferralShareCardIsland() {
   useEffect(() => {
     getReferralId().then(id => {
       setRefId(id);
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.tech';
       setShareUrl(`${origin}/?ref=${id}`);
     });
   }, []);
@@ -39,7 +39,7 @@ export default function ReferralShareCardIsland() {
 
         <div className="flex-1 min-w-[240px]">
           <SocialShareButtonsIsland 
-            url={shareUrl || 'https://bodhicai.onrender.com'} 
+            url={shareUrl || 'https://bodhicai.tech'} 
             title={shareTitle} 
             text={shareText} 
             compact={false} 

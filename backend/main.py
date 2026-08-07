@@ -185,7 +185,7 @@ ALLOWED_ORIGINS = [
     "https://www.bodhicai.tech",
     "http://localhost:4321",
     "http://localhost:3000",
-    "https://bodhicai.onrender.com",
+    "https://api.bodhicai.tech",
 ]
 
 app.add_middleware(
@@ -254,7 +254,7 @@ def get_mcp_config():
             "bodhic-ai": {
                 "command": "node", 
                 "args": ["-e", "console.log('Use SSE URL in Cline/Cursor for BodhicAI')"],
-                "url": "https://bodhicai.onrender.com/mcp/sse",
+                "url": "https://api.bodhicai.tech/mcp/sse",
                 "env": {
                     "AUTHORIZATION": "Bearer YOUR_API_KEY_HERE"
                 }

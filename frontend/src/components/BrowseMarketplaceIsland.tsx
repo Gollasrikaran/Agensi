@@ -45,7 +45,7 @@ export default function BrowseMarketplaceIsland() {
     getReferralId().then(setRefId);
   }, []);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.onrender.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.tech';
 
   useEffect(() => {
     setLoading(true);

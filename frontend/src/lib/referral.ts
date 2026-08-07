@@ -38,7 +38,7 @@ export async function getShareableUrl(path: string = ''): Promise<string> {
   const refId = await getReferralId();
   const baseUrl = typeof window !== 'undefined' 
     ? window.location.origin 
-    : (import.meta.env.PUBLIC_API_URL || 'https://bodhicai.onrender.com');
+    : (import.meta.env.PUBLIC_API_URL || 'https://api.bodhicai.tech');
   
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const separator = cleanPath.includes('?') ? '&' : '?';
