@@ -70,3 +70,37 @@
   mask-composite: exclude;
   pointer-events: none;
 }
+
+/* Premium Micro-interactions */
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: hsl(252, 100%, 66% / 0.3);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.skeleton {
+  @apply bg-zinc-800 rounded-xl;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.1; }
+}

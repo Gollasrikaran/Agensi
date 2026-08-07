@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Search, Filter } from 'lucide-react';
 import { getReferralId } from '../lib/referral';
 import SocialShareButtonsIsland from './SocialShareButtonsIsland';
 
@@ -16,10 +17,22 @@ interface Skill {
   media_url?: string | null;
 }
 
+
+const CATEGORIES = [
+  { id: 'all', label: 'All Domains' },
+  { id: 'development', label: 'Development' },
+  { id: 'marketing', label: 'Marketing' },
+  { id: 'design', label: 'Design' },
+  { id: 'business', label: 'Business' },
+  { id: 'data', label: 'Data Science' }
+];
+
 export default function BrowseMarketplaceIsland() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [audience, setAudience] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [itemType, setItemType] = useState<string>('all');
   const [refId, setRefId] = useState('REF-BODHIC');
 
@@ -32,7 +45,7 @@ export default function BrowseMarketplaceIsland() {
   useEffect(() => {
     setLoading(true);
     const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
-    fetch(`${apiBase}/api/public/skills?audience=${audience}&item_type=${itemType}`)
+    fetch(`${apiBase}/api/public/skills?audience=${audience}&item_type=${itemType}&category=${activeCategory}&q=${searchQuery}`)
       .then(res => res.json())
       .then(data => {
         setSkills(data);
@@ -94,17 +107,73 @@ export default function BrowseMarketplaceIsland() {
         </button>
       </div>
       
-      {loading ? (
-        <div className="text-center p-16 text-zinc-300">Loading marketplace...</div>
-      ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10 items-start">
+        {/* Sidebar */}
+        <aside className="sticky top-24 hidden lg:block space-y-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+            <input 
+              type="text" 
+              placeholder="Search skills..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 py-3 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+              <Filter className="h-4 w-4" /> Domains
+            </h3>
+            <div className="flex flex-col gap-1">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${activeCategory === cat.id ? 'bg-indigo-500/10 text-indigo-400' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="min-w-0">
+          <div className="lg:hidden mb-8 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+              <input 
+                type="text" 
+                placeholder="Search skills..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 py-3 pl-10 pr-4 text-sm text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <select
+              value={activeCategory}
+              onChange={(e) => setActiveCategory(e.target.value)}
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            >
+              {CATEGORIES.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="text-center p-16 text-zinc-300">Loading marketplace...</div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-8">
       {skills.length === 0 ? (
         <div className="col-span-full text-center text-zinc-400">
           No skills available in the marketplace yet.
         </div>
       ) : (
         skills.map(skill => (
-          <div key={skill.id} className="group flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full">
+          <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full no-underline">
             
             {skill.media_url && (
               <div className="w-full h-40 relative bg-zinc-950">
@@ -134,7 +203,7 @@ export default function BrowseMarketplaceIsland() {
                 {skill.description.length > 120 ? skill.description.substring(0, 120) + '...' : skill.description}
               </p>
               
-              <a href={`/profile/${(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username}`} className="flex items-center gap-3 mt-auto pt-6 border-t border-zinc-800/50 hover:opacity-80 transition-opacity no-underline">
+              <div onClick={(e) => { e.preventDefault(); window.location.href = `/profile/${(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username}`; }} className="flex items-center gap-3 mt-auto pt-6 border-t border-zinc-800/50 hover:opacity-80 transition-opacity no-underline cursor-pointer">
                 {(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.avatar_url ? (
                   <img 
                     src={(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles)).avatar_url} 
@@ -149,31 +218,41 @@ export default function BrowseMarketplaceIsland() {
                 <span className="text-sm text-zinc-100 font-medium group-hover:text-indigo-400 transition-colors">
                   @{(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username || 'Anonymous'}
                 </span>
-              </a>
+              </div>
             </div>
 
             <div className="p-4 bg-zinc-950/50 border-t border-zinc-800/50 flex justify-between items-center">
-              <div className="font-semibold text-lg text-indigo-400">
-                ₹{skill.base_price_inr}
+              <div className="font-semibold text-lg">
+                {skill.base_price_inr === 0 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+                    Free
+                  </span>
+                ) : (
+                  <span className="text-indigo-400">₹{skill.base_price_inr}</span>
+                )}
               </div>
               <div className="flex gap-2 items-center">
-                <SocialShareButtonsIsland 
+                <div className="relative z-10 flex gap-2 items-center" onClick={e => e.preventDefault()}>
+                  <SocialShareButtonsIsland 
                   url={`${origin}/skill/${skill.id}?ref=${refId}`}
                   title={skill.title}
                   text={audience === 'student' || skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}"!`}
                   compact={true}
                   label="Share"
                 />
-                <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
+                </div>
+                <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 pointer-events-none">
                   View Details
                 </button>
               </div>
             </div>
-          </div>
+          </a>
         ))
       )}
         </div>
       )}
+        </main>
+      </div>
     </div>
   );
 }

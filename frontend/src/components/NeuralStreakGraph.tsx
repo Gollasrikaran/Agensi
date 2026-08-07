@@ -76,10 +76,9 @@ export default function NeuralStreakGraph({ username }: Props) {
               <div 
                 key={day.date}
                 title={`${day.date}: ${day.count} activities`}
-                className={`rounded-sm rounded-t-md transition-all duration-300 ease-in-out ${isToday && day.count > 0 ? 'border-b-2 border-amber-500' : ''}`}
+                className={`rounded-sm rounded-t-md transition-all duration-300 ease-in-out ${isToday && day.count > 0 ? 'border-b-2 border-amber-500' : ''} ${day.count > 0 ? 'bg-gradient-to-t from-indigo-600 to-indigo-400' : 'bg-zinc-800'}`}
                 style={{
                   height,
-                  background: day.count > 0 ? 'linear-gradient(0deg, #4f46e5, #818cf8)' : '#27272a',
                   opacity
                 }}
               />

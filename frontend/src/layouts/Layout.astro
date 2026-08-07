@@ -141,17 +141,18 @@ import '../styles/global.css';
 		</footer>
 
 		<!-- Cookie Consent Banner -->
-		<div id="cookie-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: rgba(10, 10, 14, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 24px; font-size: 14px;">
-			<div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-				<p style="margin: 0; color: rgba(255,255,255,0.7); flex: 1; min-width: 280px; line-height: 1.5;">
-					We use cookies and Google Analytics to understand how you use our site and improve your experience. 
-					<a href="/privacy" style="color: var(--primary); text-decoration: underline;">Privacy Policy</a>
+		<!-- Cookie Consent Banner -->
+		<div id="cookie-banner" class="hidden fixed bottom-0 inset-x-0 z-[9999] bg-zinc-950/95 backdrop-blur-xl border-t border-white/[0.08] px-6 py-4 text-sm">
+			<div class="max-w-5xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+				<p class="text-zinc-400 flex-1 min-w-[280px] leading-relaxed m-0">
+					We use cookies and Google Analytics to understand how you use our site and improve your experience.
+					<a href="/privacy" class="text-indigo-400 underline hover:text-indigo-300 transition-colors">Privacy Policy</a>
 				</p>
-				<div style="display: flex; gap: 10px; flex-shrink: 0;">
-					<button id="cookie-decline" style="padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;">
+				<div class="flex gap-2.5 shrink-0">
+					<button id="cookie-decline" class="px-5 py-2 rounded-xl border border-white/[0.15] bg-transparent text-zinc-400 text-[13px] font-medium cursor-pointer transition-all hover:bg-zinc-800 hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
 						Decline
 					</button>
-					<button id="cookie-accept" style="padding: 8px 20px; border-radius: 8px; border: none; background: var(--primary); color: #fff; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+					<button id="cookie-accept" class="px-5 py-2 rounded-xl border-none bg-indigo-600 text-white text-[13px] font-semibold cursor-pointer transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950">
 						Accept Cookies
 					</button>
 				</div>
@@ -163,7 +164,7 @@ import '../styles/global.css';
 		    var consent = localStorage.getItem('cookie_consent');
 		    var banner = document.getElementById('cookie-banner');
 		    if (!consent && banner) {
-		      banner.style.display = 'block';
+		      banner.classList.remove('hidden');
 		    }
 
 		    var acceptBtn = document.getElementById('cookie-accept');
@@ -172,7 +173,7 @@ import '../styles/global.css';
 		    if (acceptBtn) {
 		      acceptBtn.addEventListener('click', function() {
 		        localStorage.setItem('cookie_consent', 'accepted');
-		        banner.style.display = 'none';
+		        banner.classList.add('hidden');
 		        // Update Google Consent Mode
 		        if (typeof gtag === 'function') {
 		          gtag('consent', 'update', {
@@ -188,7 +189,7 @@ import '../styles/global.css';
 		    if (declineBtn) {
 		      declineBtn.addEventListener('click', function() {
 		        localStorage.setItem('cookie_consent', 'declined');
-		        banner.style.display = 'none';
+		        banner.classList.add('hidden');
 		      });
 		    }
 		  })();
