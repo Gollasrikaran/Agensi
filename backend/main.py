@@ -427,7 +427,7 @@ async def import_from_github(req: GithubImportRequest, user = Depends(get_curren
     owner = parts[0]
     repo = parts[1]
     
-    branch = "main"
+    branch = None
     sub_path = ""
     if len(parts) >= 4 and parts[2] == "tree":
         branch = parts[3]
@@ -439,9 +439,13 @@ async def import_from_github(req: GithubImportRequest, user = Depends(get_curren
         repo_data = repo_res.json()
         stars_count = repo_data.get("stargazers_count", 0)
         forks_count = repo_data.get("forks_count", 0)
+        if not branch:
+            branch = repo_data.get("default_branch", "main")
     except Exception:
         stars_count = 0
         forks_count = 0
+        if not branch:
+            branch = "main"
 
     try:
         zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
