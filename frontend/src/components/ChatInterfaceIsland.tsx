@@ -10,6 +10,75 @@ interface Message {
   content: string;
 }
 
+const renderMessageContent = (content: string) => {
+  const fileRegex = /<file name="([^"]+)">([\s\S]*?)<\/file>/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = fileRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', content: content.substring(lastIndex, match.index) });
+    }
+    parts.push({ type: 'file', name: match[1], content: match[2].trim() });
+    lastIndex = match.index + match[0].length;
+  }
+  
+  if (lastIndex < content.length) {
+    parts.push({ type: 'text', content: content.substring(lastIndex) });
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {parts.map((part, i) => {
+        if (part.type === 'file') {
+          return (
+            <div key={i} className="border border-zinc-700 rounded-lg overflow-hidden my-2 bg-zinc-950">
+              <div className="flex items-center justify-between px-4 py-2 bg-zinc-800/50 border-b border-zinc-700 text-xs font-mono text-zinc-300">
+                <span className="flex items-center gap-2"><Paperclip size={14}/> {part.name}</span>
+                <button 
+                  onClick={() => {
+                    const blob = new Blob([part.content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = part.name;
+                    a.click();
+                  }}
+                  className="hover:text-indigo-400 transition-colors"
+                >
+                  Download
+                </button>
+              </div>
+              <pre className="p-4 text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap max-h-96">
+                {part.content}
+              </pre>
+            </div>
+          );
+        }
+        
+        const textSegments = part.content.split(/```(\w*)\n([\s\S]*?)```/g);
+        return (
+          <div key={i}>
+            {textSegments.map((seg, idx) => {
+              if (idx % 3 === 2) {
+                return (
+                  <pre key={idx} className="bg-zinc-950 p-3 rounded-lg overflow-x-auto text-xs font-mono text-indigo-300 my-2 border border-zinc-800">
+                    {seg}
+                  </pre>
+                );
+              } else if (idx % 3 === 0) {
+                return <span key={idx}>{seg}</span>;
+              }
+              return null;
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: string, skillTitle: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -159,8 +228,8 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             {messages.map((msg, i) => (
               <div key={i} className={cn("flex gap-4 items-start", msg.role === 'user' ? "justify-end" : "justify-start")}>
                 {msg.role === 'assistant' && (
-                  <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-sm mt-0.5">
-                    <img src="/logo.png" alt="BodhicAI" className="h-5 w-5 rounded-sm" />
+                  <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-950 border border-zinc-800 shadow-sm mt-0.5 overflow-hidden">
+                    <img src="/logo.png" alt="BodhicAI" className="h-full w-full object-cover" />
                   </div>
                 )}
                 
@@ -177,8 +246,8 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             
             {loading && (
               <div className="flex gap-4 items-start">
-                <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)] mt-0.5">
-                  <img src="/logo.png" alt="BodhicAI" className="h-5 w-5 rounded-sm" />
+                <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-950 border border-zinc-800 shadow-[0_0_15px_rgba(99,102,241,0.2)] mt-0.5 overflow-hidden">
+                  <img src="/logo.png" alt="BodhicAI" className="h-full w-full object-cover" />
                 </div>
                 <div className="px-5 py-4 bg-zinc-900 border border-zinc-800 rounded-[4px_20px_20px_20px] flex items-center gap-1">
                   <span className="h-2 w-2 rounded-full bg-zinc-500 animate-bounce" />

@@ -19,6 +19,8 @@ export default function BountyBoardIsland() {
   const [claimModalBounty, setClaimModalBounty] = useState<any>(null);
   const [claimCode, setClaimCode] = useState('');
   const [isClaiming, setIsClaiming] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
+  const [claimSuccess, setClaimSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,12 +55,15 @@ export default function BountyBoardIsland() {
     }
     setClaimModalBounty(req);
     setClaimCode('');
+    setClaimError(null);
+    setClaimSuccess(false);
   };
 
   const submitClaimBounty = async () => {
     if (!claimModalBounty) return;
+    setClaimError(null);
     if (!claimCode.trim()) {
-      alert("You must provide the skill code to claim this bounty.");
+      setClaimError("You must provide the skill code to claim this bounty.");
       return;
     }
 
@@ -73,15 +78,18 @@ export default function BountyBoardIsland() {
         body: JSON.stringify({ submitted_code: claimCode })
       });
       if (res.ok) {
-        alert("Bounty claim submitted successfully! You can track it in your dashboard.");
-        setClaimModalBounty(null);
+        setClaimSuccess(true);
         fetchRequests();
+        setTimeout(() => {
+          setClaimModalBounty(null);
+          setClaimSuccess(false);
+        }, 2500);
       } else {
         const err = await res.json();
-        alert(err.detail || "Failed to claim bounty.");
+        setClaimError(err.detail || "Failed to claim bounty.");
       }
     } catch (e: any) {
-      alert(e.message || "Network error occurred.");
+      setClaimError(e.message || "Network error occurred.");
     } finally {
       setIsClaiming(false);
     }
@@ -323,37 +331,57 @@ export default function BountyBoardIsland() {
       {/* Claim Modal */}
       {claimModalBounty && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-zinc-950 p-8 shadow-2xl">
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-zinc-100 mb-2">Submit Code for '{claimModalBounty.title}'</h3>
-              <p className="text-sm text-zinc-400">
-                Paste the completed skill code here. The bounty owner will review it in a protected environment.
-              </p>
-            </div>
-            
-            <textarea 
-              rows={10} 
-              placeholder="Paste skill code here..." 
-              value={claimCode}
-              onChange={e => setClaimCode(e.target.value)}
-              className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 text-sm font-mono text-zinc-300 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-6"
-            />
-            
-            <div className="flex flex-wrap justify-end gap-3">
-              <button 
-                className="rounded-xl bg-zinc-800 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-700" 
-                onClick={() => setClaimModalBounty(null)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50 inline-flex items-center gap-2" 
-                onClick={submitClaimBounty} 
-                disabled={isClaiming}
-              >
-                {isClaiming ? 'Submitting...' : <><CheckCircle2 className="h-4 w-4" /> Submit Claim</>}
-              </button>
-            </div>
+          <div className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-zinc-950 p-8 shadow-2xl overflow-hidden">
+            {claimSuccess ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in duration-300">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 mb-4 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-zinc-100 mb-2">Claim Submitted!</h3>
+                <p className="text-zinc-400 max-w-sm">The bounty owner has been notified. You can track this claim in your dashboard.</p>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-zinc-100 mb-2">Submit Code for '{claimModalBounty.title}'</h3>
+                  <p className="text-sm text-zinc-400">
+                    Paste the completed skill code here. The bounty owner will review it in a protected environment.
+                  </p>
+                </div>
+                
+                {claimError && (
+                  <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+                    {claimError}
+                  </div>
+                )}
+                
+                <textarea 
+                  rows={10} 
+                  placeholder="Paste skill code here..." 
+                  value={claimCode}
+                  onChange={e => setClaimCode(e.target.value)}
+                  disabled={isClaiming}
+                  className="w-full resize-y rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 text-sm font-mono text-zinc-300 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 mb-6 disabled:opacity-50"
+                />
+                
+                <div className="flex flex-wrap justify-end gap-3">
+                  <button 
+                    className="rounded-xl bg-zinc-800 px-5 py-2.5 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-700 disabled:opacity-50" 
+                    onClick={() => { setClaimModalBounty(null); setClaimError(null); }}
+                    disabled={isClaiming}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 disabled:opacity-50 inline-flex items-center gap-2" 
+                    onClick={submitClaimBounty} 
+                    disabled={isClaiming}
+                  >
+                    {isClaiming ? 'Submitting...' : <><CheckCircle2 className="h-4 w-4" /> Submit Claim</>}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
