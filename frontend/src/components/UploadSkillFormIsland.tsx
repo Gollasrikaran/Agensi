@@ -191,8 +191,19 @@ export default function UploadSkillFormIsland() {
       });
       
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Import failed");
+        let errMessage = "Import failed";
+        try {
+          const errData = await res.json();
+          errMessage = errData.detail || errMessage;
+        } catch (e) {
+          // If the server returns HTML (e.g. 404 page), don't crash on JSON parse
+          if (res.status === 404) {
+            errMessage = "Repository not found or is private. Only public repositories are supported for GitHub import. Please make the repository public or upload a ZIP file.";
+          } else {
+            errMessage = `Server error (${res.status}). Import failed.`;
+          }
+        }
+        throw new Error(errMessage);
       }
       const data = await res.json();
       

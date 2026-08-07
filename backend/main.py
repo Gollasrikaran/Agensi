@@ -446,6 +446,8 @@ async def import_from_github(req: GithubImportRequest, user = Depends(get_curren
     try:
         zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
         zip_res = requests.get(zip_url, timeout=30)
+        if zip_res.status_code == 404:
+            raise HTTPException(status_code=400, detail="Repository not found or is private. Only public repositories are supported for GitHub import. Please make the repository public or upload a ZIP file.")
         if zip_res.status_code != 200:
             raise Exception("Failed to download from GitHub")
             
