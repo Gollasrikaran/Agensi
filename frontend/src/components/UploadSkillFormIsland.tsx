@@ -6,6 +6,8 @@ import { Badge } from './ui/badge';
 import { Sparkles, Upload, Image as ImageIcon, Lock, CheckCircle2, Code2, Folder, File as FileIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 
+const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
+
 const CATEGORIES = [
   { value: 'automation', label: 'Automation' },
   { value: 'copywriting', label: 'Copywriting' },
@@ -94,7 +96,7 @@ export default function UploadSkillFormIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("No session");
 
-      const res = await fetch('/api/skills/autofill', {
+      const res = await fetch(`${apiBase}/api/skills/autofill`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({ content: contentStr })
@@ -138,7 +140,7 @@ export default function UploadSkillFormIsland() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) throw new Error("No session");
 
-        const res = await fetch('/api/skills/upload-archive', {
+        const res = await fetch(`${apiBase}/api/skills/upload-archive`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${session.access_token}` },
           body: formData
@@ -184,7 +186,7 @@ export default function UploadSkillFormIsland() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("No session");
 
-      const res = await fetch('/api/skills/import-github', {
+      const res = await fetch(`${apiBase}/api/skills/import-github`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({ url: githubUrl })
@@ -303,7 +305,7 @@ export default function UploadSkillFormIsland() {
         contentStr = readmeContent;
       }
 
-      const res = await fetch('/api/skills/upload', {
+      const res = await fetch(`${apiBase}/api/skills/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { FileCode, Folder, ChevronRight, ChevronDown, Download, ExternalLink } from 'lucide-react';
 
+const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
+
 interface FileNode {
   path: string;
   size: number;
@@ -27,7 +29,7 @@ export default function FileExplorerIsland({ skillId, manifest, archiveUrl }: Fi
     setFileContent('');
 
     try {
-      const res = await fetch(`/api/skills/${skillId}/file/${encodeURIComponent(path)}`);
+      const res = await fetch(`${apiBase}/api/skills/${skillId}/file/${encodeURIComponent(path)}`);
       if (!res.ok) {
         throw new Error('Failed to load file');
       }
