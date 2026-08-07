@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Download, TrendingUp, Star } from 'lucide-react';
 import { getReferralId } from '../lib/referral';
 import SocialShareButtonsIsland from './SocialShareButtonsIsland';
 
@@ -15,6 +15,11 @@ interface Skill {
   base_price_inr: number;
   seller: SellerProfile;
   media_url?: string | null;
+  downloads?: number;
+  upvotes?: number;
+  average_rating?: number;
+  category?: string;
+  target_audience?: string;
 }
 
 
@@ -173,78 +178,80 @@ export default function BrowseMarketplaceIsland() {
         </div>
       ) : (
         skills.map(skill => (
-          <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full no-underline block text-inherit cursor-pointer">
+          <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col rounded-[20px] border border-zinc-800/60 bg-[#0c0c0e] hover:bg-[#111114] transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-500/30 relative overflow-hidden h-full no-underline block text-inherit cursor-pointer">
             
-            <div className="absolute top-4 right-4 z-20">
-              {(skill.base_price_inr || 0) === 0 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-wider backdrop-blur-md shadow-sm">
-                  Free
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950/80 px-3 py-1 text-xs font-bold text-indigo-400 border border-indigo-500/30 tracking-wider backdrop-blur-md shadow-sm">
-                  ₹{skill.base_price_inr}
-                </span>
-              )}
-            </div>
-            {skill.media_url && (
-              <div className="w-full h-40 relative bg-zinc-950 rounded-xl overflow-hidden mb-6 flex-shrink-0">
-                {skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
-                  <video 
-                    src={skill.media_url} 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
+            {/* TOP HALF - Image or Dark gradient + Categories */}
+            <div className="relative w-full h-40 bg-gradient-to-b from-zinc-900/50 to-transparent flex-shrink-0 border-b border-zinc-800/30 flex items-center justify-center p-4 overflow-hidden">
+              {skill.media_url ? (
+                skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
+                  <video src={skill.media_url} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay group-hover:opacity-40 transition-opacity" />
                 ) : (
-                  <img 
-                    src={skill.media_url} 
-                    alt={skill.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                )}
+                  <img src={skill.media_url} alt={skill.title} className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay group-hover:opacity-40 transition-opacity" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                )
+              ) : (
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-zinc-900/5 to-transparent opacity-50"></div>
+              )}
+              
+              {/* Category Pills Overlay */}
+              <div className="relative z-10 flex flex-wrap gap-2 justify-center">
+                {(skill.category ? [skill.category] : ['EDUCATION', 'DEVELOPMENT']).map(cat => (
+                  <span key={cat} className="rounded-full bg-zinc-900/90 px-3 py-1 text-[10px] font-bold text-zinc-400 border border-zinc-800/80 backdrop-blur-md uppercase tracking-widest">
+                    {cat}
+                  </span>
+                ))}
               </div>
-            )}
+            </div>
 
-            <div className="flex-grow flex flex-col">
-              <h3 className="text-xl mb-2 text-zinc-100 font-semibold">{skill.title}</h3>
-              <p className="text-zinc-300 text-sm leading-relaxed mb-6">
-                {skill.description.length > 120 ? skill.description.substring(0, 120) + '...' : skill.description}
+            {/* CONTENT HALF */}
+            <div className="flex-grow flex flex-col p-6">
+              <h3 className="text-[17px] mb-2 text-zinc-100 font-semibold leading-snug group-hover:text-indigo-300 transition-colors">{skill.title}</h3>
+              <p className="text-zinc-400 text-[13px] leading-relaxed mb-6 flex-grow line-clamp-3">
+                {skill.description}
               </p>
               
-              <div className="mt-auto pt-6 border-t border-zinc-800/50 flex justify-between items-center">
-                <div onClick={(e) => { e.preventDefault(); window.location.href = `/profile/${(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username}`; }} className="flex items-center gap-3 hover:opacity-80 transition-opacity no-underline cursor-pointer">
-                  {(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.avatar_url ? (
-                    <img 
-                      src={(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles)).avatar_url} 
-                      alt="avatar" 
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm">
-                      ?
-                    </div>
-                  )}
-                  <span className="text-sm text-zinc-100 font-medium group-hover:text-indigo-400 transition-colors">
-                    @{(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username || 'Anonymous'}
-                  </span>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <div className="relative z-10 flex gap-2 items-center" onClick={e => e.preventDefault()}>
-                    <SocialShareButtonsIsland 
-                    url={`${origin}/skill/${skill.id}?ref=${refId}`}
-                    title={skill.title}
-                    text={audience === 'student' || skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}"!`}
-                    compact={true}
-                    label="Share"
+              <div className="flex items-center gap-2 mb-2">
+                {(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.avatar_url ? (
+                  <img 
+                    src={(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles)).avatar_url} 
+                    alt="avatar" 
+                    className="w-6 h-6 rounded-full object-cover border border-zinc-700"
                   />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs font-medium">
+                    ?
                   </div>
-                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 pointer-events-none whitespace-nowrap">
-                    View
-                  </button>
+                )}
+                <span className="text-xs text-zinc-300 font-medium group-hover:text-zinc-100 transition-colors">
+                  @{(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username || 'Anonymous'}
+                </span>
+              </div>
+            </div>
+
+            {/* FOOTER SECTION */}
+            <div className="px-6 py-4 bg-[#0a0a0c] flex justify-between items-center border-t border-zinc-800/40">
+              <div className="font-semibold text-sm">
+                {(skill.base_price_inr || 0) === 0 ? (
+                  <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
+                    Free
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-indigo-400 border border-zinc-800">
+                    ₹{skill.base_price_inr}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-4 items-center text-zinc-500 text-xs font-medium">
+                <div className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors" title="Downloads">
+                  <Download size={14} className="opacity-70" /> {skill.downloads || 0}
                 </div>
+                <div className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors" title="Upvotes">
+                  <TrendingUp size={14} className="opacity-70" /> {skill.upvotes || 0}
+                </div>
+                {skill.average_rating ? (
+                  <div className="flex items-center gap-1.5 text-amber-500/80 hover:text-amber-400 transition-colors" title="Rating">
+                    <Star size={14} className="opacity-90 fill-current" /> {skill.average_rating}
+                  </div>
+                ) : null}
               </div>
             </div>
           </a>
