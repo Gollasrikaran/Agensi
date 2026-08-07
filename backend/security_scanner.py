@@ -166,18 +166,20 @@ def generate_skill_metadata(content: str) -> Dict[str, Any]:
         return {
             "title": "Untitled AI Skill",
             "description": "An AI agent skill.",
-            "category": "ai, frontend"
+            "category": "ai, frontend",
+            "install_command": ""
         }
         
     url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
     headers = {"Authorization": f"Bearer {api_token}"}
     
-    system_prompt = """You are an expert AI marketplace metadata generator. Given the raw content of an AI skill script or prompt, generate an optimized, engaging Title, a short Description (max 150 chars), and up to 3 Categories.
+    system_prompt = """You are an expert AI marketplace metadata generator. Given the raw content of an AI skill script or prompt, generate an optimized, engaging Title, a short Description (max 150 chars), up to 3 Categories, and an install_command (if one is clearly specified).
     
 Valid Categories are ONLY: 'frontend', 'testing', 'devops', 'docs', 'productivity', 'data', 'api', 'ai'.
 
 You MUST output ONLY valid JSON in this exact format:
-{"title": "The Title", "description": "The short description", "category": "category1, category2"}
+{"title": "The Title", "description": "The short description", "category": "category1, category2", "install_command": "npm install ..."}
+If no install command is found, set "install_command" to "".
 Do not output anything other than JSON."""
 
     sandwiched_content = f"--- START OF USER SKILL ---\n{content}\n--- END OF USER SKILL ---"
@@ -212,7 +214,8 @@ Do not output anything other than JSON."""
     return {
         "title": "Untitled AI Skill",
         "description": "An AI agent skill.",
-        "category": "ai"
+        "category": "ai",
+        "install_command": ""
     }# --- PROMPT SCANNING ---
 
 def scan_prompt(content: str) -> Tuple[bool, Dict[str, Any]]:

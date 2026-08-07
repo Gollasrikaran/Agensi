@@ -107,6 +107,7 @@ export default function UploadSkillFormIsland() {
       
       if (data.title && !title) setTitle(data.title);
       if (data.description && !description) setDescription(data.description);
+      if (data.install_command && !installCommand) setInstallCommand(data.install_command);
       if (data.categories && data.categories.length > 0 && selectedCategories.length === 0) {
         const validCats = data.categories.filter((c: string) => CATEGORIES.some(cat => cat.value === c));
         if (validCats.length > 0) setSelectedCategories(validCats);
