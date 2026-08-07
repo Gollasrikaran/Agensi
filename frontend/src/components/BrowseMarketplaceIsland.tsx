@@ -175,6 +175,17 @@ export default function BrowseMarketplaceIsland() {
         skills.map(skill => (
           <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full no-underline block text-inherit cursor-pointer">
             
+            <div className="absolute top-4 right-4 z-20">
+              {(skill.base_price_inr || 0) === 0 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-wider backdrop-blur-md shadow-sm">
+                  Free
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950/80 px-3 py-1 text-xs font-bold text-indigo-400 border border-indigo-500/30 tracking-wider backdrop-blur-md shadow-sm">
+                  ₹{skill.base_price_inr}
+                </span>
+              )}
+            </div>
             {skill.media_url && (
               <div className="w-full h-40 relative bg-zinc-950 rounded-xl overflow-hidden mb-6 flex-shrink-0">
                 {skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
@@ -203,47 +214,37 @@ export default function BrowseMarketplaceIsland() {
                 {skill.description.length > 120 ? skill.description.substring(0, 120) + '...' : skill.description}
               </p>
               
-              <div onClick={(e) => { e.preventDefault(); window.location.href = `/profile/${(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username}`; }} className="flex items-center gap-3 mt-auto pt-6 border-t border-zinc-800/50 hover:opacity-80 transition-opacity no-underline cursor-pointer">
-                {(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.avatar_url ? (
-                  <img 
-                    src={(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles)).avatar_url} 
-                    alt="avatar" 
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm">
-                    ?
-                  </div>
-                )}
-                <span className="text-sm text-zinc-100 font-medium group-hover:text-indigo-400 transition-colors">
-                  @{(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username || 'Anonymous'}
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-6 mt-6 border-t border-zinc-800/50 flex justify-between items-center">
-              <div className="font-semibold text-lg">
-                {skill.base_price_inr === 0 ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                    Free
+              <div className="mt-auto pt-6 border-t border-zinc-800/50 flex justify-between items-center">
+                <div onClick={(e) => { e.preventDefault(); window.location.href = `/profile/${(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username}`; }} className="flex items-center gap-3 hover:opacity-80 transition-opacity no-underline cursor-pointer">
+                  {(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.avatar_url ? (
+                    <img 
+                      src={(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles)).avatar_url} 
+                      alt="avatar" 
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm">
+                      ?
+                    </div>
+                  )}
+                  <span className="text-sm text-zinc-100 font-medium group-hover:text-indigo-400 transition-colors">
+                    @{(Array.isArray(skill.seller || (skill as any).profiles) ? (skill.seller || (skill as any).profiles)[0] : (skill.seller || (skill as any).profiles))?.username || 'Anonymous'}
                   </span>
-                ) : (
-                  <span className="text-indigo-400">₹{skill.base_price_inr}</span>
-                )}
-              </div>
-              <div className="flex gap-2 items-center">
-                <div className="relative z-10 flex gap-2 items-center" onClick={e => e.preventDefault()}>
-                  <SocialShareButtonsIsland 
-                  url={`${origin}/skill/${skill.id}?ref=${refId}`}
-                  title={skill.title}
-                  text={audience === 'student' || skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}"!`}
-                  compact={true}
-                  label="Share"
-                />
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 pointer-events-none">
-                  View Details
-                </button>
+                <div className="flex gap-2 items-center">
+                  <div className="relative z-10 flex gap-2 items-center" onClick={e => e.preventDefault()}>
+                    <SocialShareButtonsIsland 
+                    url={`${origin}/skill/${skill.id}?ref=${refId}`}
+                    title={skill.title}
+                    text={audience === 'student' || skill.target_audience === 'student' ? `Bro, stop wasting hours on assignments... check out "${skill.title}"!` : `Hey, found this clean FastMCP marketplace for automating local dev workflows... check out "${skill.title}"!`}
+                    compact={true}
+                    label="Share"
+                  />
+                  </div>
+                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 pointer-events-none whitespace-nowrap">
+                    View
+                  </button>
+                </div>
               </div>
             </div>
           </a>

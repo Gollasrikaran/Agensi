@@ -12,8 +12,6 @@ import { Lock, ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck, Code2, Gi
 
 const { id } = Astro.params;
 
-const isPaywalled = skill.base_price_inr > 0 && !skill.archive_url && !skill.source_url;
-
 let skill: any = null;
 try {
 	const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:8000'}/api/skills/${id}`);
@@ -21,6 +19,8 @@ try {
 } catch (e) {
 	console.error(e);
 }
+
+const isPaywalled = skill && (skill.base_price_inr || 0) > 0 && !skill.archive_url && !skill.source_url;
 
 const jsonLd = skill ? JSON.stringify({
 	"@context": "https://schema.org",

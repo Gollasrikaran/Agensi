@@ -284,7 +284,7 @@ def get_skill(skill_id: str):
             
         skill = res.data
         # Mask secure fields if paid
-        if skill.get("base_price_inr", 0) > 0:
+        if (skill.get("base_price_inr") or 0) > 0:
             skill["archive_url"] = None
             skill["source_url"] = None
             if skill.get("file_manifest"):
