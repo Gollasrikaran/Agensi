@@ -173,10 +173,10 @@ export default function BrowseMarketplaceIsland() {
         </div>
       ) : (
         skills.map(skill => (
-          <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full no-underline">
+          <a href={`/skill/${skill.id}`} key={skill.id} className="group flex flex-col p-6 md:p-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/50 relative overflow-hidden h-full no-underline block text-inherit cursor-pointer">
             
             {skill.media_url && (
-              <div className="w-full h-40 relative bg-zinc-950">
+              <div className="w-full h-40 relative bg-zinc-950 rounded-xl overflow-hidden mb-6 flex-shrink-0">
                 {skill.media_url.match(/\.(mp4|webm|ogg)$/i) ? (
                   <video 
                     src={skill.media_url} 
@@ -197,7 +197,7 @@ export default function BrowseMarketplaceIsland() {
               </div>
             )}
 
-            <div className="p-6 flex-grow flex flex-col">
+            <div className="flex-grow flex flex-col">
               <h3 className="text-xl mb-2 text-zinc-100 font-semibold">{skill.title}</h3>
               <p className="text-zinc-300 text-sm leading-relaxed mb-6">
                 {skill.description.length > 120 ? skill.description.substring(0, 120) + '...' : skill.description}
@@ -221,7 +221,7 @@ export default function BrowseMarketplaceIsland() {
               </div>
             </div>
 
-            <div className="p-4 bg-zinc-950/50 border-t border-zinc-800/50 flex justify-between items-center">
+            <div className="pt-6 mt-6 border-t border-zinc-800/50 flex justify-between items-center">
               <div className="font-semibold text-lg">
                 {skill.base_price_inr === 0 ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">

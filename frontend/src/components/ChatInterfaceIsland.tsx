@@ -170,7 +170,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                     ? "bg-indigo-600 text-white rounded-[20px_20px_4px_20px]" 
                     : "bg-zinc-900 text-zinc-200 rounded-[4px_20px_20px_20px] border border-zinc-800"
                 )}>
-                  {msg.content}
+                  {renderMessageContent(msg.content)}
                 </div>
               </div>
             ))}

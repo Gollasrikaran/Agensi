@@ -8,9 +8,11 @@ import SkillShareBannerIsland from '../../components/SkillShareBannerIsland.tsx'
 import TestBeforeBuyIsland from '../../components/TestBeforeBuyIsland.tsx';
 import FileExplorerIsland from '../../components/FileExplorerIsland.tsx';
 import InstallationCardIsland from '../../components/InstallationCardIsland.tsx';
-import { ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck, Code2, GitFork, FolderArchive } from 'lucide-react';
+import { Lock, ShieldAlert, Info, Star, ChevronLeft, Bot, ShieldCheck, Code2, GitFork, FolderArchive } from 'lucide-react';
 
 const { id } = Astro.params;
+
+const isPaywalled = skill.base_price_inr > 0 && !skill.archive_url && !skill.source_url;
 
 let skill: any = null;
 try {
@@ -129,23 +131,41 @@ const jsonLd = skill ? JSON.stringify({
 
 					{/* File Explorer & Install */}
 					{skill.file_manifest && skill.file_manifest.length > 0 && (
-						<div class="mb-8">
-							<FileExplorerIsland 
-								client:load 
-								skillId={skill.id} 
-								manifest={skill.file_manifest} 
-								archiveUrl={skill.archive_url} 
-							/>
+						<div class="mb-8 relative">
+							{isPaywalled && (
+								<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-zinc-950/80 backdrop-blur-md rounded-2xl border border-zinc-800">
+									<Lock class="h-10 w-10 text-zinc-500 mb-3" />
+									<h4 class="text-lg font-bold text-zinc-100 mb-1">Source Code Locked</h4>
+									<p class="text-sm text-zinc-400 max-w-sm text-center mb-4">Purchase this agent tool to unlock the full source code and download the ZIP archive.</p>
+								</div>
+							)}
+							<div class={isPaywalled ? "opacity-30 pointer-events-none select-none blur-sm transition-all" : ""}>
+								<FileExplorerIsland 
+									client:load 
+									skillId={skill.id} 
+									manifest={skill.file_manifest} 
+									archiveUrl={skill.archive_url} 
+								/>
+							</div>
 						</div>
 					)}
 					
 					{(skill.install_command || skill.source_url) && (
-						<div class="mb-8">
-							<InstallationCardIsland 
-								client:load 
-								installCommand={skill.install_command} 
-								sourceUrl={skill.source_url} 
-							/>
+						<div class="mb-8 relative">
+							{isPaywalled && (
+								<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-zinc-950/80 backdrop-blur-md rounded-2xl border border-zinc-800">
+									<Lock class="h-10 w-10 text-zinc-500 mb-3" />
+									<h4 class="text-lg font-bold text-zinc-100 mb-1">Installation Locked</h4>
+									<p class="text-sm text-zinc-400 max-w-sm text-center mb-4">Purchase this agent tool to unlock the private repository and installation commands.</p>
+								</div>
+							)}
+							<div class={isPaywalled ? "opacity-30 pointer-events-none select-none blur-sm transition-all" : ""}>
+								<InstallationCardIsland 
+									client:load 
+									installCommand={skill.install_command} 
+									sourceUrl={skill.source_url} 
+								/>
+							</div>
 						</div>
 					)}
 				</>

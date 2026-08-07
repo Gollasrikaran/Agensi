@@ -278,11 +278,21 @@ def get_skills(all_status: bool = False):
 @app.get("/api/skills/{skill_id}")
 def get_skill(skill_id: str):
     try:
-        # Allow fetching approved and pending skills so creators can see their uploads
         res = supabase.table("skills").select("*").eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
-        return res.data
+            
+        skill = res.data
+        # Mask secure fields if paid
+        if skill.get("base_price_inr", 0) > 0:
+            skill["archive_url"] = None
+            skill["source_url"] = None
+            if skill.get("file_manifest"):
+                # Mask contents but keep structure for tease
+                for file in skill["file_manifest"]:
+                    file["content"] = "LOCKED_PREMIUM_CONTENT"
+                    
+        return skill
     except HTTPException:
         raise
     except Exception:
