@@ -227,10 +227,10 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
             <button 
               onClick={() => setIsMemoryEnabled(!isMemoryEnabled)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors cursor-pointer",
+                "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold border-2 transition-all cursor-pointer shrink-0 shadow-sm",
                 isMemoryEnabled 
-                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20" 
-                  : "bg-zinc-800/50 text-zinc-500 border-zinc-700 hover:bg-zinc-800 hover:text-zinc-400"
+                  ? "bg-blue-600 text-white border-blue-500 hover:bg-blue-500 shadow-blue-500/20" 
+                  : "bg-zinc-800 text-zinc-200 border-zinc-600 hover:bg-zinc-700 hover:text-white"
               )}
               title={isMemoryEnabled ? "Memory is ON (Saved locally)" : "Memory is OFF (History clears on refresh)"}
             >
