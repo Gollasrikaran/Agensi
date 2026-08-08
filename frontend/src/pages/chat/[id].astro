@@ -1,5 +1,4 @@
 ---
-import Layout from '../../layouts/Layout.astro';
 import ChatInterfaceIsland from '../../components/ChatInterfaceIsland.tsx';
 
 const { id } = Astro.params;
@@ -12,8 +11,25 @@ try {
 	console.error(e);
 }
 ---
-<Layout title={skill ? `Chat with ${skill.title}` : "Chat"}>
-	<div class="h-[calc(100vh-64px)] overflow-hidden">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/png" href="/logo.png" />
+	<title>{skill ? `Chat with ${skill.title}` : 'Chat'} — BodhicAI</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+		html, body { height: 100%; overflow: hidden; background: #09090b; font-family: 'Inter', sans-serif; }
+		#chat-root { height: 100vh; display: flex; flex-direction: column; }
+	</style>
+</head>
+<body>
+	<div id="chat-root">
 		<ChatInterfaceIsland client:only="react" skillId={id} skillTitle={skill?.title || "Skill"} />
 	</div>
-</Layout>
+</body>
+</html>
