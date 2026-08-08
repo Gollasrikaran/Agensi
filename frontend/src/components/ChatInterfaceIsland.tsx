@@ -8,11 +8,13 @@ import { cn } from '../lib/utils';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  files?: { name: string; content: string }[];
 }
 
 const renderMessageContent = (content: string) => {
+  // First, parse <file> tags
   const fileRegex = /<file name="([^"]+)">([\s\S]*?)<\/file>/g;
-  const parts = [];
+  let parts: { type: string; name?: string; content: string; mime?: string; encoded?: boolean }[] = [];
   let lastIndex = 0;
   let match;
 
@@ -28,9 +30,32 @@ const renderMessageContent = (content: string) => {
     parts.push({ type: 'text', content: content.substring(lastIndex) });
   }
 
+  // Second, parse [filename](data:mime,content) tags from the text parts
+  const refinedParts: typeof parts = [];
+  const dataUriRegex = /\[([^\]]+)\]\(data:([^,]+),([^)]+)\)/g;
+  
+  parts.forEach(part => {
+    if (part.type !== 'text') {
+      refinedParts.push(part);
+      return;
+    }
+    let dLastIndex = 0;
+    let dMatch;
+    while ((dMatch = dataUriRegex.exec(part.content)) !== null) {
+      if (dMatch.index > dLastIndex) {
+        refinedParts.push({ type: 'text', content: part.content.substring(dLastIndex, dMatch.index) });
+      }
+      refinedParts.push({ type: 'data_uri', name: dMatch[1], mime: dMatch[2], content: dMatch[3], encoded: true });
+      dLastIndex = dMatch.index + dMatch[0].length;
+    }
+    if (dLastIndex < part.content.length) {
+      refinedParts.push({ type: 'text', content: part.content.substring(dLastIndex) });
+    }
+  });
+
   return (
-    <div className="flex flex-col gap-4">
-      {parts.map((part, i) => {
+    <div className="flex flex-col gap-4 w-full overflow-hidden">
+      {refinedParts.map((part, i) => {
         if (part.type === 'file') {
           return (
             <div key={i} className="border border-zinc-700 rounded-lg overflow-hidden my-2 bg-zinc-950">
@@ -50,9 +75,38 @@ const renderMessageContent = (content: string) => {
                   Download
                 </button>
               </div>
-              <pre className="p-4 text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap max-h-96">
+              <pre className="p-4 text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap max-h-96 break-words">
                 {part.content}
               </pre>
+            </div>
+          );
+        }
+        
+        if (part.type === 'data_uri') {
+          return (
+            <div key={i} className="border border-indigo-500/30 rounded-lg overflow-hidden my-2 bg-indigo-500/5 p-4 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-zinc-200">{part.name}</span>
+                <span className="text-xs text-zinc-500">{part.mime}</span>
+              </div>
+              <button 
+                onClick={() => {
+                  try {
+                    const decoded = decodeURIComponent(part.content);
+                    const blob = new Blob([decoded], { type: part.mime });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = part.name || 'download';
+                    a.click();
+                  } catch (e) {
+                    alert("Failed to decode file contents.");
+                  }
+                }}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 inline-flex items-center gap-2"
+              >
+                Download File
+              </button>
             </div>
           );
         }
@@ -226,7 +280,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
         throw new Error(data.detail || "Failed to communicate with agent");
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response, files: data.files || [] }]);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -306,12 +360,37 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 )}
                 
                 <div className={cn(
-                  "px-5 py-3.5 text-[15px] leading-relaxed shadow-sm max-w-[85%] whitespace-pre-wrap",
+                  "px-5 py-3.5 text-[15px] leading-relaxed shadow-sm max-w-[85%] whitespace-pre-wrap break-words overflow-x-auto select-text",
                   msg.role === 'user' 
                     ? "bg-indigo-600 text-white rounded-[20px_20px_4px_20px]" 
                     : "bg-zinc-900 text-zinc-200 rounded-[4px_20px_20px_20px] border border-zinc-800"
                 )}>
                   {renderMessageContent(msg.content)}
+                  {msg.files && msg.files.length > 0 && (
+                    <div className="mt-4 flex flex-col gap-2 border-t border-zinc-800/50 pt-4">
+                      {msg.files.map((f, fi) => (
+                        <div key={fi} className="border border-indigo-500/30 rounded-lg overflow-hidden bg-indigo-500/5 p-4 flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold text-zinc-200">{f.name}</span>
+                            <span className="text-xs text-zinc-500">Generated File</span>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const blob = new Blob([f.content], { type: 'text/plain' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = f.name || 'download';
+                              a.click();
+                            }}
+                            className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 inline-flex items-center gap-2"
+                          >
+                            Download File
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
