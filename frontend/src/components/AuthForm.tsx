@@ -35,24 +35,7 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
 
       if (type === 'signup' && password.length < 6) {
         throw new Error('Password must be at least 6 characters long.');
-      }
-
       if (type === 'signup') {
-        const domain = email.split('@')[1]?.toLowerCase();
-        const disposableDomains = [
-          'yopmail.com', 'mailinator.com', '10minutemail.com', 'tempmail.com',
-          'guerrillamail.com', 'throwawaymail.com', 'temp-mail.org', 'temp-mail.io',
-          'fakemail.net', 'tempmailaddress.com', 'nada.ltd', 'getnada.com',
-          'dispostable.com', 'maildrop.cc', 'sharklasers.com', 'guerillamail.info',
-          'guerillamail.biz', 'guerillamail.com', 'guerillamail.de', 'guerillamail.net',
-          'guerillamail.org', 'guerillamailblock.com', 'pokemail.net', 'spam4.me', 'grr.la',
-          'mail.ru', 'tempail.com', 'mohmal.com', 'trashmail.com'
-        ];
-        
-        if (domain && disposableDomains.includes(domain)) {
-          throw new Error('Temporary or disposable email addresses are not allowed.');
-        }
-
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         setSuccess('Account created successfully! You can now log in.');
