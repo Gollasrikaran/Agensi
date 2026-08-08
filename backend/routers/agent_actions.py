@@ -349,7 +349,7 @@ async def web_chat_with_skill(
             "If <REPOSITORY_FILES> or [USER ATTACHMENTS] are provided, you MUST heavily weigh them as your primary context. You MUST explicitly reference these uploaded files in your answers and base your replies directly on their contents.\n"
             "</CONTEXT_AWARENESS>\n\n"
             "<FILE_GENERATION_DIRECTIVE>\n"
-            "If the user explicitly asks for a downloadable file, or if your task inherently requires generating a full code file or document, you MUST wrap the output in <file name=\"filename.ext\">...</file> tags. Do NOT use markdown code blocks if you use the file tag. For HTML files, use inline CSS.\n"
+            "If your task requires generating a file for the user, output the file contents wrapped in <file name=\"output_filename.ext\">...</file> tags. Do NOT use markdown code blocks if you use the file tag. NEVER generate Markdown links with Data URIs (e.g., [file](data:text/html,...)). For HTML files, NEVER reference external CSS stylesheets unless you are explicitly providing them. You MUST use inline CSS or a <style> block so the HTML is fully self-contained and renders beautifully immediately.\n"
             "</FILE_GENERATION_DIRECTIVE>"
         )
         
