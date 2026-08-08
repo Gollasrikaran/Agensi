@@ -46,12 +46,12 @@ def _response_leaks_content(response: str, prompt_template: str) -> bool:
     """Return True if the LLM response contains a significant chunk of the skill prompt."""
     if not prompt_template:
         return False
-    # Check if any 80-char sliding window from the prompt appears verbatim in the response
-    window = 80
+    # Check if any 200-char sliding window from the prompt appears verbatim in the response
+    window = 200
     template_clean = prompt_template.strip()
-    for i in range(0, max(1, len(template_clean) - window), 40):
+    for i in range(0, max(1, len(template_clean) - window), 100):
         chunk = template_clean[i:i + window].strip()
-        if len(chunk) >= 60 and chunk in response:
+        if len(chunk) >= 150 and chunk in response:
             return True
     return False
 
