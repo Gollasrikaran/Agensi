@@ -88,8 +88,39 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
   const [userSession, setUserSession] = useState<any>(null);
   const [skillData, setSkillData] = useState<any>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isMemoryEnabled, setIsMemoryEnabled] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load memory on mount if it exists for this skill
+  useEffect(() => {
+    const savedMemory = localStorage.getItem(`bodhic_chat_memory_${skillId}`);
+    if (savedMemory) {
+      try {
+        const parsed = JSON.parse(savedMemory);
+        if (parsed.enabled) {
+          setIsMemoryEnabled(true);
+          if (parsed.messages && parsed.messages.length > 0) {
+            setMessages(parsed.messages);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse chat memory", e);
+      }
+    }
+  }, [skillId]);
+
+  // Save memory whenever messages or toggle changes
+  useEffect(() => {
+    if (isMemoryEnabled) {
+      localStorage.setItem(`bodhic_chat_memory_${skillId}`, JSON.stringify({
+        enabled: true,
+        messages: messages
+      }));
+    } else {
+      localStorage.removeItem(`bodhic_chat_memory_${skillId}`);
+    }
+  }, [messages, isMemoryEnabled, skillId]);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/skills/${skillId}`)
@@ -193,6 +224,19 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
           </div>
         </div>
         <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMemoryEnabled(!isMemoryEnabled)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors cursor-pointer",
+                isMemoryEnabled 
+                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20" 
+                  : "bg-zinc-800/50 text-zinc-500 border-zinc-700 hover:bg-zinc-800 hover:text-zinc-400"
+              )}
+              title={isMemoryEnabled ? "Memory is ON (Saved locally)" : "Memory is OFF (History clears on refresh)"}
+            >
+              <Bot className="h-3.5 w-3.5" /> 
+              Memory {isMemoryEnabled ? 'ON' : 'OFF'}
+            </button>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1.5 text-xs font-bold text-purple-400 border border-purple-500/20">
                 <Zap className="h-3.5 w-3.5" /> Level {skillData?.complexity_level || 1}
             </div>
