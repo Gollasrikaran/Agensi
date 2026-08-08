@@ -35,6 +35,8 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
 
       if (type === 'signup' && password.length < 6) {
         throw new Error('Password must be at least 6 characters long.');
+      }
+
       if (type === 'signup') {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
