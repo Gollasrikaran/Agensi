@@ -482,13 +482,25 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 >
                   <Paperclip className="h-5 w-5" />
                 </button>
-                <input 
-                    type="text" 
+                <textarea 
                     value={input} 
-                    onChange={e => setInput(e.target.value)} 
+                    onChange={e => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                    }} 
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend(e as any);
+                        e.currentTarget.style.height = 'auto';
+                      }
+                    }}
                     placeholder="Message BodhicAI..." 
                     disabled={loading}
-                    className="w-full rounded-[24px] border border-zinc-700 bg-zinc-900/80 py-4 pl-14 pr-16 text-[15px] text-zinc-100 placeholder:text-zinc-500 shadow-xl backdrop-blur-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50"
+                    rows={1}
+                    className="w-full resize-none overflow-y-auto rounded-[24px] border border-zinc-700 bg-zinc-900/80 py-4 pl-14 pr-16 text-[15px] leading-relaxed text-zinc-100 placeholder:text-zinc-500 shadow-xl backdrop-blur-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50"
+                    style={{ minHeight: '56px' }}
                 />
                 <button 
                     type="submit" 
