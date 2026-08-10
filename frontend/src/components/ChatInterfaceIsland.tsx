@@ -11,6 +11,22 @@ interface Message {
   files?: { name: string; content: string }[];
 }
 
+const getMimeType = (filename: string) => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'html':
+    case 'htm': return 'text/html';
+    case 'css': return 'text/css';
+    case 'js': return 'application/javascript';
+    case 'json': return 'application/json';
+    case 'csv': return 'text/csv';
+    case 'md': return 'text/markdown';
+    case 'py': return 'text/x-python';
+    case 'txt': return 'text/plain';
+    default: return 'application/octet-stream';
+  }
+};
+
 const renderMessageContent = (content: string) => {
   // First, parse <file> tags
   const fileRegex = /<file name="([^"]+)">([\s\S]*?)<\/file>/g;
@@ -63,7 +79,7 @@ const renderMessageContent = (content: string) => {
                 <span className="flex items-center gap-2"><Paperclip size={14}/> {part.name}</span>
                 <button 
                   onClick={() => {
-                    const blob = new Blob([part.content], { type: 'text/plain' });
+                    const blob = new Blob([part.content], { type: getMimeType(part.name || '') });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -131,7 +147,7 @@ const renderMessageContent = (content: string) => {
                         </button>
                         <button 
                           onClick={() => {
-                            const blob = new Blob([seg], { type: 'text/plain' });
+                            const blob = new Blob([seg], { type: getMimeType(filename) });
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = url;
@@ -376,7 +392,7 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                           </div>
                           <button 
                             onClick={() => {
-                              const blob = new Blob([f.content], { type: 'text/plain' });
+                              const blob = new Blob([f.content], { type: getMimeType(f.name || '') });
                               const url = URL.createObjectURL(blob);
                               const a = document.createElement('a');
                               a.href = url;
