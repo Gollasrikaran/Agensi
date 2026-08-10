@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { API_BASE } from '../lib/config';
 import AuthForm from './AuthForm';
+import FileViewer from './FileViewer';
 import { ArrowLeft, Send, Paperclip, X, Bot, Diamond, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -383,27 +384,9 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 )}>
                   {renderMessageContent(msg.content)}
                   {msg.files && msg.files.length > 0 && (
-                    <div className="mt-4 flex flex-col gap-2 border-t border-zinc-800/50 pt-4">
+                    <div className="mt-2 flex flex-col gap-2">
                       {msg.files.map((f, fi) => (
-                        <div key={fi} className="border border-indigo-500/30 rounded-lg overflow-hidden bg-indigo-500/5 p-4 flex items-center justify-between">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-zinc-200">{f.name}</span>
-                            <span className="text-xs text-zinc-500">Generated File</span>
-                          </div>
-                          <button 
-                            onClick={() => {
-                              const blob = new Blob([f.content], { type: getMimeType(f.name || '') });
-                              const url = URL.createObjectURL(blob);
-                              const a = document.createElement('a');
-                              a.href = url;
-                              a.download = f.name || 'download';
-                              a.click();
-                            }}
-                            className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-indigo-500 inline-flex items-center gap-2"
-                          >
-                            Download File
-                          </button>
-                        </div>
+                        <FileViewer key={fi} file={f} />
                       ))}
                     </div>
                   )}
