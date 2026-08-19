@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Form, File, UploadFile
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import httpx
 import os
 import json
