@@ -256,13 +256,13 @@ export default function AdminDashboardIsland() {
 
       <div className="space-y-8">
         {/* Recent Skills */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/80">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 shadow-sm">
+          <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/80 rounded-t-2xl">
             <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
               <Activity className="h-5 w-5 text-indigo-400" /> Recent Skills
             </h2>
           </div>
-          <div className="overflow-x-auto overflow-y-auto max-h-[480px]">
+          <div className="overflow-x-auto overflow-y-auto max-h-[480px] rounded-b-2xl">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider">
                 <tr>
