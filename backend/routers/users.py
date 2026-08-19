@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from auth import get_current_user, supabase
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/users", tags=["users"])
 def get_my_purchases(user = Depends(get_current_user)):
     try:
         # Fetch purchases for this user
-        res = supabase.table("purchases").select("*, skills(title)").eq("buyer_id", user.id).execute()
+        res = supabase.table("purchases").select("id, skill_id, buyer_id, amount, created_at, payment_status, skills(title)").eq("buyer_id", user.id).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -17,7 +17,8 @@ def get_my_purchases(user = Depends(get_current_user)):
 def get_my_skills(user = Depends(get_current_user)):
     try:
         # Fetch skills sold/listed by this user
-        res = supabase.table("skills").select("*").eq("seller_id", user.id).execute()
+        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        res = supabase.table("skills").select(cols).eq("seller_id", user.id).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -65,9 +66,9 @@ def edit_my_skill(skill_id: str, req: SkillEditRequest, user = Depends(get_curre
         raise HTTPException(status_code=500, detail=str(e))
 
 class ProfileUpdateRequest(BaseModel):
-    username: str
+    username: str = Field(min_length=3, max_length=30)
     avatar_url: str
-    bio: Optional[str] = None
+    bio: Optional[str] = Field(default=None, max_length=500)
     background_url: str | None = None
     is_private: Optional[bool] = None
 
@@ -150,7 +151,7 @@ def get_my_wallet(user = Depends(get_current_user)):
         balance = round(total_earnings - total_withdrawn, 2)
         
         # 4. Payout history
-        history = supabase.table("payouts").select("*").eq("seller_id", user.id).order("created_at", desc=True).execute()
+        history = supabase.table("payouts").select("id, seller_id, amount, status, created_at").eq("seller_id", user.id).order("created_at", desc=True).execute()
         
         # 5. Get saved UPI ID
         user_data = supabase.table("users").select("upi_id").eq("id", user.id).execute()
@@ -248,10 +249,10 @@ def submit_review(req: ReviewRequest, user = Depends(get_current_user)):
 def get_my_achievements(user = Depends(get_current_user)):
     try:
         # Fetch all possible achievements
-        all_ach = supabase.table("achievements").select("*").execute()
+        all_ach = supabase.table("achievements").select("id, title, description, icon_url, is_admin_awarded").execute()
         
         # Fetch user's unlocked achievements
-        user_ach = supabase.table("user_achievements").select("*").eq("user_id", user.id).execute()
+        user_ach = supabase.table("user_achievements").select("id, user_id, achievement_id, is_public, unlocked_at").eq("user_id", user.id).execute()
         unlocked_map = {a["achievement_id"]: a for a in user_ach.data}
         
         results = []

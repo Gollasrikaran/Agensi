@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -17,6 +17,52 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
   const [success, setSuccess] = useState('');
   const [mode, setMode] = useState<'default' | 'forgot_password'>('default');
 
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (type !== 'signup') return;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.onload = () => {
+      if (turnstileRef.current && (window as any).turnstile) {
+        (window as any).turnstile.render(turnstileRef.current, {
+          sitekey: '0x4AAAAAAEVdz9apwzMaO9wP',
+          callback: (token: string) => setTurnstileToken(token),
+        });
+      }
+    };
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, [type]);
+
+  async function isDisposableEmail(email: string): Promise<boolean> {
+    try {
+      const domain = email.split('@')[1]?.toLowerCase();
+      const LOCAL_BLOCKLIST = new Set([
+        'mailinator.com','guerrillamail.com','tempmail.com','10minutemail.com',
+        'yopmail.com','trashmail.com','dispostable.com','getairmail.com',
+        'sharklasers.com','throwaway.email','temp-mail.org','fakeinbox.com',
+        'mailnesia.com','maildrop.cc','discard.email','burnermail.io',
+        'mohmal.com','emailondeck.com','getnada.com','tempail.com',
+        'guerrillamailblock.com','grr.la','guerrillamail.info','guerrillamail.net',
+        'crazymailing.com','harakirimail.com','tempr.email','mailsac.com',
+        'mytemp.email','inboxkitten.com','minutemail.com','spamgourmet.com',
+        'trashmail.net','yopmail.fr','mailcatch.com','tempinbox.com',
+        'trash-mail.com','binkmail.com','filzmail.com','jetable.org',
+        'tmail.ws','mailexpire.com','incognitomail.org','mailforspam.com',
+        'spam4.me','guerrillamail.de','mailinator.net','tempmailo.com'
+      ]);
+      if (LOCAL_BLOCKLIST.has(domain)) return true;
+      const res = await fetch(`https://disify.com/api/email/${email}`);
+      const data = await res.json();
+      return data.disposable === true || data.dns === false;
+    } catch {
+      return false;
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -33,14 +79,27 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
         return;
       }
 
-      if (type === 'signup' && password.length < 6) {
-        throw new Error('Password must be at least 6 characters long.');
-      }
-
       if (type === 'signup') {
+        if (password.length < 8) {
+          throw new Error('Password must be at least 8 characters long.');
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()\-_=+])/;
+        if (!passwordRegex.test(password)) {
+          throw new Error('Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.');
+        }
+
+        const isDisposable = await isDisposableEmail(email);
+        if (isDisposable) {
+          throw new Error('Please use a permanent email address. Temporary or disposable email providers are not allowed.');
+        }
+
+        if (!turnstileToken) {
+          throw new Error('Please complete the CAPTCHA verification.');
+        }
+
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setSuccess('Account created successfully! You can now log in.');
+        setSuccess('Account created! Please check your email to verify your account before logging in.');
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -169,6 +228,8 @@ export default function AuthForm({ type, onSuccess }: AuthFormProps) {
             </div>
           </div>
         )}
+        
+        {type === 'signup' && <div ref={turnstileRef} className="mb-4"></div>}
         
         <button 
           type="submit" 

@@ -118,6 +118,12 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         payload = _verify_jwt_local(token)
         if not payload.get("sub"):
             raise ValueError("JWT has no sub claim")
+            
+        # Check email verification
+        email_confirmed = payload.get("email_confirmed_at") or payload.get("confirmed_at")
+        if not email_confirmed:
+            raise HTTPException(status_code=403, detail="Please verify your email address before continuing.")
+            
         return _UserProxy(payload)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Session expired. Please log in again.")

@@ -7,3 +7,6 @@ requests
 fastmcp
 PyJWT[crypto]
 pytz
+slowapi
+pyyaml
+httpx

@@ -20,8 +20,13 @@ export default function UpdatePasswordIsland() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()\-_=+])/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.');
       return;
     }
 
