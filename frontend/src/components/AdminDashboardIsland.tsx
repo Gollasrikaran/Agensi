@@ -256,15 +256,16 @@ export default function AdminDashboardIsland() {
 
       <div className="space-y-8">
         {/* Recent Skills */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/80">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 shadow-sm">
+          <div className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/80 rounded-t-2xl">
             <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
               <Activity className="h-5 w-5 text-indigo-400" /> Recent Skills
             </h2>
+            <span className="text-xs text-zinc-500">{data.recent_skills?.length || 0} skills</span>
           </div>
-          <div className="overflow-x-auto">
+          <div style={{ maxHeight: '480px', overflowY: 'auto', overflowX: 'auto' }}>
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider">
+              <thead style={{ position: 'sticky', top: 0, zIndex: 1 }} className="bg-zinc-950 text-zinc-400 uppercase text-xs font-semibold tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Title</th>
                   <th className="px-6 py-4">Complexity</th>
@@ -354,6 +355,7 @@ export default function AdminDashboardIsland() {
             </table>
           </div>
         </div>
+
 
         {/* Pending Payouts */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
