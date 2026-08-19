@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 ZOHO_SMTP_SERVER = "smtp.zoho.in" # Usually smtp.zoho.in for Indian domains or smtp.zoho.com
 ZOHO_SMTP_PORT = 465
-ZOHO_SMTP_USER = os.environ.get("ZOHO_SMTP_USER", "support@bodhicai.tech")
-ZOHO_SMTP_PASSWORD = os.environ.get("ZOHO_SMTP_PASSWORD", "")
+ZOHO_SMTP_USER = os.environ.get("ZOHO_SMTP_USER")
+ZOHO_SMTP_PASSWORD = os.environ.get("ZOHO_SMTP_PASSWORD")
 
 def is_dnd_active(dnd_start: str, dnd_end: str, timezone: str = 'Asia/Kolkata') -> bool:
     try:
