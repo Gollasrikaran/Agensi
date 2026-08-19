@@ -1,10 +1,13 @@
 import asyncio
 import httpx
 import json
+import os
+
+API_KEY = os.environ.get('BODHIC_TEST_API_KEY', 'your-test-api-key-here')
 
 async def test():
     base_url = "https://bodhicai.onrender.com"
-    sse_url = f"{base_url}/mcp/bodhic_J3xFvQdOagULZ8kq_TkHRiQ2VyFfvh7ljD63E3tEEi0/sse"
+    sse_url = f"{base_url}/mcp/{API_KEY}/sse"
     
     async with httpx.AsyncClient() as client:
         # Step 1: Connect to SSE and get endpoint
@@ -54,7 +57,7 @@ async def test():
         
 async def test_proper():
     base_url = "https://bodhicai.onrender.com"
-    sse_url = f"{base_url}/mcp/bodhic_J3xFvQdOagULZ8kq_TkHRiQ2VyFfvh7ljD63E3tEEi0/sse"
+    sse_url = f"{base_url}/mcp/{API_KEY}/sse"
     
     async with httpx.AsyncClient() as client:
         async with client.stream("GET", sse_url) as res:

@@ -4,6 +4,9 @@ from httpx import ASGITransport
 import backend.main
 from backend.main import app
 import json
+import os
+
+API_KEY = os.environ.get('BODHIC_TEST_API_KEY', 'your-test-api-key-here')
 
 class MockSupabase:
     def table(self, *args, **kwargs): return self
@@ -19,7 +22,7 @@ backend.main.supabase = MockSupabase()
 async def test():
     async with ASGITransport(app=app) as transport:
         async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-            async with client.stream("GET", "/mcp/bodhic_dPkSQX_QqmNbWZfhV7HP09nDSN75zLtOhewNMmy0JK8/sse") as res:
+            async with client.stream("GET", f"/mcp/{API_KEY}/sse") as res:
                 print("Status:", res.status_code)
                 print("Headers:", res.headers)
                 async for chunk in res.aiter_text():

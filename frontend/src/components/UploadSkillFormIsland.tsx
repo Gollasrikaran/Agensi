@@ -44,6 +44,8 @@ export default function UploadSkillFormIsland() {
   const [archiveUrl, setArchiveUrl] = useState('');
   const [fileManifest, setFileManifest] = useState<any[]>([]);
   const [readmeContent, setReadmeContent] = useState('');
+  const [fileContent, setFileContent] = useState('');
+  const [complexityHint, setComplexityHint] = useState<number | null>(null);
   const [starsCount, setStarsCount] = useState(0);
   const [forksCount, setForksCount] = useState(0);
   const [mediaUrl, setMediaUrl] = useState('');
@@ -108,10 +110,34 @@ export default function UploadSkillFormIsland() {
       if (data.title && !title) setTitle(data.title);
       if (data.description && !description) setDescription(data.description);
       if (data.install_command && !installCommand) setInstallCommand(data.install_command);
-      if (data.categories && data.categories.length > 0 && selectedCategories.length === 0) {
-        const validCats = data.categories.filter((c: string) => CATEGORIES.some(cat => cat.value === c));
-        if (validCats.length > 0) setSelectedCategories(validCats);
+      
+      // Handle categories from autofill - support both array and string formats
+      if (data.categories) {
+        let cats: string[] = [];
+        if (Array.isArray(data.categories)) {
+          cats = data.categories;
+        } else if (typeof data.categories === 'string') {
+          cats = data.categories.split(',').map((c: string) => c.trim()).filter(Boolean);
+        }
+        if (cats.length > 0) {
+          setSelectedCategories(cats);
+        }
       }
+
+      // New autofill fields
+      if (data.target_audience && targetAudience === 'all') {
+        setTargetAudience(data.target_audience);
+      }
+      if (data.license && license === 'MIT') {
+        setLicense(data.license);
+      }
+      if (data.item_type) {
+        setItemType(data.item_type);
+      }
+      if (data.complexity_hint) {
+        setComplexityHint(data.complexity_hint);
+      }
+
       showToast("Auto-fill complete!", "success");
     } catch (err) {
       console.error(err);
@@ -172,6 +198,7 @@ export default function UploadSkillFormIsland() {
           reader.onerror = () => reject("Error reading file");
           reader.readAsText(selected);
         });
+        setFileContent(content);
         await handleAutofill(content);
       } catch (err) {
         setIsAutoFilling(false);
@@ -517,7 +544,19 @@ export default function UploadSkillFormIsland() {
         {/* Step 2: Details */}
         <Card className="border-white/10 bg-zinc-900/40 backdrop-blur-md">
           <CardHeader>
-            <CardTitle className="text-xl text-zinc-100">2. Identity & Details</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl text-zinc-100">2. Identity & Details</CardTitle>
+              {(fileContent || readmeContent) && (
+                <button
+                  type="button"
+                  onClick={() => handleAutofill(fileContent || readmeContent)}
+                  disabled={isAutoFilling}
+                  className="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                >
+                  ✨ {isAutoFilling ? 'Auto-filling...' : 'Re-fill with AI'}
+                </button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -645,6 +684,14 @@ export default function UploadSkillFormIsland() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-zinc-200">Price (INR) *</label>
                 <input type="number" min="50" max="10000" required placeholder="e.g. 299" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+                {complexityHint && (
+                  <div className="text-sm text-gray-500 mt-1">
+                    AI Complexity: Level {complexityHint}/5 — 
+                    {complexityHint <= 2 ? ' Simple task, consider lower pricing' : 
+                     complexityHint <= 3 ? ' Moderate complexity' : 
+                     ' Complex task, premium pricing justified'}
+                  </div>
+                )}
                 <p className="text-sm text-zinc-500">Minimum ₹50. BodhicAI takes a 20% platform fee.</p>
               </div>
             )}

@@ -21,6 +21,10 @@ from achievement_engine import check_and_award_achievements
 import hashlib
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from pydantic import Field
 
 # Create the MCP app instance once so we can share its lifespan
 mcp_app = fastmcp_server.http_app(transport="sse")
@@ -29,6 +33,14 @@ app = FastAPI(
     title="BodhicAI - AI Agent Skill Marketplace",
     lifespan=mcp_app.lifespan
 )
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+if os.environ.get("ENVIRONMENT") == "production":
+    from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 @app.get("/api/health", summary="Render Keep-Alive", tags=["System"])
 async def health_check():
@@ -196,6 +208,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if os.environ.get("ENVIRONMENT") == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 # Ensure CORS headers are present even on HTTPException error responses.
 # Without this, browsers block 401/403/500 responses from cross-origin API calls.
 from fastapi.responses import JSONResponse
@@ -213,10 +237,10 @@ async def cors_aware_http_exception_handler(request: FastAPIRequest, exc: Starle
     return response
 
 class SkillUploadRequest(BaseModel):
-    title: str
-    description: str
-    content: str
-    base_price_inr: float
+    title: str = Field(min_length=3, max_length=200)
+    description: str = Field(min_length=10, max_length=2000)
+    content: str = Field(min_length=20)
+    base_price_inr: float = Field(ge=0, le=10000)
     billing_type: str = "one-time"
     categories: list[str] = ["development"]
     target_audience: str = "all"
@@ -233,7 +257,7 @@ class SkillUploadRequest(BaseModel):
     readme_content: str = None
 
 class CheckoutRequest(BaseModel):
-    skill_id: str
+    skill_id: str = Field(min_length=1)
     country_code: str
 
 @app.get("/")
@@ -265,12 +289,13 @@ def get_mcp_config():
 @app.get("/api/skills")
 def get_skills(all_status: bool = False):
     try:
+        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         if all_status:
             # Used by SSG getStaticPaths to know about all skills
-            res = supabase.table("skills").select("*").execute()
+            res = supabase.table("skills").select(cols).execute()
         else:
             # Public browse page only sees approved skills
-            res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
+            res = supabase.table("skills").select(cols).eq("moderation_status", "approved").execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -278,7 +303,8 @@ def get_skills(all_status: bool = False):
 @app.get("/api/skills/{skill_id}")
 def get_skill(skill_id: str):
     try:
-        res = supabase.table("skills").select("*").eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
+        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        res = supabase.table("skills").select(cols).eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
             
@@ -301,7 +327,8 @@ def get_skill(skill_id: str):
 @app.get("/api/users/me/notifications")
 def get_my_notifications(user = Depends(get_current_user)):
     try:
-        res = supabase.table("notifications").select("*").eq("user_id", user.id).order("created_at", desc=True).limit(50).execute()
+        cols = "id, type, title, message, link, is_read, created_at, priority"
+        res = supabase.table("notifications").select(cols).eq("user_id", user.id).order("created_at", desc=True).limit(50).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -350,10 +377,21 @@ class AutofillRequest(BaseModel):
     content: str
 
 @app.post("/api/skills/autofill")
-def autofill_skill_metadata(req: AutofillRequest, user = Depends(get_current_user)):
+@limiter.limit("10/minute")
+def autofill_skill_metadata(request: Request, req: AutofillRequest, user = Depends(get_current_user)):
     from security_scanner import generate_skill_metadata
     metadata = generate_skill_metadata(req.content)
-    return metadata
+    
+    # Pass through the new fields from generate_skill_metadata
+    return {
+        "title": metadata.get("title", ""),
+        "description": metadata.get("description", ""),
+        "category": metadata.get("category", "development"),
+        "target_audience": metadata.get("target_audience", "all"),
+        "license": metadata.get("license", "MIT"),
+        "item_type": metadata.get("item_type", "skill"),
+        "complexity_hint": metadata.get("complexity_hint", 1),
+    }
 
 from fastapi import Response
 
@@ -562,7 +600,8 @@ def get_skill_file(skill_id: str, file_path: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/skills/upload")
-def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
+@limiter.limit("5/minute")
+def upload_skill(request: Request, req: SkillUploadRequest, user = Depends(get_current_user)):
     # The user object is provided by Supabase Auth via the JWT
     seller_id = user.id
     
@@ -736,7 +775,8 @@ def upload_skill(req: SkillUploadRequest, user = Depends(get_current_user)):
     return {"message": "Skill uploaded successfully", "skill": inserted_skill}
 
 @app.post("/api/checkout/intent")
-def checkout(req: CheckoutRequest, user = Depends(get_current_user)):
+@limiter.limit("10/minute")
+def checkout(request: Request, req: CheckoutRequest, user = Depends(get_current_user)):
     try:
         res = supabase.table("skills").select("base_price_inr, seller_id").eq("id", req.skill_id).single().execute()
         if not res.data:
@@ -1065,7 +1105,8 @@ def get_my_sales(user = Depends(get_current_user)):
 @app.get("/api/skills/leaderboard")
 def get_leaderboard():
     try:
-        res = supabase.table("skills").select("*").eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
+        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        res = supabase.table("skills").select(cols).eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
