@@ -289,7 +289,7 @@ def get_mcp_config():
 @app.get("/api/skills")
 def get_skills(all_status: bool = False):
     try:
-        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         if all_status:
             # Used by SSG getStaticPaths to know about all skills
             res = supabase.table("skills").select(cols).execute()
@@ -303,7 +303,7 @@ def get_skills(all_status: bool = False):
 @app.get("/api/skills/{skill_id}")
 def get_skill(skill_id: str):
     try:
-        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         res = supabase.table("skills").select(cols).eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
@@ -1105,7 +1105,7 @@ def get_my_sales(user = Depends(get_current_user)):
 @app.get("/api/skills/leaderboard")
 def get_leaderboard():
     try:
-        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         res = supabase.table("skills").select(cols).eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
         return res.data
     except Exception as e:

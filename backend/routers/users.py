@@ -17,7 +17,7 @@ def get_my_purchases(user = Depends(get_current_user)):
 def get_my_skills(user = Depends(get_current_user)):
     try:
         # Fetch skills sold/listed by this user
-        cols = "id, title, description, category, base_price_inr, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
+        cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         res = supabase.table("skills").select(cols).eq("seller_id", user.id).execute()
         return res.data
     except Exception as e:
