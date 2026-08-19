@@ -38,9 +38,7 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-if os.environ.get("ENVIRONMENT") == "production":
-    from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
-    app.add_middleware(HTTPSRedirectMiddleware)
+
 
 @app.get("/api/health", summary="Render Keep-Alive", tags=["System"])
 async def health_check():
