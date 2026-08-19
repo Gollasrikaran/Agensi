@@ -290,10 +290,10 @@ def get_skills(all_status: bool = False):
         cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
         if all_status:
             # Used by SSG getStaticPaths to know about all skills
-            res = supabase.table("skills").select(cols).execute()
+            res = supabase.table("skills").select("*").execute()
         else:
             # Public browse page only sees approved skills
-            res = supabase.table("skills").select(cols).eq("moderation_status", "approved").execute()
+            res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -302,7 +302,7 @@ def get_skills(all_status: bool = False):
 def get_skill(skill_id: str):
     try:
         cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
-        res = supabase.table("skills").select(cols).eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
+        res = supabase.table("skills").select("*").eq("id", skill_id).in_("moderation_status", ["approved", "pending"]).single().execute()
         if not res.data:
             raise HTTPException(status_code=404, detail="Skill not found")
             
@@ -326,7 +326,7 @@ def get_skill(skill_id: str):
 def get_my_notifications(user = Depends(get_current_user)):
     try:
         cols = "id, type, title, message, link, is_read, created_at, priority"
-        res = supabase.table("notifications").select(cols).eq("user_id", user.id).order("created_at", desc=True).limit(50).execute()
+        res = supabase.table("notifications").select("*").eq("user_id", user.id).order("created_at", desc=True).limit(50).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -1104,7 +1104,7 @@ def get_my_sales(user = Depends(get_current_user)):
 def get_leaderboard():
     try:
         cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
-        res = supabase.table("skills").select(cols).eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
+        res = supabase.table("skills").select("*").eq("moderation_status", "approved").order("upvotes", desc=True).limit(20).execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
