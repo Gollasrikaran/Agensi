@@ -30,7 +30,7 @@ def get_admin_dashboard_data(admin_user = Depends(verify_admin)):
         total_sales_volume = sum(p["amount"] for p in purchases_res.data) if purchases_res.data else 0
 
         # Recent activities
-        recent_skills = supabase.table("skills").select("*").order("created_at", desc=True).limit(5).execute().data
+        recent_skills = supabase.table("skills").select("*").order("created_at", desc=True).limit(100).execute().data
         recent_purchases = supabase.table("purchases").select("*").order("created_at", desc=True).limit(5).execute().data
         
         pending_payouts = supabase.table("payouts").select("*").eq("status", "pending").order("created_at", desc=True).execute().data or []
