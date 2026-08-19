@@ -262,7 +262,7 @@ export default function AdminDashboardIsland() {
               <Activity className="h-5 w-5 text-indigo-400" /> Recent Skills
             </h2>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-auto max-h-[480px]">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-zinc-950/50 text-zinc-400 uppercase text-xs font-semibold tracking-wider">
                 <tr>
