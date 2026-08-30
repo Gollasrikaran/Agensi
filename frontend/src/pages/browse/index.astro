@@ -1,6 +1,17 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BrowseMarketplaceIsland from '../../components/BrowseMarketplaceIsland.tsx';
+
+let initialSkills = [];
+try {
+	const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
+	const res = await fetch(`${apiBase}/api/public/skills?audience=all&item_type=all&category=all&q=`);
+	if (res.ok) {
+		initialSkills = await res.json();
+	}
+} catch (e) {
+	console.error("Failed to fetch skills during SSR", e);
+}
 ---
 
 <Layout 
@@ -8,6 +19,6 @@ import BrowseMarketplaceIsland from '../../components/BrowseMarketplaceIsland.ts
 	description="Search our marketplace of verified AI agent skills, prompts, and workflows. Filter by category and price to find the perfect artifact for your next project."
 >
 	<div class="mx-auto max-w-7xl pt-16 px-4 sm:px-6 lg:px-8 pb-32">
-		<BrowseMarketplaceIsland client:load />
+		<BrowseMarketplaceIsland client:load initialSkills={initialSkills} />
 	</div>
 </Layout>

@@ -32,22 +32,26 @@ const CATEGORIES = [
   { id: 'data', label: 'Data Science' }
 ];
 
-export default function BrowseMarketplaceIsland() {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function BrowseMarketplaceIsland({ initialSkills = [] }: { initialSkills?: Skill[] }) {
+  const [skills, setSkills] = useState<Skill[]>(initialSkills);
+  const [loading, setLoading] = useState(initialSkills.length === 0);
   const [audience, setAudience] = useState<string>('all');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [itemType, setItemType] = useState<string>('all');
   const [refId, setRefId] = useState('REF-BODHIC');
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     getReferralId().then(setRefId);
+    setHasMounted(true);
   }, []);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bodhicai.tech';
 
   useEffect(() => {
+    if (!hasMounted && initialSkills.length > 0) return; // Skip fetch on initial SSR render if we have skills
+
     setLoading(true);
     const apiBase = import.meta.env.PUBLIC_API_URL || import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
     fetch(`${apiBase}/api/public/skills?audience=${audience}&item_type=${itemType}&category=${activeCategory}&q=${searchQuery}`)
@@ -60,7 +64,7 @@ export default function BrowseMarketplaceIsland() {
         console.error("Error fetching skills:", err);
         setLoading(false);
       });
-  }, [audience, itemType]);
+  }, [audience, itemType, activeCategory, searchQuery, hasMounted]);
 
   return (
     <div>
@@ -169,7 +173,22 @@ export default function BrowseMarketplaceIsland() {
           </div>
 
           {loading ? (
-            <div className="text-center p-16 text-zinc-300">Loading marketplace...</div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="rounded-[20px] border border-zinc-800/60 bg-[#0c0c0e] h-[360px] animate-pulse overflow-hidden flex flex-col">
+                  <div className="h-40 bg-zinc-800/40 w-full shrink-0"></div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="h-6 bg-zinc-800/50 rounded w-3/4 mb-3"></div>
+                    <div className="h-4 bg-zinc-800/30 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-zinc-800/30 rounded w-5/6 mb-auto"></div>
+                    <div className="mt-4 flex items-center justify-between pt-4 border-t border-zinc-800/50">
+                      <div className="h-8 bg-zinc-800/40 rounded-full w-20"></div>
+                      <div className="h-6 bg-zinc-800/30 rounded-full w-12"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-8">
       {skills.length === 0 ? (
