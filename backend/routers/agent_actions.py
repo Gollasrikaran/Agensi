@@ -131,12 +131,10 @@ async def chat_with_skill(request: ChatRequest):
     has_purchased = len(purchase_res.data) > 0
     
     if not has_purchased:
-        balance = get_or_init_balance(user_id)
-        
-        if balance < cost:
-            raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
-            
-        supabase.table("user_credits").update({"balance": int(round(balance - cost))}).eq("user_id", user_id).execute()
+        result = supabase.rpc("deduct_credits", {"p_user_id": user_id, "p_amount": cost}).execute()
+        new_balance = result.data
+        if new_balance == -1:
+            raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Required: {cost}). Please recharge or buy this skill outright.")
         
         supabase.table("credit_transactions").insert({
             "user_id": user_id,
@@ -151,8 +149,7 @@ async def chat_with_skill(request: ChatRequest):
         if referral_res.data:
             referrer_id = referral_res.data[0]["referrer_id"]
             kickback = int(round(cost * 0.20))
-            ref_balance = get_or_init_balance(referrer_id)
-            supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
+            supabase.rpc("add_credits", {"p_user_id": referrer_id, "p_amount": kickback}).execute()
             supabase.table("credit_transactions").insert({
                 "user_id": referrer_id,
                 "amount": kickback,
@@ -227,7 +224,7 @@ You MUST output the exact fields, structure, and format defined in the <skill_co
             
             return ChatResponse(response=ai_text.strip() or "Generated file attached.", files=files)
         else:
-            raise HTTPException(status_code=400, detail=f"DEBUG_ERROR: Cloudflare AI Error: {ai_resp.text}")
+            raise HTTPException(status_code=500, detail="AI service temporarily unavailable. Please try again.")
 
 @router.post("/web-chat", response_model=ChatResponse, summary="Chat with an AI Skill from Web", description="Used by Bodhic LLM Chat UI.")
 async def web_chat_with_skill(
@@ -289,12 +286,10 @@ async def web_chat_with_skill(
         has_purchased = len(purchase_res.data) > 0
         
         if not has_purchased:
-            balance = get_or_init_balance(user_id)
-            
-            if balance < cost:
-                raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Balance: {balance}, Required: {cost}). Please recharge or buy this skill outright.")
-                
-            supabase.table("user_credits").update({"balance": int(round(balance - cost))}).eq("user_id", user_id).execute()
+            result = supabase.rpc("deduct_credits", {"p_user_id": user_id, "p_amount": cost}).execute()
+            new_balance = result.data
+            if new_balance == -1:
+                raise HTTPException(status_code=402, detail=f"Insufficient Bodhic Credits (Required: {cost}). Please recharge or buy this skill outright.")
             
             supabase.table("credit_transactions").insert({
                 "user_id": user_id,
@@ -309,8 +304,7 @@ async def web_chat_with_skill(
             if referral_res.data:
                 referrer_id = referral_res.data[0]["referrer_id"]
                 kickback = int(round(cost * 0.20))
-                ref_balance = get_or_init_balance(referrer_id)
-                supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
+                supabase.rpc("add_credits", {"p_user_id": referrer_id, "p_amount": kickback}).execute()
                 supabase.table("credit_transactions").insert({
                     "user_id": referrer_id,
                     "amount": kickback,
@@ -322,31 +316,27 @@ async def web_chat_with_skill(
         version_res = supabase.table("skill_versions").select("md_content").eq("skill_id", skill_id).order("version_number", desc=True).limit(1).execute()
         prompt_template = version_res.data[0]["md_content"] if version_res.data else ""
         
-        # Inject Repo Files if present
+        # Load up to 5 small repository files automatically for context
+        archive_url = skill.get("archive_url")
         repo_files_context = ""
-        if skill.get("archive_url"):
+        if archive_url:
             try:
-                import io, zipfile
-                async with httpx.AsyncClient() as dl_client:
-                    r = await dl_client.get(skill["archive_url"], follow_redirects=True, timeout=10.0)
-                    if r.is_success:
-                        with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-                            allowed_exts = {'.txt', '.md', '.py', '.js', '.json', '.html', '.css', '.ts', '.jsx', '.tsx', '.rs', '.go', '.java', '.cpp', '.c', '.h'}
-                            total_size = 0
-                            for info in z.infolist():
-                                if info.is_dir(): continue
-                                ext = '.' + info.filename.split('.')[-1].lower() if '.' in info.filename else ''
-                                if ext in allowed_exts and total_size < 50000:
-                                    content = z.read(info.filename)
-                                    try:
-                                        text_content = content.decode('utf-8')
-                                        repo_files_context += f"File from Repo: `{info.filename}`\n```\n{text_content}\n```\n\n"
-                                        total_size += len(text_content)
-                                    except Exception:
-                                        pass
+                import io, zipfile, requests
+                zip_res = requests.get(archive_url, timeout=10)
+                if zip_res.status_code == 200:
+                    with zipfile.ZipFile(io.BytesIO(zip_res.content)) as zip_ref:
+                        file_infos = [f for f in zip_ref.infolist() if not f.is_dir() and f.file_size < 10000]
+                        # Only take first 5 to avoid context blowout
+                        for info in file_infos[:5]:
+                            if any(info.filename.endswith(ext) for ext in ['.md', '.py', '.js', '.json', '.txt', '.html', '.css', '.ts', '.yml']):
+                                try:
+                                    content = zip_ref.read(info.filename).decode('utf-8')
+                                    repo_files_context += f"\n\n--- {info.filename} ---\n```\n{content}\n```"
+                                except:
+                                    pass
             except Exception as e:
-                print(f"Failed to fetch archive: {e}")
-        
+                pass
+                
         if repo_files_context:
             prompt_template += f"\n\n<REPOSITORY_FILES>\nThe following are the core files provided in this skill's repository. You have full access to read them and use them to generate an appropriate response:\n{repo_files_context}</REPOSITORY_FILES>"
             
@@ -361,7 +351,7 @@ async def web_chat_with_skill(
         cf_api_token = os.environ.get("CLOUDFLARE_MCP_API_TOKEN")
         
         if not cf_account_id or not cf_api_token:
-            raise HTTPException(status_code=400, detail="DEBUG_ERROR: AI Provider keys missing from Render environment.")
+            raise HTTPException(status_code=500, detail="AI service not configured. Contact support.")
             
         cf_url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct"
         
@@ -432,10 +422,10 @@ async def web_chat_with_skill(
                 
                 return {"response": ai_text.strip() or "Generated file attached.", "files": extracted_files}
             else:
-                raise HTTPException(status_code=400, detail=f"DEBUG_ERROR: Cloudflare AI Error: {ai_resp.text}")
+                raise HTTPException(status_code=500, detail="AI service temporarily unavailable. Please try again.")
     except HTTPException as e:
         # Re-raise HTTPExceptions as is, so the user sees the true HTTP error
         raise e
     except Exception as e:
-        # Catch any other python exception and turn it into a 400 so we can see it!
-        raise HTTPException(status_code=400, detail=f"DEBUG_ERROR: Python Exception: {str(e)}")
+        # Catch any other python exception and turn it into a 500
+        raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again.")

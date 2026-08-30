@@ -366,26 +366,31 @@ def checkout_credits(req: CreditTopupRequest, user = Depends(get_current_user)):
 
 class CreditCheckoutSuccess(BaseModel):
     amount_inr: float
-    razorpay_payment_id: str | None = None
-    razorpay_order_id: str | None = None
-    razorpay_signature: str | None = None
+    razorpay_payment_id: str
+    razorpay_order_id: str
+    razorpay_signature: str
     
 @router.post("/me/credits/checkout/success")
 def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_current_user)):
     try:
         import os, hmac, hashlib
         
-        # Verify Razorpay signature for live payments
+        # Require Razorpay fields
+        if not req.razorpay_payment_id or not req.razorpay_order_id or not req.razorpay_signature:
+            raise HTTPException(status_code=400, detail="Missing payment verification fields.")
+
         razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
-        if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
-            msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
-            generated_signature = hmac.new(
-                razorpay_key_secret.encode("utf-8"),
-                msg.encode("utf-8"),
-                hashlib.sha256
-            ).hexdigest()
-            if generated_signature != req.razorpay_signature:
-                raise HTTPException(status_code=400, detail="Invalid payment signature. Credits not added.")
+        if not razorpay_key_secret:
+            raise HTTPException(status_code=500, detail="Payment verification unavailable.")
+
+        msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
+        generated_signature = hmac.new(
+            razorpay_key_secret.encode("utf-8"),
+            msg.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(generated_signature, req.razorpay_signature):
+            raise HTTPException(status_code=400, detail="Invalid payment signature.")
                 
         # 1 INR = 10 Credits
         credits_to_add = int(round(req.amount_inr * 10))
@@ -394,20 +399,21 @@ def checkout_credits_success(req: CreditCheckoutSuccess, user = Depends(get_curr
         if req.amount_inr >= 499:
             credits_to_add += 500
             
-        current_balance = get_or_init_balance(user.id)
-        new_balance = int(round(current_balance + credits_to_add))
-        
-        supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", user.id).execute()
+        # Atomic credit addition
+        result = supabase.rpc("add_credits", {"p_user_id": user.id, "p_amount": credits_to_add}).execute()
+        new_balance = result.data
             
         supabase.table("credit_transactions").insert({
             "user_id": user.id,
             "amount": credits_to_add,
             "transaction_type": "top_up",
-            "reference_id": req.razorpay_payment_id or "mock",
+            "reference_id": req.razorpay_payment_id,
             "description": f"Topped up {credits_to_add} credits"
         }).execute()
         
         return {"message": "Credits added successfully", "new_balance": new_balance}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 class DMCARequest(BaseModel):

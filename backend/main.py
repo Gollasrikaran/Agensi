@@ -160,8 +160,9 @@ class AgentAuthMiddleware:
                 return await self.app(scope, receive, send)
                 
             if api_key.startswith("bodhic_oa_"):
-                # Authenticate against oauth_tokens
-                res = supabase.table("oauth_tokens").select("user_id, expires_at").eq("access_token", api_key).execute()
+                # Authenticate against oauth_tokens using hash
+                token_hash = hashlib.sha256(api_key.encode()).hexdigest()
+                res = supabase.table("oauth_tokens").select("user_id, expires_at").eq("access_token", token_hash).execute()
                 if not res.data:
                     response = JSONResponse(status_code=401, content={"error": "Invalid OAuth Token"})
                     return await response(scope, receive, send)
@@ -193,10 +194,15 @@ app.add_middleware(AgentAuthMiddleware)
 ALLOWED_ORIGINS = [
     "https://bodhicai.tech",
     "https://www.bodhicai.tech",
-    "http://localhost:4321",
-    "http://localhost:3000",
     "https://api.bodhicai.tech",
 ]
+
+# Only add localhost in development
+if os.environ.get("ENVIRONMENT") != "production":
+    ALLOWED_ORIGINS.extend([
+        "http://localhost:4321",
+        "http://localhost:3000",
+    ])
 
 app.add_middleware(
     CORSMiddleware,
@@ -285,15 +291,10 @@ def get_mcp_config():
     }
 
 @app.get("/api/skills")
-def get_skills(all_status: bool = False):
+def get_skills():
     try:
         cols = "id, title, description, category, base_price_inr, is_free, slug, published_at, seller_id, moderation_status, upvotes, purchase_count, item_type, media_url, target_audience, complexity_level, average_rating, review_count, created_at, source_url, install_command, license, billing_type, archive_url"
-        if all_status:
-            # Used by SSG getStaticPaths to know about all skills
-            res = supabase.table("skills").select("*").execute()
-        else:
-            # Public browse page only sees approved skills
-            res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
+        res = supabase.table("skills").select("*").eq("moderation_status", "approved").execute()
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -575,12 +576,21 @@ async def import_from_github(req: GithubImportRequest, user = Depends(get_curren
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/skills/{skill_id}/file/{file_path:path}")
-def get_skill_file(skill_id: str, file_path: str):
-    skill_res = supabase.table("skills").select("archive_url").eq("id", skill_id).execute()
+def get_skill_file(skill_id: str, file_path: str, user = Depends(get_current_user)):
+    skill_res = supabase.table("skills").select("archive_url, seller_id, base_price_inr").eq("id", skill_id).execute()
     if not skill_res.data or not skill_res.data[0].get("archive_url"):
         raise HTTPException(status_code=404, detail="Archive not found.")
         
-    archive_url = skill_res.data[0]["archive_url"]
+    skill = skill_res.data[0]
+    is_seller = skill["seller_id"] == user.id
+    is_free = (skill.get("base_price_inr") or 0) == 0
+
+    if not is_seller and not is_free:
+        purchase = supabase.table("purchases").select("id").eq("buyer_id", user.id).eq("skill_id", skill_id).eq("payment_status", "completed").execute()
+        if not purchase.data:
+            raise HTTPException(status_code=403, detail="You must purchase this skill to access its files.")
+            
+    archive_url = skill["archive_url"]
     
     try:
         zip_res = requests.get(archive_url, timeout=15)
@@ -817,19 +827,11 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
         # 2. Calculate credit cost (1 INR = 10 Credits)
         credit_cost = int(round(float(base_price) * 10))
         
-        # 3. Check buyer's credit balance
-        balance_res = supabase.table("user_credits").select("balance").eq("user_id", buyer_id).execute()
-        current_balance = int(round(float(balance_res.data[0]["balance"]))) if balance_res.data else 0
-        
-        if current_balance < credit_cost:
-            raise HTTPException(status_code=400, detail=f"Insufficient credits. Required: {credit_cost}, Available: {current_balance}")
-            
-        # 4. Deduct credits
-        new_balance = int(round(current_balance - credit_cost))
-        if not balance_res.data:
-            supabase.table("user_credits").insert({"user_id": buyer_id, "balance": new_balance}).execute()
-        else:
-            supabase.table("user_credits").update({"balance": new_balance}).eq("user_id", buyer_id).execute()
+        # 3 & 4. Atomic balance check and deduction
+        result = supabase.rpc("deduct_credits", {"p_user_id": buyer_id, "p_amount": credit_cost}).execute()
+        new_balance = result.data
+        if new_balance == -1:
+            raise HTTPException(status_code=400, detail=f"Insufficient credits. Required: {credit_cost}")
             
         # 5. Log credit transaction
         supabase.table("credit_transactions").insert({
@@ -883,38 +885,34 @@ def checkout_with_credits(req: CreditCheckoutRequest, user = Depends(get_current
 
 class CheckoutSuccessRequest(BaseModel):
     skill_id: str
-    razorpay_payment_id: Optional[str] = None
-    razorpay_order_id: Optional[str] = None
-    razorpay_signature: Optional[str] = None
+    razorpay_payment_id: str
+    razorpay_order_id: str
+    razorpay_signature: str
 
 @app.post("/api/checkout/success")
 def checkout_success(req: CheckoutSuccessRequest, user = Depends(get_current_user)):
     """
-    Called after a successful payment (both live Razorpay and mock flow).
-    - Verifies Razorpay signature (live only)
+    Called after a successful payment.
+    - Verifies Razorpay signature
     - Records purchase in purchases table
     - Credits seller wallet (80/20 split)
-    - Always returns 200 with purchase confirmation once purchase is recorded
     """
     import os, hmac, hashlib
 
-    # 1. Verify Razorpay signature for live payments
+    # 1. ALWAYS verify Razorpay signature
     razorpay_key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
-    if razorpay_key_secret and req.razorpay_order_id and req.razorpay_payment_id and req.razorpay_signature:
-        try:
-            msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
-            generated_signature = hmac.new(
-                razorpay_key_secret.encode("utf-8"),
-                msg.encode("utf-8"),
-                hashlib.sha256
-            ).hexdigest()
-            if generated_signature != req.razorpay_signature:
-                raise HTTPException(status_code=400, detail="Invalid payment signature. Purchase not recorded.")
-        except HTTPException:
-            raise
-        except Exception as e:
-            print(f"[WARN] Signature verification error: {e}")
-            # Don't block on signature error — log and continue
+    if not razorpay_key_secret:
+        raise HTTPException(status_code=500, detail="Payment verification unavailable. Contact support.")
+
+    msg = f"{req.razorpay_order_id}|{req.razorpay_payment_id}"
+    generated_signature = hmac.new(
+        razorpay_key_secret.encode("utf-8"),
+        msg.encode("utf-8"),
+        hashlib.sha256
+    ).hexdigest()
+    
+    if not hmac.compare_digest(generated_signature, req.razorpay_signature):
+        raise HTTPException(status_code=400, detail="Invalid payment signature. Purchase not recorded.")
 
     # 2. Fetch skill details
     try:

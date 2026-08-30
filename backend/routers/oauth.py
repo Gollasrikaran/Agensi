@@ -43,8 +43,8 @@ def create_authorization_code(req: AuthorizeRequest, user=Depends(get_current_us
     valid_uris = client["redirect_uris"]
     
     # In a strict environment, we should check if req.redirect_uri is in valid_uris
-    # For now, we allow it if it's broadly matching or if we trust the registered URIs
-    is_valid_uri = any(req.redirect_uri.startswith(uri) for uri in valid_uris)
+    # NEW: Exact match only
+    is_valid_uri = req.redirect_uri in valid_uris
     if not is_valid_uri:
         raise HTTPException(status_code=400, detail="Invalid redirect_uri")
         
@@ -63,6 +63,8 @@ def create_authorization_code(req: AuthorizeRequest, user=Depends(get_current_us
     return {"code": code, "state": req.state}
 
 import base64
+import hmac as hmac_module
+import hashlib
 
 @router.post("/oauth/token")
 async def exchange_token(
@@ -91,7 +93,7 @@ async def exchange_token(
 
     # Verify Client Secret
     client_res = supabase.table("oauth_clients").select("client_secret").eq("client_id", client_id).execute()
-    if not client_res.data or client_res.data[0]["client_secret"] != client_secret:
+    if not client_res.data or not hmac_module.compare_digest(client_res.data[0]["client_secret"], client_secret):
         return JSONResponse(status_code=401, content={"error": "invalid_client"})
 
     if grant_type == "authorization_code":
@@ -123,14 +125,15 @@ async def exchange_token(
             return JSONResponse(status_code=400, content={"error": "invalid_request", "error_description": "Missing refresh_token"})
             
         # Verify refresh token
-        token_res = supabase.table("oauth_tokens").select("*").eq("refresh_token", refresh_token).eq("client_id", client_id).execute()
+        refresh_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
+        token_res = supabase.table("oauth_tokens").select("*").eq("refresh_token", refresh_hash).eq("client_id", client_id).execute()
         if not token_res.data:
             return JSONResponse(status_code=400, content={"error": "invalid_grant"})
             
         user_id = token_res.data[0]["user_id"]
         
         # Delete old token pair
-        supabase.table("oauth_tokens").delete().eq("refresh_token", refresh_token).execute()
+        supabase.table("oauth_tokens").delete().eq("refresh_token", refresh_hash).execute()
         
     else:
         return JSONResponse(status_code=400, content={"error": "unsupported_grant_type"})
@@ -141,9 +144,12 @@ async def exchange_token(
     expires_in = 3600 * 24 * 30 # 30 days
     expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
     
+    access_token_hash = hashlib.sha256(new_access_token.encode()).hexdigest()
+    refresh_token_hash = hashlib.sha256(new_refresh_token.encode()).hexdigest()
+
     supabase.table("oauth_tokens").insert({
-        "access_token": new_access_token,
-        "refresh_token": new_refresh_token,
+        "access_token": access_token_hash,
+        "refresh_token": refresh_token_hash,
         "client_id": client_id,
         "user_id": user_id,
         "expires_at": expires_at.isoformat()

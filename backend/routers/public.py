@@ -78,12 +78,14 @@ def get_public_users():
 
 @router.get("/search")
 def search_skills(q: str):
+    # Sanitize: remove PostgREST filter operators
+    safe_q = q.replace(",", "").replace(".", "").replace("(", "").replace(")", "")[:100]
     try:
         # ILIKE search on title or description
         res = supabase.table("skills") \
             .select("*, seller:seller_id(username, avatar_url, background_url), reviews(rating)") \
             .eq("moderation_status", "approved") \
-            .or_(f"title.ilike.%{q}%,description.ilike.%{q}%") \
+            .or_(f"title.ilike.%{safe_q}%,description.ilike.%{safe_q}%") \
             .order("published_at", desc=True) \
             .execute()
             

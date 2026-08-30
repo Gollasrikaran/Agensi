@@ -29,22 +29,25 @@ security = HTTPBearer()
 # Local JWT verification using Supabase JWKS — no network call per request.
 # Fetched once at startup and cached in memory.
 # ---------------------------------------------------------------------------
+import time
 _jwks_cache: list = []
+_jwks_cache_time: float = 0
+_JWKS_TTL = 3600  # Refresh every hour
 
 def _load_jwks():
     """Fetch the JWKS from Supabase Auth and cache the public keys."""
-    global _jwks_cache
-    if _jwks_cache:
+    global _jwks_cache, _jwks_cache_time
+    if _jwks_cache and (time.time() - _jwks_cache_time) < _JWKS_TTL:
         return _jwks_cache
     try:
         jwks_url = f"{SUPABASE_URL}/auth/v1/.well-known/jwks.json"
         resp = http_requests.get(jwks_url, timeout=10)
         resp.raise_for_status()
         _jwks_cache = resp.json().get("keys", [])
+        _jwks_cache_time = time.time()
         logger.info("JWKS loaded: %d key(s)", len(_jwks_cache))
     except Exception as e:
         logger.error("Failed to load JWKS: %s", e)
-        _jwks_cache = []
     return _jwks_cache
 
 
@@ -63,7 +66,12 @@ def _verify_jwt_local(token: str) -> dict:
     alg = header.get("alg", "HS256")
     kid = header.get("kid")
 
-    if alg.startswith("HS"):
+    # SECURITY: Only allow known algorithms
+    ALLOWED_ALGORITHMS = {"HS256", "ES256"}
+    if alg not in ALLOWED_ALGORITHMS:
+        raise ValueError(f"Unsupported JWT algorithm: {alg}")
+
+    if alg == "HS256":
         # Legacy HS256 — verify using the JWT secret
         jwt_secret = os.getenv("SUPABASE_JWT_SECRET", "")
         if not jwt_secret:
@@ -90,7 +98,7 @@ def _verify_jwt_local(token: str) -> dict:
         payload = jwt.decode(
             token,
             public_key,
-            algorithms=[alg],
+            algorithms=["ES256"],
             audience="authenticated",
             options={"verify_exp": True},
         )
@@ -137,5 +145,5 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
         except HTTPException:
             raise
         except Exception as e:
-            logger.error("JWT verification and fallback failed: %s | token prefix: %s", str(e), token[:20])
+            logger.error("JWT verification and fallback failed: %s", str(e))
             raise HTTPException(status_code=401, detail=f"Auth error: {str(e)}")

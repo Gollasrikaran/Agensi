@@ -369,14 +369,10 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
     
     if not has_purchased:
         # 3. Check credits and deduct based on complexity level
-        balance = get_or_init_balance(user_id)
-        
-        if balance < cost:
-            return f"You are out of credits ({balance} remaining, {cost} required for Level {complexity_level}). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhicai.tech/skill/{skill_id}"
-        
-        # Deduct credits
-        new_bal = int(round(balance - cost))
-        supabase.table("user_credits").update({"balance": new_bal}).eq("user_id", user_id).execute()
+        result = supabase.rpc("deduct_credits", {"p_user_id": user_id, "p_amount": cost}).execute()
+        new_balance = result.data
+        if new_balance == -1:
+            return f"You are out of credits (insufficient balance, {cost} required for Level {complexity_level}). Please recharge your Bodhic Credits or Buy the skill outright at https://bodhicai.tech/skill/{skill_id}"
         
         # Log transaction
         supabase.table("credit_transactions").insert({
@@ -392,8 +388,7 @@ async def chat_with_skill(skill_id: str, message: str) -> str:
         if referral_res.data:
             referrer_id = referral_res.data[0]["referrer_id"]
             kickback = int(round(cost * 0.20))
-            ref_balance = get_or_init_balance(referrer_id)
-            supabase.table("user_credits").update({"balance": int(round(ref_balance + kickback))}).eq("user_id", referrer_id).execute()
+            supabase.rpc("add_credits", {"p_user_id": referrer_id, "p_amount": kickback}).execute()
             supabase.table("credit_transactions").insert({
                 "user_id": referrer_id,
                 "amount": kickback,
