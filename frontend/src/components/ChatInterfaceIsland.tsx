@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { API_BASE } from '../lib/config';
 import AuthForm from './AuthForm';
 import FileViewer from './FileViewer';
@@ -131,9 +133,10 @@ const renderMessageContent = (content: string) => {
         }
         
         return (
-          <div key={i} className="prose prose-invert prose-zinc max-w-none text-[15px] leading-relaxed">
+          <div key={i} className="prose prose-invert prose-zinc max-w-none text-[15px] leading-relaxed prose-p:my-2 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-2 prose-li:my-1">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
               components={{
                 code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '');
@@ -386,9 +389,9 @@ export default function ChatInterfaceIsland({ skillId, skillTitle }: { skillId: 
                 )}
                 
                 <div className={cn(
-                  "px-5 py-3.5 text-[15px] leading-relaxed shadow-sm max-w-[85%] whitespace-pre-wrap break-words overflow-x-auto select-text",
+                  "px-5 py-3.5 text-[15px] leading-relaxed shadow-sm max-w-[85%] break-words overflow-x-auto select-text",
                   msg.role === 'user' 
-                    ? "bg-indigo-600 text-white rounded-[20px_20px_4px_20px]" 
+                    ? "bg-indigo-600 text-white rounded-[20px_20px_4px_20px] whitespace-pre-wrap" 
                     : "bg-zinc-900 text-zinc-200 rounded-[4px_20px_20px_20px] border border-zinc-800"
                 )}>
                   {renderMessageContent(msg.content)}
