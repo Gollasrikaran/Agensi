@@ -188,15 +188,7 @@ async def chat_with_skill(request: ChatRequest):
 
 <FORMAT_ENFORCEMENT>
 You MUST output the exact fields, structure, and format defined in the <skill_context>. If the skill asks for specific headers, bullet points, JSON, or data structures, you MUST provide them EXACTLY as requested. Do not skip or summarize required output fields.
-</FORMAT_ENFORCEMENT>
-
-<STRICT_NO_MARKDOWN_RULE>
-You are strictly FORBIDDEN from using any Markdown formatting. Your entire response MUST be 100% plain text.
-- Do NOT use asterisks (**, *) for bold or italics.
-- Do NOT use hashtags (#) for headers.
-- Do NOT use pipes (|) or dashes (-) to create tables.
-- Do NOT use backticks (`) for code blocks unless explicitly requested.
-</STRICT_NO_MARKDOWN_RULE>"""
+</FORMAT_ENFORCEMENT>"""
     
     payload = {
         "messages": [
@@ -376,13 +368,6 @@ async def web_chat_with_skill(
             "<FORMAT_ENFORCEMENT>\n"
             "You MUST output the exact fields, structure, and format defined in the <skill_context>. If the skill asks for specific headers, bullet points, JSON, or data structures, you MUST provide them EXACTLY as requested. Do not skip or summarize required output fields.\n"
             "</FORMAT_ENFORCEMENT>\n\n"
-            "<STRICT_NO_MARKDOWN_RULE>\n"
-            "You are strictly FORBIDDEN from using any Markdown formatting. Your entire response MUST be 100% plain text.\n"
-            "- Do NOT use asterisks (**, *) for bold or italics.\n"
-            "- Do NOT use hashtags (#) for headers.\n"
-            "- Do NOT use pipes (|) or dashes (-) to create tables.\n"
-            "- Do NOT use backticks (`) for code blocks unless explicitly requested.\n"
-            "</STRICT_NO_MARKDOWN_RULE>\n\n"
             "<CONTEXT_AWARENESS>\n"
             "If <REPOSITORY_FILES> or [USER ATTACHMENTS] are provided, you MUST heavily weigh them as your primary context. You MUST explicitly reference these uploaded files in your answers and base your replies directly on their contents.\n"
             "</CONTEXT_AWARENESS>\n\n"

@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { API_BASE } from '../lib/config';
 import AuthForm from './AuthForm';
 import FileViewer from './FileViewer';
@@ -128,49 +130,56 @@ const renderMessageContent = (content: string) => {
           );
         }
         
-        const textSegments = part.content.split(/```(\w*)\n([\s\S]*?)```/g);
         return (
-          <div key={i}>
-            {textSegments.map((seg, idx) => {
-              if (idx % 3 === 2) {
-                const lang = textSegments[idx - 1] || 'text';
-                const filename = `snippet.${lang === 'python' ? 'py' : lang === 'javascript' || lang === 'js' ? 'js' : lang === 'typescript' || lang === 'ts' ? 'ts' : lang === 'html' ? 'html' : lang === 'css' ? 'css' : lang === 'json' ? 'json' : lang === 'bash' || lang === 'sh' ? 'sh' : 'txt'}`;
-                return (
-                  <div key={idx} className="border border-zinc-700 rounded-lg overflow-hidden my-2 bg-zinc-950">
-                    <div className="flex items-center justify-between px-4 py-2 bg-zinc-800/50 border-b border-zinc-700 text-xs font-mono text-zinc-300">
-                      <span className="text-zinc-400">{lang}</span>
-                      <div className="flex gap-3">
-                        <button 
-                          onClick={() => navigator.clipboard.writeText(seg)}
-                          className="hover:text-indigo-400 transition-colors flex items-center gap-1"
-                        >
-                          Copy
-                        </button>
-                        <button 
-                          onClick={() => {
-                            const blob = new Blob([seg], { type: getMimeType(filename) });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = filename;
-                            a.click();
-                          }}
-                          className="hover:text-indigo-400 transition-colors flex items-center gap-1"
-                        >
-                          Download
-                        </button>
+          <div key={i} className="prose prose-invert prose-zinc max-w-none text-[15px] leading-relaxed">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code({ node, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '');
+                  const lang = match ? match[1] : '';
+                  const codeString = String(children).replace(/\n$/, '');
+
+                  if (match) {
+                    const filename = `snippet.${lang === 'python' ? 'py' : lang === 'javascript' || lang === 'js' ? 'js' : lang === 'typescript' || lang === 'ts' ? 'ts' : lang === 'html' ? 'html' : lang === 'css' ? 'css' : lang === 'json' ? 'json' : lang === 'bash' || lang === 'sh' ? 'sh' : 'txt'}`;
+                    return (
+                      <div className="border border-zinc-700 rounded-lg overflow-hidden my-2 bg-zinc-950 not-prose">
+                        <div className="flex items-center justify-between px-4 py-2 bg-zinc-800/50 border-b border-zinc-700 text-xs font-mono text-zinc-300">
+                          <span className="text-zinc-400">{lang}</span>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => navigator.clipboard.writeText(codeString)}
+                              className="hover:text-indigo-400 transition-colors flex items-center gap-1"
+                            >
+                              Copy
+                            </button>
+                            <button
+                              onClick={() => {
+                                const blob = new Blob([codeString], { type: getMimeType(filename) });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = filename;
+                                a.click();
+                              }}
+                              className="hover:text-indigo-400 transition-colors flex items-center gap-1"
+                            >
+                              Download
+                            </button>
+                          </div>
+                        </div>
+                        <pre className="p-4 text-xs font-mono text-indigo-300 overflow-x-auto whitespace-pre-wrap max-h-96">
+                          <code className={className} {...props}>{children}</code>
+                        </pre>
                       </div>
-                    </div>
-                    <pre className="p-4 text-xs font-mono text-indigo-300 overflow-x-auto whitespace-pre-wrap max-h-96">
-                      {seg}
-                    </pre>
-                  </div>
-                );
-              } else if (idx % 3 === 0) {
-                return <span key={idx}>{seg}</span>;
-              }
-              return null;
-            })}
+                    );
+                  }
+                  return <code className={className} {...props}>{children}</code>;
+                }
+              }}
+            >
+              {part.content}
+            </ReactMarkdown>
           </div>
         );
       })}
